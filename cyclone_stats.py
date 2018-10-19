@@ -61,9 +61,9 @@ for variable in Era5:
   q3 = np.percentile(raveled_channel_tensor, 75)
   kurtosis_value = stats.kurtosis(raveled_channel_tensor)
   skewness_value = stats.skew(raveled_channel_tensor)
-  shapiro_test  = stats.shapiro(raveled_channel_tensor)[1]
+  shapiro_test   = stats.shapiro(raveled_channel_tensor)[1]
   dagostino_test = stats.normaltest(raveled_channel_tensor)[1]
-  ks_test       = stats.kstest(raveled_channel_tensor, 'norm')[1]
+  ks_test        = stats.kstest(raveled_channel_tensor, 'norm')[1]
   print(f'  > mean={mean}, stddev={stddev}, min={min_value}, max={max_value}, \
           q1={q1}, q1={q2}, q1={q3}, kurtosis={kurtosis_value}, \
           skewness={skewness_value}, shapiro-test={shapiro_test},\

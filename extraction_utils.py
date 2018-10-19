@@ -41,10 +41,10 @@ def extract_region(nc_dataset, variable, day, time_step, lat, lon):
   time_min_index =  _compute_time_index(day, time_step)
   time_max_index =  time_min_index + 1
   # latitudes are stored inverted.
-  lat_min_index  = _LATITUDE_INDEXES[(rounded_lat + common.HALF_Y_FRAME)]
-  lat_max_index  = _LATITUDE_INDEXES[(rounded_lat - common.HALF_Y_FRAME)]
-  lon_min_index  = _LONGITUDE_INDEXES[(rounded_lon - common.HALF_X_FRAME)]
-  lon_max_index  = _LONGITUDE_INDEXES[(rounded_lon + common.HALF_X_FRAME)]
+  lat_min_index  = _LATITUDE_INDEXES[(rounded_lat + common.HALF_LAT_FRAME)]
+  lat_max_index  = _LATITUDE_INDEXES[(rounded_lat - common.HALF_LAT_FRAME)]
+  lon_min_index  = _LONGITUDE_INDEXES[(rounded_lon - common.HALF_LON_FRAME)]
+  lon_max_index  = _LONGITUDE_INDEXES[(rounded_lon + common.HALF_LON_FRAME)]
   if variable.value.level is None:
     result = nc_dataset[variable.value.str_id][time_min_index:time_max_index,\
                        lat_min_index:lat_max_index, lon_min_index:lon_max_index][0]
