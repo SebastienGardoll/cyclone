@@ -29,7 +29,7 @@ CYCLONE_STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
                         'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
                         'ks-test']
 
-file_prefix  = '2k'
+file_prefix  = '2000_10'
 file_postfix = 'cyclone_tensor.npy'
 
 cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
@@ -50,7 +50,7 @@ for variable in Era5:
   print(f'  > flatten the tensor')
   channel_tensor         = channel_tensors[variable]
   raveled_channel_tensor = channel_tensor.ravel()
-  sns.distplot(raveled_channel_tensor);
+  sns.distplot(raveled_channel_tensor, fit=stats.norm)
   plt.show()
   mean   = raveled_channel_tensor.mean()
   stddev = raveled_channel_tensor.std()
