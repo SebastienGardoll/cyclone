@@ -26,10 +26,10 @@ start = time.time()
 sns.set(color_codes=True)
 
 CYCLONE_STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
-                        'q3','kurtosis', 'skewness', 'w-test', 'agostino-test',\
-                        'shapiro-test']
+                        'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
+                        'ks-test']
 
-file_prefix  = '2000'
+file_prefix  = '2k'
 file_postfix = 'cyclone_tensor.npy'
 
 cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
@@ -61,15 +61,15 @@ for variable in Era5:
   q3 = np.percentile(raveled_channel_tensor, 75)
   kurtosis_value = stats.kurtosis(raveled_channel_tensor)
   skewness_value = stats.skew(raveled_channel_tensor)
-  w_test         = stats.shapiro(raveled_channel_tensor)[1]
-  agostino_test  = stats.normaltest(raveled_channel_tensor)[1]
-  shapiro_test   = stats.shapiro(raveled_channel_tensor)[1]
+  shapiro_test  = stats.shapiro(raveled_channel_tensor)[1]
+  dagostino_test = stats.normaltest(raveled_channel_tensor)[1]
+  ks_test       = stats.kstest(raveled_channel_tensor, 'norm')[1]
   print(f'  > mean={mean}, stddev={stddev}, min={min_value}, max={max_value}, \
           q1={q1}, q1={q2}, q1={q3}, kurtosis={kurtosis_value}, \
-          skewness={skewness_value}, w-test={w_test}, agostino-test={agostino_test}, \
-          shapiro-test={shapiro_test}')
+          skewness={skewness_value}, shapiro-test={shapiro_test},\
+          dagostino-test={dagostino_test}, ks-test={ks_test}')
   values=[variable.name.lower(), mean, stddev, min_value, max_value, q1, q2,\
-          q3, kurtosis_value, skewness_value, w_test, agostino_test, shapiro_test]
+          q3, kurtosis_value, skewness_value, shapiro_test, dagostino_test, ks_test]
   stats_row = pd.Series(values, index=CYCLONE_STAT_COLUMNS)
   stats_dataframe = stats_dataframe.append(stats_row, ignore_index=True)
 

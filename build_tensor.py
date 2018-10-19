@@ -86,4 +86,4 @@ for variable in Era5:
 stop = time.time()
 print("spend %f seconds processing"%((stop-start)))
 # Without channel_tensors: 1912.136137 <=> 32 mins.
-# With    channel_tensors: 1926.344627 <=> 32 mins.
+# With    channel_tensors: 1970.950752 <=> 32 mins.
