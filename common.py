@@ -12,6 +12,9 @@ import os.path as path
 
 import numpy as np
 
+from datetime import datetime
+from datetime import timedelta
+
                     ######## STATIC VARIABLES ########
 
 # NetCDF resolution.
@@ -33,6 +36,8 @@ HALF_LAT_FRAME = int(Y_RESOLUTION*LAT_RESOLUTION / 2)
 DATASET_PARENT_DIR_PATH = '/home/sgardoll/ouragan/dataset'
 TENSOR_PARENT_DIR_PATH  = '/home/sgardoll/ouragan/tensors'
 NETCDF_PARENT_DIR_PATH  = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
+
+_ONE_DAY = timedelta(days=1)
 
                        ######## STATIC CLASSES ########
 
@@ -62,6 +67,25 @@ class Era5 (Enum):
     np.load(path.join(DATASET_PARENT_DIR_PATH, 'v_indexes.npy')).item())
 
 NB_CHANNELS = len(Era5)
+
+                       ######## FUNCTIONS ########
+
+def subtract_one_day(year, month, day):
+  date = datetime(year=year, month=month, day=day)
+  return _subtract_one_day(date)
+
+def _subtract_one_day(date):
+  result = date - _ONE_DAY
+  return result
+
+def is_overlapping(lat1, lon1, lat2, lon2):
+  if abs(lat1-lat2) <= HALF_LAT_FRAME:
+    return True
+  else:
+    if abs(lon1 -lon2) <= HALF_LON_FRAME:
+      return True
+    else:
+      return False
 
                        ######## CHECKINGS ########
 

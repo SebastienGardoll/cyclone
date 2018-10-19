@@ -29,7 +29,7 @@ CYCLONE_STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
                         'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
                         'ks-test']
 
-file_prefix  = '2000_10'
+file_prefix  = '2k'
 file_postfix = 'cyclone_tensor.npy'
 
 cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
