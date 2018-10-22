@@ -3,7 +3,7 @@
 """
 Created on Mon Oct 15 16:12:55 2018
 
-@author: seb
+@author: Sébastien Gardoll
 """
 
 import csv

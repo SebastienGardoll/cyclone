@@ -3,7 +3,7 @@
 """
 Created on Tue Oct 16 09:22:19 2018
 
-@author: seb
+@author: Sébastien Gardoll
 """
 
                         ######## IMPORTS ########
@@ -29,15 +29,19 @@ NUM_DECIMAL_LON = 2
 X_RESOLUTION = 32
 Y_RESOLUTION = 32
 
-HALF_LON_FRAME = int(X_RESOLUTION*LON_RESOLUTION / 2)
 HALF_LAT_FRAME = int(Y_RESOLUTION*LAT_RESOLUTION / 2)
+HALF_LON_FRAME = int(X_RESOLUTION*LON_RESOLUTION / 2)
+
+LAT_FRAME = HALF_LAT_FRAME * 2
+LON_FRAME = HALF_LON_FRAME * 2
 
 # Paths
 DATASET_PARENT_DIR_PATH = '/home/sgardoll/ouragan/dataset'
 TENSOR_PARENT_DIR_PATH  = '/home/sgardoll/ouragan/tensors'
 NETCDF_PARENT_DIR_PATH  = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
 
-_ONE_DAY = timedelta(days=1)
+ONE_DAY = timedelta(days=1)
+ONE_WEEK = timedelta(days=7)
 
                        ######## STATIC CLASSES ########
 
@@ -74,17 +78,21 @@ def subtract_one_day(year, month, day):
   date = datetime(year=year, month=month, day=day)
   return _subtract_one_day(date)
 
+def subtract_delta(year, month, day, delta):
+  result = datetime(year=year, month=month, day=day) - delta
+  return result
+
 def _subtract_one_day(date):
-  result = date - _ONE_DAY
+  result = date - ONE_DAY
   return result
 
 def is_overlapping(lat1, lon1, lat2, lon2):
-  if abs(lat1-lat2) <= HALF_LAT_FRAME:
-    return True
-  else:
-    if abs(lon1 -lon2) <= HALF_LON_FRAME:
+  if abs(lat1-lat2) <= LAT_FRAME:
+    if abs(lon1 -lon2) <= LON_FRAME:
       return True
     else:
+      return False
+  else:
       return False
 
                        ######## CHECKINGS ########
