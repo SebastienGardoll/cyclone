@@ -32,15 +32,17 @@ STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
                 'ks-test']
 
 # Default values
-file_prefix      = '2000_10'
-tensor_file_postfix = 'cyclone_tensor.npy'
-db_file_postfix     = 'extraction_dataset.csv'
+file_prefix             = '2000_10'
+tensor_file_postfix     = 'cyclone_tensor.npy'
+db_file_postfix         = 'extraction_dataset.csv'
+has_to_compute_graphics = True
 
 if (len(sys.argv) > 3) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
     (sys.argv[3].strip()):
-  file_prefix         = sys.argv[1].strip()
-  tensor_file_postfix = sys.argv[2].strip()
-  db_file_postfix     = sys.argv[3].strip()
+  file_prefix             = sys.argv[1].strip()
+  tensor_file_postfix     = sys.argv[2].strip()
+  db_file_postfix         = sys.argv[3].strip()
+  has_to_compute_graphics = False
 
 db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
                                  f'{file_prefix}_{db_file_postfix}')
@@ -60,8 +62,9 @@ for variable in Era5:
   print(f'  > flatten the tensor')
   channel_tensor         = channel_tensors[variable]
   raveled_channel_tensor = channel_tensor.ravel()
-  sns.distplot(raveled_channel_tensor, fit=stats.norm)
-  plt.show()
+  if has_to_compute_graphics:
+    sns.distplot(raveled_channel_tensor, fit=stats.norm)
+    plt.show()
   mean   = raveled_channel_tensor.mean()
   stddev = raveled_channel_tensor.std()
   max_value = raveled_channel_tensor.max()
