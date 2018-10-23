@@ -12,6 +12,9 @@ import logging
 import os.path as path
 import sys
 
+import time
+start = time.time()
+
 CYCLONE_HEADER_PATTERN = re.compile('^([A-Z0-9]+), +[-\w]+, +(\d+),$')
 CYCLONE_DESC_PATTERN = re.compile('^(\d{4})(\d{2})(\d{2}), (\d{4}), ([ A-Z]), ([A-Z]{2}), +(\d+\.\d+)([NS]), +(\d+\.\d+)([WE]), +(-?[\d ]+), +(-?[\d ]+).+$')
 
@@ -95,7 +98,10 @@ cyclone_id = 0
 index = 0
 skipped_row_count = 0
 row_count = 0
+current_year  = -1
+previous_year = -1
 
+print(f'> starting to process {hurdat2_file_path}')
 while index < len(lines):
   current_line = lines[index]
   index = index + 1
@@ -108,6 +114,10 @@ while index < len(lines):
       cyclone_row = pd.Series(cyclone_values, index=CYCLONE_DF_COLUMNS)
       cyclone_dataframe = cyclone_dataframe.append(cyclone_row, ignore_index=True)
       row_count = row_count + 1
+      current_year = cyclone_values[2]
+      if current_year != previous_year:
+        print(f'  > processing year: {current_year}')
+        previous_year = current_year
     else:
       skipped_row_count = skipped_row_count + 1
   last_record_line_plus_1 = row_count
@@ -117,7 +127,7 @@ while index < len(lines):
   cyclone_id = cyclone_id + 1
   index = index + 1
 
-print(skipped_row_count)
+print(f'> number of row skipped: {skipped_row_count}')
 # 18 198
 
 hurdat2_file.close()
@@ -126,27 +136,32 @@ cyclone_mapping_file_path = path.join(dataset_parent_dir_path, "cyclone_mapping.
 cyclone_mapping.to_csv(cyclone_mapping_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='id', encoding = 'utf8', line_terminator = '\n')
 
+print(f'> saving cyclone_dataset.csv ({len(cyclone_dataframe)} rows)')
 cyclone_dataframe_file_path = path.join(dataset_parent_dir_path, "cyclone_dataset.csv")
 cyclone_dataframe.to_csv(cyclone_dataframe_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
 
 # Extraction of post 2000 records.
 extraction_2k = cyclone_dataframe[cyclone_dataframe['year'] >= 2000]
+print(f'> saving 2k_extraction_dataset.csv ({len(extraction_2k)} rows)')
 extraction_2k_file_path = path.join(dataset_parent_dir_path, "2k_extraction_dataset.csv")
 extraction_2k.to_csv(extraction_2k_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
-extraction_2k.shape # (4952, 11)
+#extraction_2k.shape # (4952, 11)
 
 year_extraction = extraction_2k[extraction_2k['year'] < 2001]
+print(f'> saving 2000_extraction_dataset.csv ({len(year_extraction)} rows)')
 year_extraction_file_path = path.join(dataset_parent_dir_path, "2000_extraction_dataset.csv")
 year_extraction.to_csv(year_extraction_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
-year_extraction.shape # (265, 11)
+#year_extraction.shape # (265, 11)
 
 month_extraction = year_extraction[year_extraction['month'] == 10]
+print(f'> saving 2000_10_extraction_dataset.csv ({len(month_extraction)} rows)')
 month_extraction_file_path = path.join(dataset_parent_dir_path, "2000_10_extraction_dataset.csv")
 month_extraction.to_csv(month_extraction_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
-month_extraction.shape # (49, 11)
+#month_extraction.shape # (49, 11)
 
-exit(0)
+stop = time.time()
+print("> spend %f seconds processing"%((stop-start)))

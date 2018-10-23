@@ -54,7 +54,7 @@ class BuildTensor:
       next(row_iterator) # Skip the header.
     for img_id in range(0, self._nb_images):
       row = next(row_iterator)
-      print(f'processing row: {row}')
+      print(f'> processing row: {row}')
       row_tuple = row_processor(row)
       (current_year, current_month, day, time_step, lat, lon) = row_tuple
       if (current_year != previous_year) or (current_month != previous_month):
@@ -76,7 +76,7 @@ class BuildTensor:
       channel_tensor = self._channel_tensors[variable]
       np.save(file=variable_tensor_file_path, arr=channel_tensor, allow_pickle=True)
     stop = time.time()
-    print("spend %f seconds processing"%((stop-start)))
+    print("> spend %f seconds processing"%((stop-start)))
     # Without channel_tensors: 1912.136137 <=> 32 mins.
     # With    channel_tensors: 1970.950752 <=> 32 mins.
 

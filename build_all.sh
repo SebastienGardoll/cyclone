@@ -13,7 +13,7 @@ CYCLONE_DB_POSTFIX='extraction_dataset'
 NO_CYCLONE_DB_POSTFIX='no_cyclone_dataset'
 
 echo "*********** BUILD CYCLONE DB ***********"
-python3 build_cyclone_db.py
+#python3 build_cyclone_db.py
 
 echo "*********** BUILD NO CYCLONE DB ***********"
 python3 build_no_cyclone_db.py "${FILE_PREFIX}"
