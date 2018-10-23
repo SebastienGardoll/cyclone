@@ -1,7 +1,12 @@
 #!/bin/bash
 
+set -e
+set -u
+
+source activate sandbox
+
 date
-FILE_PREFIX='2000_10'
+FILE_PREFIX='2k'
 CYCLONE_TENSOR_POSTFIX='cyclone_tensor'
 NO_CYCLONE_TENSOR_POSTFIX='no_cyclone_tensor'
 CYCLONE_DB_POSTFIX='extraction_dataset'
@@ -25,3 +30,4 @@ python3 build_stats.py "${FILE_PREFIX}" "${CYCLONE_TENSOR_POSTFIX}" "${CYCLONE_D
 echo "*********** BUILD NO CYCLONE STATS ***********"
 python3 build_stats.py "${FILE_PREFIX}" "${NO_CYCLONE_TENSOR_POSTFIX}" "${NO_CYCLONE_DB_POSTFIX}"
 date
+exit 0

@@ -12,8 +12,6 @@ import logging
 import os.path as path
 import sys
 
-import common
-
 CYCLONE_HEADER_PATTERN = re.compile('^([A-Z0-9]+), +[-\w]+, +(\d+),$')
 CYCLONE_DESC_PATTERN = re.compile('^(\d{4})(\d{2})(\d{2}), (\d{4}), ([ A-Z]), ([A-Z]{2}), +(\d+\.\d+)([NS]), +(\d+\.\d+)([WE]), +(-?[\d ]+), +(-?[\d ]+).+$')
 
@@ -80,7 +78,7 @@ def extract_record(line, cyclone_id, hurdat2_id):
     return None
 
 # Default values
-dataset_parent_dir_path=common.DATASET_PARENT_DIR_PATH
+dataset_parent_dir_path='/home/sgardoll/ouragan/dataset'
 hurdat2_file_path = path.join(dataset_parent_dir_path, "hurdat2-1851-2017-050118.txt")
 
 if (len(sys.argv) > 1) and (sys.argv[1].strip()):
