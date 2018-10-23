@@ -26,23 +26,32 @@ import time
 start = time.time()
 
 sns.set(color_codes=True)
+DPI = 400
+PAPER_ORIENTATION = 'portrait'
+PAPER_TYPE = 'a4'
+PLOT_FILE_FORMAT = 'pdf'
+TRANSPARENCY = False
 
 STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
                 'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
                 'ks-test']
 
 # Default values
-file_prefix             = '2000_10'
-tensor_file_postfix     = 'cyclone_tensor.npy'
-db_file_postfix         = 'extraction_dataset.csv'
-has_to_compute_graphics = True
+file_prefix          = '2000_10'
+tensor_file_postfix  = 'cyclone_tensor.npy'
+db_file_postfix      = 'extraction_dataset.csv'
+has_to_show_graphics = True
 
 if (len(sys.argv) > 3) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
     (sys.argv[3].strip()):
-  file_prefix             = sys.argv[1].strip()
-  tensor_file_postfix     = sys.argv[2].strip()
-  db_file_postfix         = sys.argv[3].strip()
-  has_to_compute_graphics = False
+  file_prefix          = sys.argv[1].strip()
+  tensor_file_postfix  = sys.argv[2].strip()
+  db_file_postfix      = sys.argv[3].strip()
+  has_to_show_graphics = False
+
+stats_parent_dir_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
+                                  f'{file_prefix}_stats')
+os.makedirs(stats_parent_dir_path, exist_ok=True)
 
 db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
                                  f'{file_prefix}_{db_file_postfix}')
@@ -62,8 +71,13 @@ for variable in Era5:
   print(f'  > flatten the tensor')
   channel_tensor         = channel_tensors[variable]
   raveled_channel_tensor = channel_tensor.ravel()
-  if has_to_compute_graphics:
-    sns.distplot(raveled_channel_tensor, fit=stats.norm)
+  plot = sns.distplot(raveled_channel_tensor, fit=stats.norm)
+  plot_file_path = path.join(stats_parent_dir_path,\
+                        f'{variable.name.lower()}_distplot.{PLOT_FILE_FORMAT}')
+  plt.savefig(plot_file_path, dpi=DPI, orientation = PAPER_ORIENTATION,\
+              papertype = PAPER_TYPE, format = PLOT_FILE_FORMAT,\
+              transparent = TRANSPARENCY)
+  if has_to_show_graphics:
     plt.show()
   mean   = raveled_channel_tensor.mean()
   stddev = raveled_channel_tensor.std()
@@ -86,12 +100,11 @@ for variable in Era5:
   stats_row = pd.Series(values, index=STAT_COLUMNS)
   stats_dataframe = stats_dataframe.append(stats_row, ignore_index=True)
 
-stats_dataframe_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
+stats_dataframe_file_path = path.join(stats_parent_dir_path,\
                                       f'{file_prefix}_tensor_stats.csv')
 stats_dataframe.to_csv(stats_dataframe_file_path, sep = ',', na_rep = '',\
                        header = True, index = True, index_label='id',\
                        encoding = 'utf8', line_terminator = '\n')
-
 stop = time.time()
 print('')
 print("> spend %f seconds processing"%((stop-start)))
