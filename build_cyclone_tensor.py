@@ -9,6 +9,8 @@ import csv
 import os.path as path
 import os
 
+import sys
+
 import common
 
 from build_tensor import BuildTensor
@@ -22,8 +24,14 @@ def row_processor(row):
   lon           = float(row[9])
   return (year, month, day, time_step, lat, lon)
 
-file_prefix  = '2000_10'
+# Default values.
+file_prefix = '2k'
+
+if (len(sys.argv) > 1) and (sys.argv[1].strip()):
+  file_prefix = sys.argv[1].strip()
+
 file_postfix = 'cyclone_tensor'
+
 cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
                                  f'{file_prefix}_extraction_dataset.csv')
 cyclone_db_file = open(cyclone_db_file_path, 'r')

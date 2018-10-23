@@ -8,8 +8,10 @@ Created on Wed Oct 17 15:45:54 2018
 
 import os.path as path
 import os
-import common
 
+import sys
+
+import common
 from common import Era5
 
 import numpy as np
@@ -26,14 +28,22 @@ start = time.time()
 sns.set(color_codes=True)
 
 STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
-                        'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
-                        'ks-test']
+                'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
+                'ks-test']
 
-file_prefix  = '2k'
-file_postfix = 'cyclone_tensor.npy'
+# Default values
+file_prefix      = '2000_10'
+tensor_file_postfix = 'cyclone_tensor.npy'
+db_file_postfix     = 'extraction_dataset.csv'
+
+if (len(sys.argv) > 3) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
+    (sys.argv[3].strip()):
+  file_prefix         = sys.argv[1].strip()
+  tensor_file_postfix = sys.argv[2].strip()
+  db_file_postfix     = sys.argv[3].strip()
 
 db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                                 f'{file_prefix}_extraction_dataset.csv')
+                                 f'{file_prefix}_{db_file_postfix}')
 nb_images   = int(os.popen(f'wc -l < {db_file_path}').read()[:-1])-1 # -1 <=> header.
 
 stats_dataframe = pd.DataFrame(columns=STAT_COLUMNS)
@@ -41,7 +51,7 @@ stats_dataframe = pd.DataFrame(columns=STAT_COLUMNS)
 channel_tensors = dict()
 for variable in Era5:
   variable_tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
-                       f'{file_prefix}_{variable.name.lower()}_{file_postfix}')
+                       f'{file_prefix}_{variable.name.lower()}_{tensor_file_postfix}')
   channel_tensors[variable] = np.load(file=variable_tensor_file_path,\
                                       mmap_mode=None, allow_pickle=True)
 for variable in Era5:

@@ -10,12 +10,19 @@ import numpy as np
 import pandas as pd
 import os.path as path
 
+import sys
+
 import common
 
 import time
 start = time.time()
 
+# Default value.
 FILE_PREFIX = '2k'
+
+if (len(sys.argv) > 1) and (sys.argv[1].strip()):
+  FILE_PREFIX = sys.argv[1].strip()
+
 CYCLONE_DATAFRAME = None
 
 cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
@@ -100,7 +107,7 @@ no_cyclone_dataframe.sort_values(by=["year", "month"], ascending = True,\
                                  inplace=True)
 print("> saving the no cyclone db on disk")
 no_cyclone_dataframe_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                                           f'{FILE_PREFIX}_no_cyclone_dataset.csv')
+                                       f'{FILE_PREFIX}_no_cyclone_dataset.csv')
 no_cyclone_dataframe.to_csv(no_cyclone_dataframe_file_path, sep = ',',\
                             na_rep = '', header = True, index = True,\
                             index_label='id', encoding = 'utf8',\

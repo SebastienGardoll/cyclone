@@ -10,6 +10,9 @@ import re
 import pandas as pd
 import logging
 import os.path as path
+import sys
+
+import common
 
 CYCLONE_HEADER_PATTERN = re.compile('^([A-Z0-9]+), +[-\w]+, +(\d+),$')
 CYCLONE_DESC_PATTERN = re.compile('^(\d{4})(\d{2})(\d{2}), (\d{4}), ([ A-Z]), ([A-Z]{2}), +(\d+\.\d+)([NS]), +(\d+\.\d+)([WE]), +(-?[\d ]+), +(-?[\d ]+).+$')
@@ -76,8 +79,14 @@ def extract_record(line, cyclone_id, hurdat2_id):
     logging.error("unsupported record ('%s')"%(line))
     return None
 
-dataset_parent_dir_path='/home/sgardoll/ouragan/dataset'
+# Default values
+dataset_parent_dir_path=common.DATASET_PARENT_DIR_PATH
 hurdat2_file_path = path.join(dataset_parent_dir_path, "hurdat2-1851-2017-050118.txt")
+
+if (len(sys.argv) > 1) and (sys.argv[1].strip()):
+  hurdat2_file_path = sys.argv[1].strip()
+  dataset_parent_dir_path = path.dirname(hurdat2_file_path)
+
 #hurdat2_file_path = '/home/sgardoll/ouragan/dataset/tmp' # DEBUG
 hurdat2_file = open(hurdat2_file_path, 'r')
 cyclone_dataframe = pd.DataFrame(columns=CYCLONE_DF_COLUMNS)
@@ -141,6 +150,5 @@ month_extraction_file_path = path.join(dataset_parent_dir_path, "2000_10_extract
 month_extraction.to_csv(month_extraction_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
 month_extraction.shape # (49, 11)
-
 
 exit(0)
