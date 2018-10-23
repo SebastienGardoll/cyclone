@@ -38,8 +38,8 @@ STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
 
 # Default values
 file_prefix          = '2000_10'
-tensor_file_postfix  = 'cyclone_tensor.npy'
-db_file_postfix      = 'extraction_dataset.csv'
+tensor_file_postfix  = 'cyclone_tensor'
+db_file_postfix      = 'extraction_dataset'
 has_to_show_graphics = True
 
 if (len(sys.argv) > 3) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
@@ -54,7 +54,7 @@ stats_parent_dir_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
 os.makedirs(stats_parent_dir_path, exist_ok=True)
 
 db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                                 f'{file_prefix}_{db_file_postfix}')
+                                 f'{file_prefix}_{db_file_postfix}.csv')
 nb_images   = int(os.popen(f'wc -l < {db_file_path}').read()[:-1])-1 # -1 <=> header.
 
 stats_dataframe = pd.DataFrame(columns=STAT_COLUMNS)
@@ -62,7 +62,7 @@ stats_dataframe = pd.DataFrame(columns=STAT_COLUMNS)
 channel_tensors = dict()
 for variable in Era5:
   variable_tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
-                       f'{file_prefix}_{variable.name.lower()}_{tensor_file_postfix}')
+                       f'{file_prefix}_{variable.name.lower()}_{tensor_file_postfix}.npy')
   channel_tensors[variable] = np.load(file=variable_tensor_file_path,\
                                       mmap_mode=None, allow_pickle=True)
 for variable in Era5:
@@ -73,7 +73,7 @@ for variable in Era5:
   raveled_channel_tensor = channel_tensor.ravel()
   plot = sns.distplot(raveled_channel_tensor, fit=stats.norm)
   plot_file_path = path.join(stats_parent_dir_path,\
-                        f'{variable.name.lower()}_distplot.{PLOT_FILE_FORMAT}')
+                        f'{variable.name.lower()}_{tensor_file_postfix}_distplot.{PLOT_FILE_FORMAT}')
   plt.savefig(plot_file_path, dpi=DPI, orientation = PAPER_ORIENTATION,\
               papertype = PAPER_TYPE, format = PLOT_FILE_FORMAT,\
               transparent = TRANSPARENCY)
@@ -101,7 +101,7 @@ for variable in Era5:
   stats_dataframe = stats_dataframe.append(stats_row, ignore_index=True)
 
 stats_dataframe_file_path = path.join(stats_parent_dir_path,\
-                                      f'{file_prefix}_tensor_stats.csv')
+                                      f'{file_prefix}_{tensor_file_postfix}_stats.csv')
 stats_dataframe.to_csv(stats_dataframe_file_path, sep = ',', na_rep = '',\
                        header = True, index = True, index_label='id',\
                        encoding = 'utf8', line_terminator = '\n')
