@@ -26,7 +26,7 @@ if (len(sys.argv) > 1) and (sys.argv[1].strip()):
 CYCLONE_DATAFRAME = None
 
 cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                                 f'{FILE_PREFIX}_extraction_dataset.csv')
+                         f'{FILE_PREFIX}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
 cyclone_db_file = open(cyclone_db_file_path, 'r')
 CYCLONE_DATAFRAME = pd.read_csv(cyclone_db_file, sep=',', header=0, index_col=0,\
                                 na_values='')
@@ -107,7 +107,7 @@ no_cyclone_dataframe.sort_values(by=["year", "month"], ascending = True,\
                                  inplace=True)
 print("> saving the no cyclone db on disk")
 no_cyclone_dataframe_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                                       f'{FILE_PREFIX}_no_cyclone_dataset.csv')
+                      f'{FILE_PREFIX}_{common.NO_CYCLONE_DB_FILE_POSTFIX}.csv')
 no_cyclone_dataframe.to_csv(no_cyclone_dataframe_file_path, sep = ',',\
                             na_rep = '', header = True, index = True,\
                             index_label='id', encoding = 'utf8',\

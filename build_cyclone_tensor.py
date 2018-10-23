@@ -30,10 +30,10 @@ file_prefix = '2k'
 if (len(sys.argv) > 1) and (sys.argv[1].strip()):
   file_prefix = sys.argv[1].strip()
 
-file_postfix = 'cyclone_tensor'
+file_postfix = common.CYCLONE_TENSOR_FILE_POSTFIX
 
 cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                                 f'{file_prefix}_extraction_dataset.csv')
+                         f'{file_prefix}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
 cyclone_db_file = open(cyclone_db_file_path, 'r')
 cyclone_db_reader = csv.reader(cyclone_db_file)
 nb_images   = int(os.popen(f'wc -l < {cyclone_db_file_path}').read()[:-1])-1 # -1 <=> header.

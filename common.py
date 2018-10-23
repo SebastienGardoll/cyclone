@@ -36,12 +36,19 @@ LAT_FRAME = HALF_LAT_FRAME * 2
 LON_FRAME = HALF_LON_FRAME * 2
 
 # Paths
-DATASET_PARENT_DIR_PATH = '/home/sgardoll/ouragan/dataset'
-TENSOR_PARENT_DIR_PATH  = '/home/sgardoll/ouragan/tensors'
-NETCDF_PARENT_DIR_PATH  = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
+DATASET_PARENT_DIR_PATH        = '/home/sgardoll/ouragan/dataset'
+TENSOR_PARENT_DIR_PATH         = '/home/sgardoll/ouragan/tensors'
+MERGED_TENSOR_PARENT_DIR_PATH  = '/home/sgardoll/ouragan/merged_tensors'
+NETCDF_PARENT_DIR_PATH         = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
 
 ONE_DAY = timedelta(days=1)
 ONE_WEEK = timedelta(days=7)
+
+CYCLONE_TENSOR_FILE_POSTFIX    = 'cyclone_tensor'
+CYCLONE_DB_FILE_POSTFIX        = 'extraction_dataset'
+NO_CYCLONE_TENSOR_FILE_POSTFIX = 'no_cyclone_tensor'
+NO_CYCLONE_DB_FILE_POSTFIX     = 'no_cyclone_dataset'
+MERGED_TENSOR_FILE_POSTFIX     = 'tensor'
 
                        ######## STATIC CLASSES ########
 

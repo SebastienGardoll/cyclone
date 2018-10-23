@@ -6,7 +6,7 @@ set -u
 source activate sandbox
 
 date
-FILE_PREFIX='2k'
+FILE_PREFIX='2000_10'
 CYCLONE_TENSOR_POSTFIX='cyclone_tensor'
 NO_CYCLONE_TENSOR_POSTFIX='no_cyclone_tensor'
 CYCLONE_DB_POSTFIX='extraction_dataset'

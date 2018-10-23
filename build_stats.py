@@ -35,11 +35,10 @@ TRANSPARENCY = False
 STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
                 'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
                 'ks-test']
-
 # Default values
 file_prefix          = '2000_10'
-tensor_file_postfix  = 'cyclone_tensor'
-db_file_postfix      = 'extraction_dataset'
+tensor_file_postfix  = common.CYCLONE_TENSOR_FILE_POSTFIX
+db_file_postfix      = common.CYCLONE_DB_FILE_POSTFIX
 has_to_show_graphics = True
 
 if (len(sys.argv) > 3) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
