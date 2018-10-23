@@ -92,7 +92,7 @@ no_cyclone_dataframe = no_cyclone_dataframe.astype(dtype = NO_CYCLONE_DF_COLUMNS
 # Remove duplicated rows.
 print(f'> number of records before removing the duplicates: {len(no_cyclone_dataframe)}')
 no_cyclone_dataframe = no_cyclone_dataframe.drop_duplicates()
-print(f'> number of records AFTER removing the duplicates: {len(no_cyclone_dataframe)}')
+print(f'> number of records  AFTER removing the duplicates: {len(no_cyclone_dataframe)}')
 
 # Sort by date (month) (optimize building tensors)
 print("> sorting the rows")
