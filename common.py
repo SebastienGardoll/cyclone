@@ -9,6 +9,7 @@ Created on Tue Oct 16 09:22:19 2018
                         ######## IMPORTS ########
 
 import os.path as path
+import os
 
 import numpy as np
 
@@ -36,10 +37,13 @@ LAT_FRAME = HALF_LAT_FRAME * 2
 LON_FRAME = HALF_LON_FRAME * 2
 
 # Paths
-DATASET_PARENT_DIR_PATH        = '/home/sgardoll/ouragan/dataset'
-TENSOR_PARENT_DIR_PATH         = '/home/sgardoll/ouragan/tensors'
-MERGED_TENSOR_PARENT_DIR_PATH  = '/home/sgardoll/ouragan/merged_tensors'
-NETCDF_PARENT_DIR_PATH         = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
+NETCDF_PARENT_DIR_PATH          = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
+ROOT_DIR_PARENT                 = '/home/sgardoll/ouragan'
+DATASET_PARENT_DIR_PATH         = path.join(ROOT_DIR_PARENT, 'dataset')
+TENSOR_PARENT_DIR_PATH          = path.join(ROOT_DIR_PARENT, 'tensors')
+MERGED_TENSOR_PARENT_DIR_PATH   = path.join(ROOT_DIR_PARENT, 'merged_tensors')
+SHUFFLED_TENSOR_PARENT_DIR_PATH = path.join(ROOT_DIR_PARENT, 'shuffled_tensors')
+
 
 ONE_DAY = timedelta(days=1)
 ONE_WEEK = timedelta(days=7)
@@ -102,6 +106,9 @@ def is_overlapping(lat1, lon1, lat2, lon2):
   else:
       return False
 
+def round_nearest(value, resolution, num_decimal):
+  return round(round(value / resolution) * resolution, num_decimal)
+
                        ######## CHECKINGS ########
 
 if X_RESOLUTION % 2 != 0:
@@ -111,5 +118,6 @@ if Y_RESOLUTION % 2 != 0:
   raise Exception("y resolution is not even")
 
 
-def round_nearest(value, resolution, num_decimal):
-  return round(round(value / resolution) * resolution, num_decimal)
+os.makedirs(TENSOR_PARENT_DIR_PATH, exist_ok=True)
+os.makedirs(MERGED_TENSOR_PARENT_DIR_PATH, exist_ok=True)
+os.makedirs(SHUFFLED_TENSOR_PARENT_DIR_PATH, exist_ok=True)
