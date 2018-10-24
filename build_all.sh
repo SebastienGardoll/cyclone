@@ -34,6 +34,9 @@ python3 build_cyclone_tensor.py "${FILE_PREFIX}"
 echo "*********** BUILD NO CYCLONE TENSOR ***********"
 python3 build_no_cyclone_tensor.py "${FILE_PREFIX}"
 
+echo "*********** MERGE TENSORS ***********"
+python3 merge_tensors.py "${FILE_PREFIX}"
+
 echo "*********** BUILD CYCLONE STATS ***********"
 python3 build_stats.py "${FILE_PREFIX}" "${CYCLONE_TENSOR_POSTFIX}"\
 "${TENSOR_PARENT_DIR_PATH}" ${GRAPHIC_MODE}
@@ -42,9 +45,8 @@ echo "*********** BUILD NO CYCLONE STATS ***********"
 python3 build_stats.py "${FILE_PREFIX}" "${NO_CYCLONE_TENSOR_POSTFIX}"\
 "${TENSOR_PARENT_DIR_PATH}" ${GRAPHIC_MODE}
 
-
-#echo "*********** BUILD MERGED TENSOR STATS ***********"
-#python3 build_stats.py "${MERGED_PREFIX}" "${MERGED_TENSOR_POSTFIX}"\
+echo "*********** BUILD MERGED TENSOR STATS ***********"
+python3 build_stats.py "${MERGED_PREFIX}" "${MERGED_TENSOR_POSTFIX}"\
 "${MERGED_TENSOR_PARENT_DIR_PATH}" ${GRAPHIC_MODE}
 
 date
