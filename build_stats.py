@@ -54,10 +54,6 @@ stats_parent_dir_path = path.join(tensor_dir_path,\
                                   f'{file_prefix}_stats')
 os.makedirs(stats_parent_dir_path, exist_ok=True)
 
-db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                                 f'{file_prefix}_{db_file_postfix}.csv')
-nb_images   = int(os.popen(f'wc -l < {db_file_path}').read()[:-1])-1 # -1 <=> header.
-
 stats_dataframe = pd.DataFrame(columns=STAT_COLUMNS)
 
 channel_tensors = dict()
