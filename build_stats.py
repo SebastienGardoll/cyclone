@@ -32,9 +32,6 @@ PAPER_TYPE = 'a4'
 PLOT_FILE_FORMAT = 'pdf'
 TRANSPARENCY = False
 
-STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
-                'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
-                'ks-test']
 # Default values
 file_prefix         = '2000_10'
 tensor_file_postfix = common.CYCLONE_TENSOR_FILE_POSTFIX
@@ -52,7 +49,7 @@ stats_parent_dir_path = path.join(tensor_dir_path,\
                                   f'{file_prefix}_stats')
 os.makedirs(stats_parent_dir_path, exist_ok=True)
 
-stats_dataframe = pd.DataFrame(columns=STAT_COLUMNS)
+stats_dataframe = pd.DataFrame(columns=common.STAT_COLUMNS)
 
 channel_tensors = dict()
 for variable in Era5:
@@ -93,7 +90,7 @@ for variable in Era5:
           dagostino-test={dagostino_test}, ks-test={ks_test}')
   values=[variable.name.lower(), mean, stddev, min_value, max_value, q1, q2,\
           q3, kurtosis_value, skewness_value, shapiro_test, dagostino_test, ks_test]
-  stats_row = pd.Series(values, index=STAT_COLUMNS)
+  stats_row = pd.Series(values, index=common.STAT_COLUMNS)
   stats_dataframe = stats_dataframe.append(stats_row, ignore_index=True)
 
 stats_dataframe_filename = f'{file_prefix}_{tensor_file_postfix}_stats.csv'

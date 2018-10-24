@@ -54,6 +54,10 @@ NO_CYCLONE_TENSOR_FILE_POSTFIX = 'no_cyclone_tensor'
 NO_CYCLONE_DB_FILE_POSTFIX     = 'no_cyclone_dataset'
 MERGED_TENSOR_FILE_POSTFIX     = 'tensor'
 
+STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
+                'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
+                'ks-test']
+
                        ######## STATIC CLASSES ########
 
 class Variable:
