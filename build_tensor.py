@@ -69,11 +69,13 @@ class BuildTensor:
         np.copyto(dst=channel_tensor[img_id], src=region, casting='no')
     all_tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
                            f'{self._file_prefix}_all_{self._file_postfix}.npy')
+    print(f'> saving all tensor (shape={self._all_tensor.shape})')
     np.save(file=all_tensor_file_path, arr=self._all_tensor, allow_pickle=True)
     for variable in Era5:
       variable_tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
        f'{self._file_prefix}_{variable.name.lower()}_{self._file_postfix}.npy')
       channel_tensor = self._channel_tensors[variable]
+      print(f'> saving {variable.name.lower()} tensor (shape={channel_tensor.shape})')
       np.save(file=variable_tensor_file_path, arr=channel_tensor, allow_pickle=True)
     stop = time.time()
     print("> spend %f seconds processing"%((stop-start)))

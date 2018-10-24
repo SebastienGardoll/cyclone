@@ -39,16 +39,18 @@ STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
 file_prefix          = '2000_10'
 tensor_file_postfix  = common.CYCLONE_TENSOR_FILE_POSTFIX
 db_file_postfix      = common.CYCLONE_DB_FILE_POSTFIX
+tensor_dir_path      = common.TENSOR_PARENT_DIR_PATH
 has_to_show_graphics = True
 
-if (len(sys.argv) > 3) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
+if (len(sys.argv) > 4) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
     (sys.argv[3].strip()):
   file_prefix          = sys.argv[1].strip()
   tensor_file_postfix  = sys.argv[2].strip()
   db_file_postfix      = sys.argv[3].strip()
+  tensor_dir_path      = sys.argv[4].strip()
   has_to_show_graphics = False
 
-stats_parent_dir_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
+stats_parent_dir_path = path.join(tensor_dir_path,\
                                   f'{file_prefix}_stats')
 os.makedirs(stats_parent_dir_path, exist_ok=True)
 
@@ -60,7 +62,7 @@ stats_dataframe = pd.DataFrame(columns=STAT_COLUMNS)
 
 channel_tensors = dict()
 for variable in Era5:
-  variable_tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
+  variable_tensor_file_path = path.join(tensor_dir_path,\
                        f'{file_prefix}_{variable.name.lower()}_{tensor_file_postfix}.npy')
   channel_tensors[variable] = np.load(file=variable_tensor_file_path,\
                                       mmap_mode=None, allow_pickle=True)

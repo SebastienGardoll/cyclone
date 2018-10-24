@@ -26,7 +26,7 @@ def row_processor(row):
   return (year, month, day, time_step, lat, lon)
 
 # Default value.
-file_prefix = '2k'
+file_prefix = '2000_10'
 
 if (len(sys.argv) > 1) and (sys.argv[1].strip()):
   file_prefix = sys.argv[1].strip()

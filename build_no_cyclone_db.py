@@ -18,7 +18,7 @@ import time
 start = time.time()
 
 # Default value.
-FILE_PREFIX = '2k'
+FILE_PREFIX = '2000_10'
 
 if (len(sys.argv) > 1) and (sys.argv[1].strip()):
   FILE_PREFIX = sys.argv[1].strip()
