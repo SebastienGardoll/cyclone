@@ -36,19 +36,17 @@ STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
                 'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
                 'ks-test']
 # Default values
-file_prefix          = '2000_10'
-tensor_file_postfix  = common.CYCLONE_TENSOR_FILE_POSTFIX
-db_file_postfix      = common.CYCLONE_DB_FILE_POSTFIX
-tensor_dir_path      = common.TENSOR_PARENT_DIR_PATH
-has_to_show_graphics = True
+file_prefix         = '2000_10'
+tensor_file_postfix = common.CYCLONE_TENSOR_FILE_POSTFIX
+tensor_dir_path     = common.TENSOR_PARENT_DIR_PATH
+graphic_mode        = 2
 
 if (len(sys.argv) > 4) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
-    (sys.argv[3].strip()):
-  file_prefix          = sys.argv[1].strip()
-  tensor_file_postfix  = sys.argv[2].strip()
-  db_file_postfix      = sys.argv[3].strip()
-  tensor_dir_path      = sys.argv[4].strip()
-  has_to_show_graphics = False
+    (sys.argv[3].strip()) and (sys.argv[4].strip()):
+  file_prefix         = sys.argv[1].strip()
+  tensor_file_postfix = sys.argv[2].strip()
+  tensor_dir_path     = sys.argv[3].strip()
+  graphic_mode        = sys.argv[4].strip()
 
 stats_parent_dir_path = path.join(tensor_dir_path,\
                                   f'{file_prefix}_stats')
@@ -68,14 +66,15 @@ for variable in Era5:
   print(f'  > flatten the tensor')
   channel_tensor         = channel_tensors[variable]
   raveled_channel_tensor = channel_tensor.ravel()
-  plot = sns.distplot(raveled_channel_tensor, fit=stats.norm)
-  plot_file_path = path.join(stats_parent_dir_path,\
-                        f'{variable.name.lower()}_{tensor_file_postfix}_distplot.{PLOT_FILE_FORMAT}')
-  plt.savefig(plot_file_path, dpi=DPI, orientation = PAPER_ORIENTATION,\
-              papertype = PAPER_TYPE, format = PLOT_FILE_FORMAT,\
-              transparent = TRANSPARENCY)
-  if has_to_show_graphics:
-    plt.show()
+  if graphic_mode != 0:
+    sns.distplot(raveled_channel_tensor, fit=stats.norm)
+    plot_file_path = path.join(stats_parent_dir_path,\
+      f'{variable.name.lower()}_{tensor_file_postfix}_distplot.{PLOT_FILE_FORMAT}')
+    plt.savefig(plot_file_path, dpi=DPI, orientation = PAPER_ORIENTATION,\
+                papertype = PAPER_TYPE, format = PLOT_FILE_FORMAT,\
+                transparent = TRANSPARENCY)
+    if graphic_mode == 2:
+      plt.show()
   mean   = raveled_channel_tensor.mean()
   stddev = raveled_channel_tensor.std()
   max_value = raveled_channel_tensor.max()
