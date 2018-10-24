@@ -26,9 +26,11 @@ def row_processor(row):
 
 # Default values.
 file_prefix = '2000_10'
+has_to_show_plot = True
 
 if (len(sys.argv) > 1) and (sys.argv[1].strip()):
   file_prefix = sys.argv[1].strip()
+  has_to_show_plot = False
 
 file_postfix = common.CYCLONE_TENSOR_FILE_POSTFIX
 
@@ -40,6 +42,6 @@ nb_images   = int(os.popen(f'wc -l < {cyclone_db_file_path}').read()[:-1])-1 # -
 
 bt = BuildTensor(nb_images, file_prefix, file_postfix)
 
-bt.build(row_processor, cyclone_db_reader, True)
+bt.build(row_processor, cyclone_db_reader, True, has_to_show_plot)
 
 cyclone_db_file.close()

@@ -14,6 +14,10 @@ import extraction_utils as utils
 
 import numpy as np
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set(color_codes=True)
+
 import time
 
 class BuildTensor:
@@ -45,7 +49,8 @@ class BuildTensor:
               Era5.V850:utils.open_netcdf(parent_dir_path, Era5.V850, year, month)}
     return result
 
-  def build(self, row_processor, row_iterator, has_to_skip_first_row):
+  def build(self, row_processor, row_iterator, has_to_skip_first_row,\
+            has_to_show_plot):
     start = time.time()
     previous_year  = -1
     previous_month = -1
@@ -67,6 +72,10 @@ class BuildTensor:
         np.copyto(dst=self._all_tensor[img_id][channel_index], src=region, casting='no')
         channel_tensor = self._channel_tensors[variable]
         np.copyto(dst=channel_tensor[img_id], src=region, casting='no')
+        if has_to_show_plot:
+          plt.imshow(region, cmap='gist_rainbow_r',interpolation="none")
+          plt.show()
+
     all_tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
                            f'{self._file_prefix}_all_{self._file_postfix}.npy')
     print(f'> saving all tensor (shape={self._all_tensor.shape})')
