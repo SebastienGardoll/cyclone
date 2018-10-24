@@ -31,10 +31,12 @@ date
 
 cd "${SCRIPT_DIR_PATH}"
 
-echo -e "\n*********** BUILD CYCLONE DB ***********\n"
 set +u
 if [[ "${1}" = 'all' ]]; then
+  echo -e "\n*********** BUILD CYCLONE DB ***********\n"
   python3 build_cyclone_db.py
+else
+  echo "> skip building cyclone db"
 fi
 set -u
 
@@ -50,13 +52,17 @@ python3 build_no_cyclone_tensor.py "${FILE_PREFIX}"
 echo -e "\n*********** MERGE TENSORS ***********\n"
 python3 merge_tensors.py "${FILE_PREFIX}"
 
-echo -e "\n*********** BUILD CYCLONE STATS ***********\n"
-python3 build_stats.py "${FILE_PREFIX}" "${CYCLONE_TENSOR_POSTFIX}" \
+if [ ${GRAPHIC_MODE} -eq 0 ]; then
+  echo "> skip computing stats"
+else
+  echo -e "\n*********** BUILD CYCLONE STATS ***********\n"
+  python3 build_stats.py "${FILE_PREFIX}" "${CYCLONE_TENSOR_POSTFIX}" \
 "${TENSOR_PARENT_DIR_PATH}" ${GRAPHIC_MODE}
 
-echo -e "\n*********** BUILD NO CYCLONE STATS ***********\n"
-python3 build_stats.py "${FILE_PREFIX}" "${NO_CYCLONE_TENSOR_POSTFIX}" \
+  echo -e "\n*********** BUILD NO CYCLONE STATS ***********\n"
+  python3 build_stats.py "${FILE_PREFIX}" "${NO_CYCLONE_TENSOR_POSTFIX}" \
 "${TENSOR_PARENT_DIR_PATH}" ${GRAPHIC_MODE}
+fi
 
 echo -e "\n*********** BUILD MERGED TENSOR STATS ***********\n"
 python3 build_stats.py "${MERGED_PREFIX}" "${MERGED_TENSOR_POSTFIX}" \
