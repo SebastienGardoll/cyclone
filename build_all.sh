@@ -20,7 +20,7 @@ MERGED_TENSOR_POSTFIX='tensor'
 # 0 means don't compute graphics for stats.
 # 1 means compute graphics but don't display them.
 # 2 means compute graphics and display them.
-GRAPHIC_MODE=2
+GRAPHIC_MODE=1
 
 echo "*********** BUILD CYCLONE DB ***********"
 #python3 build_cyclone_db.py
