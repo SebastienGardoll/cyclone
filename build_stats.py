@@ -46,7 +46,7 @@ if (len(sys.argv) > 4) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
   file_prefix         = sys.argv[1].strip()
   tensor_file_postfix = sys.argv[2].strip()
   tensor_dir_path     = sys.argv[3].strip()
-  graphic_mode        = sys.argv[4].strip()
+  graphic_mode        = int(sys.argv[4].strip())
 
 stats_parent_dir_path = path.join(tensor_dir_path,\
                                   f'{file_prefix}_stats')
@@ -96,8 +96,11 @@ for variable in Era5:
   stats_row = pd.Series(values, index=STAT_COLUMNS)
   stats_dataframe = stats_dataframe.append(stats_row, ignore_index=True)
 
+stats_dataframe_filename = f'{file_prefix}_{tensor_file_postfix}_stats.csv'
 stats_dataframe_file_path = path.join(stats_parent_dir_path,\
-                                      f'{file_prefix}_{tensor_file_postfix}_stats.csv')
+                                      stats_dataframe_filename)
+print('')
+print(f'> saving {stats_dataframe_filename}')
 stats_dataframe.to_csv(stats_dataframe_file_path, sep = ',', na_rep = '',\
                        header = True, index = True, index_label='id',\
                        encoding = 'utf8', line_terminator = '\n')
