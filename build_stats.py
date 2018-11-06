@@ -46,7 +46,7 @@ if (len(sys.argv) > 4) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
   graphic_mode        = int(sys.argv[4].strip())
 
 stats_parent_dir_path = path.join(tensor_dir_path,\
-                                  f'{file_prefix}_stats')
+                                  f'{file_prefix}_{common.STATS_FILE_POSTFIX}')
 os.makedirs(stats_parent_dir_path, exist_ok=True)
 
 stats_dataframe = pd.DataFrame(columns=common.STAT_COLUMNS)
@@ -93,7 +93,7 @@ for variable in Era5:
   stats_row = pd.Series(values, index=common.STAT_COLUMNS)
   stats_dataframe = stats_dataframe.append(stats_row, ignore_index=True)
 
-stats_dataframe_filename = f'{file_prefix}_{tensor_file_postfix}_stats.csv'
+stats_dataframe_filename = f'{file_prefix}_{tensor_file_postfix}_{common.STATS_FILE_POSTFIX}.csv'
 stats_dataframe_file_path = path.join(stats_parent_dir_path,\
                                       stats_dataframe_filename)
 print('', flush=True)

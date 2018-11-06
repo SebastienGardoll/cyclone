@@ -40,7 +40,7 @@ for variable in Era5:
                                mmap_mode=None, allow_pickle=True)
   print(f'> concatenating the tensors')
   concat_var_tensor = np.concatenate((cyclone_var_tensor, no_cyclone_var_tensor))
-  concat_var_tensor_filename = f'merged_{file_prefix}_{variable.name.lower()}_{common.MERGED_TENSOR_FILE_POSTFIX}.npy'
+  concat_var_tensor_filename = f'{common.MERGED_TENSOR_FILE_PREFIX}_{file_prefix}_{variable.name.lower()}_{common.MERGED_TENSOR_FILE_POSTFIX}.npy'
   concat_var_tensor_file_path = path.join(common.MERGED_TENSOR_PARENT_DIR_PATH,\
                                           concat_var_tensor_filename)
   print(f'> saving {concat_var_tensor_filename} (shape={concat_var_tensor.shape})')
@@ -77,7 +77,8 @@ print(f'> executing {common.STAT_SCRIPT_NAME}')
 
 script_file_path = path.join(common.SCRIPT_DIR_PATH, common.STAT_SCRIPT_NAME)
 
-cmd_line = [script_file_path, f'merged_{file_prefix}', common.MERGED_TENSOR_FILE_POSTFIX,\
+cmd_line = [script_file_path, f'{common.MERGED_TENSOR_FILE_PREFIX}_{file_prefix}',\
+            common.MERGED_TENSOR_FILE_POSTFIX,\
             common.MERGED_TENSOR_PARENT_DIR_PATH, '0']
 
 with subprocess.Popen(cmd_line, stdout=subprocess.PIPE, stderr=subprocess.PIPE,\
@@ -86,12 +87,12 @@ with subprocess.Popen(cmd_line, stdout=subprocess.PIPE, stderr=subprocess.PIPE,\
     print(line, end='')
   print(f'> stderr: {process.stderr.readlines()}')
 
-shuffled_tensor_filename = f'shuffled_{file_prefix}_all_{common.MERGED_TENSOR_FILE_POSTFIX}.npy'
+shuffled_tensor_filename = f'{common.SHUFFLED_TENSOR_FILE_PREFIX}_{file_prefix}_{common.SHUFFLED_TENSOR_FILE_POSTFIX}.npy'
 print(f'> saving {shuffled_tensor_filename}')
 shuffled_tensor_file_path = path.join(common.SHUFFLED_TENSOR_PARENT_DIR_PATH, shuffled_tensor_filename)
 np.save(file=shuffled_tensor_file_path, arr=shuffled_tensor, allow_pickle=True)
 
-shuffled_labels_filename  = f'shuffled_{file_prefix}_labels.npy'
+shuffled_labels_filename  = f'{common.SHUFFLED_TENSOR_FILE_PREFIX}_{file_prefix}_labels.npy'
 print(f'> saving {shuffled_labels_filename}')
 shuffled_labels_file_path = path.join(common.SHUFFLED_TENSOR_PARENT_DIR_PATH, shuffled_labels_filename)
 np.save(file=shuffled_labels_file_path, arr=shuffled_labels, allow_pickle=True)

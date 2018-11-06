@@ -54,6 +54,12 @@ CYCLONE_DB_FILE_POSTFIX        = 'extraction_dataset'
 NO_CYCLONE_TENSOR_FILE_POSTFIX = 'no_cyclone_tensor'
 NO_CYCLONE_DB_FILE_POSTFIX     = 'no_cyclone_dataset'
 MERGED_TENSOR_FILE_POSTFIX     = 'tensor'
+SHUFFLED_TENSOR_FILE_POSTFIX   = 'all_tensor'
+SHUFFLED_LABELS_FILE_POSTFIX   = 'labels'
+STATS_FILE_POSTFIX             = 'stats'
+
+MERGED_TENSOR_FILE_PREFIX      = 'merged'
+SHUFFLED_TENSOR_FILE_PREFIX     = 'shuffled'
 
 STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
                 'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
@@ -113,6 +119,9 @@ def is_overlapping(lat1, lon1, lat2, lon2):
 
 def round_nearest(value, resolution, num_decimal):
   return round(round(value / resolution) * resolution, num_decimal)
+
+def compute_std(value, mean, stddev):
+  return ((value - mean)/stddev)
 
                        ######## CHECKINGS ########
 
