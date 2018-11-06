@@ -64,9 +64,5 @@ else
 "${TENSOR_PARENT_DIR_PATH}" ${GRAPHIC_MODE}
 fi
 
-echo -e "\n*********** BUILD MERGED TENSOR STATS ***********\n"
-python3 build_stats.py "${MERGED_PREFIX}" "${MERGED_TENSOR_POSTFIX}" \
-"${MERGED_TENSOR_PARENT_DIR_PATH}" ${GRAPHIC_MODE}
-
 date
 exit 0

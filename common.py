@@ -38,12 +38,13 @@ LON_FRAME = HALF_LON_FRAME * 2
 
 # Paths
 NETCDF_PARENT_DIR_PATH          = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
-ROOT_DIR_PARENT                 = '/home/sgardoll/ouragan'
-DATASET_PARENT_DIR_PATH         = path.join(ROOT_DIR_PARENT, 'dataset')
-TENSOR_PARENT_DIR_PATH          = path.join(ROOT_DIR_PARENT, 'tensors')
-MERGED_TENSOR_PARENT_DIR_PATH   = path.join(ROOT_DIR_PARENT, 'merged_tensors')
-SHUFFLED_TENSOR_PARENT_DIR_PATH = path.join(ROOT_DIR_PARENT, 'shuffled_tensors')
-
+ROOT_DIR_PATH                   = '/home/sgardoll/ouragan'
+SCRIPT_DIR_PATH                 = path.join(ROOT_DIR_PATH, 'spyder')
+DATASET_PARENT_DIR_PATH         = path.join(ROOT_DIR_PATH, 'dataset')
+TENSOR_PARENT_DIR_PATH          = path.join(ROOT_DIR_PATH, 'tensors')
+MERGED_TENSOR_PARENT_DIR_PATH   = path.join(ROOT_DIR_PATH, 'merged_tensors')
+SHUFFLED_TENSOR_PARENT_DIR_PATH = path.join(ROOT_DIR_PATH, 'shuffled_tensors')
+STAT_SCRIPT_NAME                = 'build_stats.py'
 
 ONE_DAY = timedelta(days=1)
 ONE_WEEK = timedelta(days=7)

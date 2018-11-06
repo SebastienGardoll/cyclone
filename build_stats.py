@@ -58,9 +58,9 @@ for variable in Era5:
   channel_tensors[variable] = np.load(file=variable_tensor_file_path,\
                                       mmap_mode=None, allow_pickle=True)
 for variable in Era5:
-  print('')
-  print(f'> computing statistics for {variable.name} tensor')
-  print(f'  > flatten the tensor')
+  print('', flush=True)
+  print(f'> computing statistics for {variable.name} tensor', flush=True)
+  print(f'  > flatten the tensor', flush=True)
   channel_tensor         = channel_tensors[variable]
   raveled_channel_tensor = channel_tensor.ravel()
   if graphic_mode != 0:
@@ -87,7 +87,7 @@ for variable in Era5:
   print(f'  > mean={mean}, stddev={stddev}, min={min_value}, max={max_value}, \
           q1={q1}, q1={q2}, q1={q3}, kurtosis={kurtosis_value}, \
           skewness={skewness_value}, shapiro-test={shapiro_test},\
-          dagostino-test={dagostino_test}, ks-test={ks_test}')
+          dagostino-test={dagostino_test}, ks-test={ks_test}', flush=True)
   values=[variable.name.lower(), mean, stddev, min_value, max_value, q1, q2,\
           q3, kurtosis_value, skewness_value, shapiro_test, dagostino_test, ks_test]
   stats_row = pd.Series(values, index=common.STAT_COLUMNS)
@@ -96,11 +96,11 @@ for variable in Era5:
 stats_dataframe_filename = f'{file_prefix}_{tensor_file_postfix}_stats.csv'
 stats_dataframe_file_path = path.join(stats_parent_dir_path,\
                                       stats_dataframe_filename)
-print('')
-print(f'> saving {stats_dataframe_filename}')
+print('', flush=True)
+print(f'> saving {stats_dataframe_filename}', flush=True)
 stats_dataframe.to_csv(stats_dataframe_file_path, sep = ',', na_rep = '',\
                        header = True, index = True, index_label='id',\
                        encoding = 'utf8', line_terminator = '\n')
 stop = time.time()
-print('')
-print("> spend %f seconds processing"%((stop-start)))
+print('', flush=True)
+print("> spend %f seconds processing"%((stop-start)), flush=True)
