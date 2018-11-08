@@ -33,10 +33,10 @@ if (len(sys.argv) > 1) and (sys.argv[1].strip()):
   file_prefix = sys.argv[1].strip()
   has_to_show_plot = False
 
-file_postfix = common.NO_CYCLONE_TENSOR_FILE_POSTFIX
+file_postfix = common.NO_CYCLONE_CHANNEL_FILE_POSTFIX
 
 no_cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                      f'{file_prefix}_{common.NO_CYCLONE_DB_FILE_POSTFIX}.csv')
+                       f'{file_prefix}_{common.NO_CYCLONE_DB_FILE_POSTFIX}.csv')
 no_cyclone_db_file = open(no_cyclone_db_file_path, 'r')
 no_cyclone_db_reader = csv.reader(no_cyclone_db_file)
 nb_images   = int(os.popen(f'wc -l < {no_cyclone_db_file_path}').read()[:-1])-1 # -1 <=> header.

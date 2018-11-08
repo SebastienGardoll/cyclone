@@ -12,13 +12,14 @@ import common
 from common import Era5
 import extraction_utils as utils
 
+import time
+
 import numpy as np
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set(color_codes=True)
 
-import time
 
 class BuildTensor:
 
@@ -28,28 +29,29 @@ class BuildTensor:
     self._file_postfix = file_postfix
     # Static allocation of the tensor.
     self._all_tensor = np.ndarray(shape=(nb_images, common.NB_CHANNELS,
-                                        common.Y_RESOLUTION,\
-                                        common.X_RESOLUTION),\
-                                 dtype=np.float32)
+                                         common.Y_RESOLUTION,
+                                         common.X_RESOLUTION),
+                                  dtype=np.float32)
     self._channel_tensors = dict()
     for variable in Era5:
-      self._channel_tensors[variable] = np.ndarray(\
-                  shape=(nb_images, common.Y_RESOLUTION, common.X_RESOLUTION),\
+      self._channel_tensors[variable] = np.ndarray(
+                  shape=(nb_images, common.Y_RESOLUTION, common.X_RESOLUTION),
                   dtype=np.float32)
 
-  def build_dataset_dict(self, year, month):
+  @staticmethod
+  def build_dataset_dict(year, month):
     parent_dir_path = common.NETCDF_PARENT_DIR_PATH
-    result = {Era5.MSL:utils.open_netcdf(parent_dir_path, Era5.MSL, year, month),\
-              Era5.U10:utils.open_netcdf(parent_dir_path, Era5.U10, year, month),\
-              Era5.V10:utils.open_netcdf(parent_dir_path, Era5.V10, year, month),\
-              Era5.TCWV:utils.open_netcdf(parent_dir_path, Era5.TCWV, year, month),\
-              Era5.TA200:utils.open_netcdf(parent_dir_path, Era5.TA200, year, month),\
-              Era5.TA500:utils.open_netcdf(parent_dir_path, Era5.TA500, year, month),\
-              Era5.U850:utils.open_netcdf(parent_dir_path, Era5.U850, year, month),\
-              Era5.V850:utils.open_netcdf(parent_dir_path, Era5.V850, year, month)}
+    result = {Era5.MSL  : utils.open_netcdf(parent_dir_path, Era5.MSL, year, month),
+              Era5.U10  : utils.open_netcdf(parent_dir_path, Era5.U10, year, month),
+              Era5.V10  : utils.open_netcdf(parent_dir_path, Era5.V10, year, month),
+              Era5.TCWV : utils.open_netcdf(parent_dir_path, Era5.TCWV, year, month),
+              Era5.TA200: utils.open_netcdf(parent_dir_path, Era5.TA200, year, month),
+              Era5.TA500: utils.open_netcdf(parent_dir_path, Era5.TA500, year, month),
+              Era5.U850 : utils.open_netcdf(parent_dir_path, Era5.U850, year, month),
+              Era5.V850 : utils.open_netcdf(parent_dir_path, Era5.V850, year, month)}
     return result
 
-  def build(self, row_processor, row_iterator, has_to_skip_first_row,\
+  def build(self, row_processor, row_iterator, has_to_skip_first_row,
             has_to_show_plot):
     start = time.time()
     previous_year  = -1
@@ -67,22 +69,23 @@ class BuildTensor:
         previous_month = current_month
         nc_datasets    = self.build_dataset_dict(current_year, current_month)
       for channel_index, variable in enumerate(Era5):
-        region = utils.extract_region(nc_datasets[variable], variable, day,\
+        region = utils.extract_region(nc_datasets[variable], variable, day,
                                       time_step, lat, lon)
-        np.copyto(dst=self._all_tensor[img_id][channel_index], src=region, casting='no')
+        np.copyto(dst=self._all_tensor[img_id][channel_index], src=region,
+                  casting='no')
         channel_tensor = self._channel_tensors[variable]
         np.copyto(dst=channel_tensor[img_id], src=region, casting='no')
         if has_to_show_plot:
           plt.imshow(region, cmap='gist_rainbow_r',interpolation="none")
           plt.show()
 
-    all_tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
-                           f'{self._file_prefix}_all_{self._file_postfix}.npy')
+    all_tensor_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
+                            f'{self._file_prefix}_all_{self._file_postfix}.npy')
     print(f'> saving all tensor (shape={self._all_tensor.shape})')
     np.save(file=all_tensor_file_path, arr=self._all_tensor, allow_pickle=True)
     for variable in Era5:
-      variable_tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
-       f'{self._file_prefix}_{variable.name.lower()}_{self._file_postfix}.npy')
+      variable_tensor_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
+        f'{self._file_prefix}_{variable.name.lower()}_{self._file_postfix}.npy')
       channel_tensor = self._channel_tensors[variable]
       print(f'> saving {variable.name.lower()} tensor (shape={channel_tensor.shape})')
       np.save(file=variable_tensor_file_path, arr=channel_tensor, allow_pickle=True)
@@ -90,4 +93,3 @@ class BuildTensor:
     print("> spend %f seconds processing"%((stop-start)))
     # Without channel_tensors: 1912.136137 <=> 32 mins.
     # With    channel_tensors: 1970.950752 <=> 32 mins.
-

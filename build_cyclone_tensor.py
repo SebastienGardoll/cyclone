@@ -24,6 +24,7 @@ def row_processor(row):
   lon           = float(row[9])
   return (year, month, day, time_step, lat, lon)
 
+
 # Default values.
 file_prefix = '2000_10'
 has_to_show_plot = True
@@ -32,10 +33,10 @@ if (len(sys.argv) > 1) and (sys.argv[1].strip()):
   file_prefix = sys.argv[1].strip()
   has_to_show_plot = False
 
-file_postfix = common.CYCLONE_TENSOR_FILE_POSTFIX
+file_postfix = common.CYCLONE_CHANNEL_FILE_POSTFIX
 
-cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                         f'{file_prefix}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
+cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
+                          f'{file_prefix}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
 cyclone_db_file = open(cyclone_db_file_path, 'r')
 cyclone_db_reader = csv.reader(cyclone_db_file)
 nb_images   = int(os.popen(f'wc -l < {cyclone_db_file_path}').read()[:-1])-1 # -1 <=> header.

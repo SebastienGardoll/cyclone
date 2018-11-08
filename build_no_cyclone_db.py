@@ -25,21 +25,22 @@ if (len(sys.argv) > 1) and (sys.argv[1].strip()):
 
 CYCLONE_DATAFRAME = None
 
-cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                         f'{FILE_PREFIX}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
+cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
+                          f'{FILE_PREFIX}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
 cyclone_db_file = open(cyclone_db_file_path, 'r')
-CYCLONE_DATAFRAME = pd.read_csv(cyclone_db_file, sep=',', header=0, index_col=0,\
+CYCLONE_DATAFRAME = pd.read_csv(cyclone_db_file, sep=',', header=0, index_col=0,
                                 na_values='')
 cyclone_db_file.close()
 del cyclone_db_file
 del cyclone_db_file_path
 
-NO_CYCLONE_DF_COLUMNS = {'year': np.int32,\
-                         'month': np.int32,\
-                         'day': np.int32,\
-                         'time_step': np.int32,\
-                         'lat': np.float32,\
+NO_CYCLONE_DF_COLUMNS = {'year': np.int32,
+                         'month': np.int32,
+                         'day': np.int32,
+                         'time_step': np.int32,
+                         'lat': np.float32,
                          'lon': np.float32}
+
 
 def _has_cyclone(date, time_step, lat, lon):
   records = CYCLONE_DATAFRAME.query(f'year=={date.year} and\
@@ -56,6 +57,7 @@ def _has_cyclone(date, time_step, lat, lon):
   else:
     return False
 
+
 def compute_no_cyclone(time, delta):
   (year, month, day, time_step, lat, lon) = time
   past = common.subtract_delta(year, month, day, delta)
@@ -69,6 +71,7 @@ def compute_no_cyclone(time, delta):
   return (past.year, past.month, past.day, time_step, lat, lon)
 
                             ######## MAIN ########
+
 
 no_cyclone_dataframe = pd.DataFrame(columns=NO_CYCLONE_DF_COLUMNS.keys())
 
@@ -103,15 +106,15 @@ print(f'> number of records  AFTER removing the duplicates: {len(no_cyclone_data
 
 # Sort by date (month) (optimize building tensors)
 print("> sorting the rows")
-no_cyclone_dataframe.sort_values(by=["year", "month"], ascending = True,\
+no_cyclone_dataframe.sort_values(by=["year", "month"], ascending=True,
                                  inplace=True)
 print("> saving the no cyclone db on disk")
-no_cyclone_dataframe_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                      f'{FILE_PREFIX}_{common.NO_CYCLONE_DB_FILE_POSTFIX}.csv')
-no_cyclone_dataframe.to_csv(no_cyclone_dataframe_file_path, sep = ',',\
-                            na_rep = '', header = True, index = True,\
-                            index_label='id', encoding = 'utf8',\
-                            line_terminator = '\n')
+no_cyclone_dataframe_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
+                       f'{FILE_PREFIX}_{common.NO_CYCLONE_DB_FILE_POSTFIX}.csv')
+no_cyclone_dataframe.to_csv(no_cyclone_dataframe_file_path, sep=',',
+                            na_rep='', header=True, index=True,
+                            index_label='id', encoding='utf8',
+                            line_terminator='\n')
 
 stop = time.time()
 print("> spend %f seconds processing"%((stop-start)))

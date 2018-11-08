@@ -34,8 +34,8 @@ TRANSPARENCY = False
 
 # Default values
 file_prefix         = '2000_10'
-tensor_file_postfix = common.CYCLONE_TENSOR_FILE_POSTFIX
-tensor_dir_path     = common.TENSOR_PARENT_DIR_PATH
+tensor_file_postfix = common.CYCLONE_CHANNEL_FILE_POSTFIX
+tensor_dir_path     = common.CHANNEL_PARENT_DIR_PATH
 graphic_mode        = 2
 
 if (len(sys.argv) > 4) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
@@ -45,7 +45,7 @@ if (len(sys.argv) > 4) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
   tensor_dir_path     = sys.argv[3].strip()
   graphic_mode        = int(sys.argv[4].strip())
 
-stats_parent_dir_path = path.join(tensor_dir_path,\
+stats_parent_dir_path = path.join(tensor_dir_path,
                                   f'{file_prefix}_{common.STATS_FILE_POSTFIX}')
 os.makedirs(stats_parent_dir_path, exist_ok=True)
 
@@ -53,8 +53,8 @@ stats_dataframe = pd.DataFrame(columns=common.STAT_COLUMNS)
 
 channel_tensors = dict()
 for variable in Era5:
-  variable_tensor_file_path = path.join(tensor_dir_path,\
-                       f'{file_prefix}_{variable.name.lower()}_{tensor_file_postfix}.npy')
+  variable_tensor_file_path = path.join(tensor_dir_path,
+             f'{file_prefix}_{variable.name.lower()}_{tensor_file_postfix}.npy')
   channel_tensors[variable] = np.load(file=variable_tensor_file_path,\
                                       mmap_mode=None, allow_pickle=True)
 for variable in Era5:
@@ -67,13 +67,13 @@ for variable in Era5:
     sns.distplot(raveled_channel_tensor, fit=stats.norm)
     plot_file_path = path.join(stats_parent_dir_path,\
       f'{variable.name.lower()}_{tensor_file_postfix}_distplot.{PLOT_FILE_FORMAT}')
-    plt.savefig(plot_file_path, dpi=DPI, orientation = PAPER_ORIENTATION,\
-                papertype = PAPER_TYPE, format = PLOT_FILE_FORMAT,\
-                transparent = TRANSPARENCY)
+    plt.savefig(plot_file_path, dpi=DPI, orientation=PAPER_ORIENTATION,
+                papertype=PAPER_TYPE, format=PLOT_FILE_FORMAT,
+                transparent=TRANSPARENCY)
     if graphic_mode == 2:
       plt.show()
-  mean   = raveled_channel_tensor.mean() # np.mean or std can do it directly on unraveled arrays.
-  stddev = raveled_channel_tensor.std()
+  mean   = raveled_channel_tensor.mean() # np.mean or std can be applied
+  stddev = raveled_channel_tensor.std()  # directly on unraveled arrays.
   max_value = raveled_channel_tensor.max()
   min_value = raveled_channel_tensor.min()
   q1 = np.percentile(raveled_channel_tensor, 25)
@@ -88,19 +88,20 @@ for variable in Era5:
           q1={q1}, q1={q2}, q1={q3}, kurtosis={kurtosis_value}, \
           skewness={skewness_value}, shapiro-test={shapiro_test},\
           dagostino-test={dagostino_test}, ks-test={ks_test}', flush=True)
-  values=[variable.name.lower(), mean, stddev, min_value, max_value, q1, q2,\
+  values=[variable.name.lower(), mean, stddev, min_value, max_value, q1, q2,
           q3, kurtosis_value, skewness_value, shapiro_test, dagostino_test, ks_test]
   stats_row = pd.Series(values, index=common.STAT_COLUMNS)
   stats_dataframe = stats_dataframe.append(stats_row, ignore_index=True)
 
-stats_dataframe_filename = f'{file_prefix}_{tensor_file_postfix}_{common.STATS_FILE_POSTFIX}.csv'
-stats_dataframe_file_path = path.join(stats_parent_dir_path,\
+stats_dataframe_filename = f'{file_prefix}_{tensor_file_postfix}_\
+{common.STATS_FILE_POSTFIX}.csv'
+stats_dataframe_file_path = path.join(stats_parent_dir_path,
                                       stats_dataframe_filename)
 print('', flush=True)
 print(f'> saving {stats_dataframe_filename}', flush=True)
-stats_dataframe.to_csv(stats_dataframe_file_path, sep = ',', na_rep = '',\
-                       header = True, index = True, index_label='id',\
-                       encoding = 'utf8', line_terminator = '\n')
+stats_dataframe.to_csv(stats_dataframe_file_path, sep=',', na_rep='',
+                       header=True, index=True, index_label='id',
+                       encoding='utf8', line_terminator='\n')
 stop = time.time()
 print('', flush=True)
 print("> spend %f seconds processing"%((stop-start)), flush=True)

@@ -11,6 +11,8 @@ Created on Tue Oct 16 09:22:19 2018
 import os.path as path
 import os
 
+from enum import Enum
+
 import numpy as np
 
 from datetime import datetime
@@ -37,37 +39,38 @@ LAT_FRAME = HALF_LAT_FRAME * 2
 LON_FRAME = HALF_LON_FRAME * 2
 
 # Paths
-NETCDF_PARENT_DIR_PATH          = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
-ROOT_DIR_PATH                   = '/home/sgardoll/ouragan'
-SCRIPT_DIR_PATH                 = path.join(ROOT_DIR_PATH, 'spyder')
-DATASET_PARENT_DIR_PATH         = path.join(ROOT_DIR_PATH, 'dataset')
-TENSOR_PARENT_DIR_PATH          = path.join(ROOT_DIR_PATH, 'tensors')
-MERGED_TENSOR_PARENT_DIR_PATH   = path.join(ROOT_DIR_PATH, 'merged_tensors')
-SHUFFLED_TENSOR_PARENT_DIR_PATH = path.join(ROOT_DIR_PATH, 'shuffled_tensors')
-STAT_SCRIPT_NAME                = 'build_stats.py'
+NETCDF_PARENT_DIR_PATH         = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
+ROOT_DIR_PATH                  = '/home/sgardoll/ouragan'
+SCRIPT_DIR_PATH                = path.join(ROOT_DIR_PATH, 'spyder')
+DATASET_PARENT_DIR_PATH        = path.join(ROOT_DIR_PATH, 'dataset')
+CHANNEL_PARENT_DIR_PATH        = path.join(ROOT_DIR_PATH, 'channels')
+MERGED_CHANNEL_PARENT_DIR_PATH = path.join(ROOT_DIR_PATH, 'merged_channels')
+TENSOR_PARENT_DIR_PATH         = path.join(ROOT_DIR_PATH, 'tensor')
+STAT_SCRIPT_NAME               = 'build_stats.py'
 
 ONE_DAY = timedelta(days=1)
 ONE_WEEK = timedelta(days=7)
 
-CYCLONE_TENSOR_FILE_POSTFIX    = 'cyclone_tensor'
-CYCLONE_DB_FILE_POSTFIX        = 'extraction_dataset'
-NO_CYCLONE_TENSOR_FILE_POSTFIX = 'no_cyclone_tensor'
-NO_CYCLONE_DB_FILE_POSTFIX     = 'no_cyclone_dataset'
-MERGED_TENSOR_FILE_POSTFIX     = 'tensor'
-SHUFFLED_TENSOR_FILE_POSTFIX   = 'all_tensor'
-SHUFFLED_LABELS_FILE_POSTFIX   = 'labels'
-STATS_FILE_POSTFIX             = 'stats'
+CYCLONE_CHANNEL_FILE_POSTFIX    = 'cyclone_channel'
+CYCLONE_DB_FILE_POSTFIX         = 'extraction_dataset'
+NO_CYCLONE_CHANNEL_FILE_POSTFIX = 'no_cyclone_channel'
+NO_CYCLONE_DB_FILE_POSTFIX      = 'no_cyclone_dataset'
+MERGED_CHANNEL_FILE_POSTFIX     = 'channel'
+SHUFFLED_TENSOR_FILE_POSTFIX    = 'tensor'
+SHUFFLED_LABELS_FILE_POSTFIX    = 'labels'
+STATS_FILE_POSTFIX              = 'stats'
 
-MERGED_TENSOR_FILE_PREFIX      = 'merged'
-SHUFFLED_TENSOR_FILE_PREFIX    = 'shuffled'
+MERGED_CHANNEL_FILE_PREFIX      = 'merged'
+SHUFFLED_FILE_PREFIX            = 'shuffled'
 
-STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
-                'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
+STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',
+                'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',
                 'ks-test']
 
-MERGED_TENSORS_STAT_COLUMNS = ['mean', 'stddev']
+MERGED_CHANNEL_STAT_COLUMNS = ['mean', 'stddev']
 
                        ######## STATIC CLASSES ########
+
 
 class Variable:
 
@@ -77,38 +80,42 @@ class Variable:
     self.level = level
     self.index_mapping = index_mapping
 
-# ERA5 variable names.
-from enum import Enum
 
+# ERA5 variable names.
 class Era5 (Enum):
   MSL   = Variable(0, 'msl')
   TCWV  = Variable(1, 'tcwv')
   V10   = Variable(2, 'v10')
   U10   = Variable(3, 'u10')
-  TA200 = Variable(4, 'ta', 200,\
+  TA200 = Variable(4, 'ta', 200,
     np.load(path.join(DATASET_PARENT_DIR_PATH,'ta_indexes.npy')).item())
-  TA500 = Variable(5, 'ta', 500,\
+  TA500 = Variable(5, 'ta', 500,
     np.load(path.join(DATASET_PARENT_DIR_PATH,'ta_indexes.npy')).item())
-  U850  = Variable(6, 'u', 850,\
+  U850  = Variable(6, 'u', 850,
     np.load(path.join(DATASET_PARENT_DIR_PATH, 'u_indexes.npy')).item())
-  V850  = Variable(7, 'v', 850,\
+  V850  = Variable(7, 'v', 850,
     np.load(path.join(DATASET_PARENT_DIR_PATH, 'v_indexes.npy')).item())
+
 
 NB_CHANNELS = len(Era5)
 
                        ######## FUNCTIONS ########
 
+
 def subtract_one_day(year, month, day):
   date = datetime(year=year, month=month, day=day)
   return _subtract_one_day(date)
+
 
 def subtract_delta(year, month, day, delta):
   result = datetime(year=year, month=month, day=day) - delta
   return result
 
+
 def _subtract_one_day(date):
   result = date - ONE_DAY
   return result
+
 
 def is_overlapping(lat1, lon1, lat2, lon2):
   if abs(lat1-lat2) <= LAT_FRAME:
@@ -119,10 +126,12 @@ def is_overlapping(lat1, lon1, lat2, lon2):
   else:
       return False
 
+
 def round_nearest(value, resolution, num_decimal):
   return round(round(value / resolution) * resolution, num_decimal)
 
                        ######## CHECKINGS ########
+
 
 if X_RESOLUTION % 2 != 0:
   raise Exception("x resolution is not even")
@@ -131,6 +140,6 @@ if Y_RESOLUTION % 2 != 0:
   raise Exception("y resolution is not even")
 
 
+os.makedirs(CHANNEL_PARENT_DIR_PATH, exist_ok=True)
+os.makedirs(MERGED_CHANNEL_PARENT_DIR_PATH, exist_ok=True)
 os.makedirs(TENSOR_PARENT_DIR_PATH, exist_ok=True)
-os.makedirs(MERGED_TENSOR_PARENT_DIR_PATH, exist_ok=True)
-os.makedirs(SHUFFLED_TENSOR_PARENT_DIR_PATH, exist_ok=True)

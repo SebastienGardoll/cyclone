@@ -21,19 +21,21 @@ import logging
 
 # Internal static variables
 
-_LATITUDE_INDEXES = np.load(path.join(common.DATASET_PARENT_DIR_PATH,\
+_LATITUDE_INDEXES = np.load(path.join(common.DATASET_PARENT_DIR_PATH,
                                       'latitude_indexes.npy')).item()
-_LONGITUDE_INDEXES = np.load(path.join(common.DATASET_PARENT_DIR_PATH,\
+_LONGITUDE_INDEXES = np.load(path.join(common.DATASET_PARENT_DIR_PATH,
                                        'longitude_indexes.npy')).item()
 
                        ######## FUNCTIONS ########
 
+
 def _compute_time_index(num_day, time_step = 0):
-  if(time_step >= common.TIME_SAMPLING):
+  if time_step >= common.TIME_SAMPLING :
     days_to_add = int(time_step / common.TIME_SAMPLING)
     time_step = time_step % common.TIME_SAMPLING
     num_day = num_day + days_to_add
   return common.TIME_SAMPLING*(num_day-1) + time_step
+
 
 def extract_region(nc_dataset, variable, day, time_step, lat, lon):
   rounded_lat = common.round_nearest(lat, common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
@@ -46,14 +48,15 @@ def extract_region(nc_dataset, variable, day, time_step, lat, lon):
   lon_min_index  = _LONGITUDE_INDEXES[(rounded_lon - common.HALF_LON_FRAME)]
   lon_max_index  = _LONGITUDE_INDEXES[(rounded_lon + common.HALF_LON_FRAME)]
   if variable.value.level is None:
-    result = nc_dataset[variable.value.str_id][time_min_index:time_max_index,\
+    result = nc_dataset[variable.value.str_id][time_min_index:time_max_index,
                        lat_min_index:lat_max_index, lon_min_index:lon_max_index][0]
   else:
     level_index = variable.value.index_mapping[variable.value.level]
-    result = nc_dataset[variable.value.str_id][time_min_index:time_max_index,\
-                        level_index, lat_min_index:lat_max_index,\
+    result = nc_dataset[variable.value.str_id][time_min_index:time_max_index,
+                        level_index, lat_min_index:lat_max_index,
                         lon_min_index:lon_max_index][0]
   return result
+
 
 def _compute_netcdf_file_path(parent_dir_path, variable, year, month):
   if variable.value.level is None:
@@ -62,8 +65,10 @@ def _compute_netcdf_file_path(parent_dir_path, variable, year, month):
   else:
     delta = 'aphe5'
     rep = 'AN_PL'
-  result = f'{parent_dir_path}/{rep}/{year}/{variable.value.str_id}.{year}{month:02d}.{delta}.GLOBAL_025.nc'
+  result = f'{parent_dir_path}/{rep}/{year}/{variable.value.str_id}.{year}\
+{month:02d}.{delta}.GLOBAL_025.nc'
   return result
+
 
 def open_netcdf(parent_dir_path, variable, year, month):
   file_path = _compute_netcdf_file_path(parent_dir_path, variable, year, month)
@@ -81,6 +86,8 @@ use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily/AN_SF/2011/msl.201108.ashe5.GLOBA
 set region/x=63W:55W/y=11N:19N/t=1855152/k=1
 shade msl
 """
+
+
 def test1():
   parent_dir_path = common.NETCDF_PARENT_DIR_PATH
   variable = Era5.MSL
@@ -103,6 +110,8 @@ use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily/AN_PL/2011/ta.201108.aphe5.GLOBAL
 set region/x=81.25W:73.25W/y=22.5N:30.5N/t=1855266/k=15
 shade ta
 """
+
+
 def test2():
   parent_dir_path = common.NETCDF_PARENT_DIR_PATH
   variable = Era5.TA200
@@ -118,4 +127,3 @@ def test2():
   plt.figure()
   plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
   plt.show()
-

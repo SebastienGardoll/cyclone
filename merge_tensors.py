@@ -37,30 +37,29 @@ if (len(sys.argv) > 2) and (sys.argv[1].strip()) and (sys.argv[2].strip()):
 if num_processes > len(Era5):
   num_processes = len(Era5)
 
-os.makedirs(common.MERGED_TENSOR_PARENT_DIR_PATH, exist_ok=True)
-
-#stats_dataframe = pd.DataFrame(columns=common.MERGED_TENSORS_STAT_COLUMNS)
-
 # Static Allocation of the shared array of statistics.
-stats_array = mp.RawArray(ctypes.ARRAY(ctypes.c_double,\
-                                       len(common.MERGED_TENSORS_STAT_COLUMNS)), \
+stats_array = mp.RawArray(ctypes.ARRAY(ctypes.c_double,
+                                       len(common.MERGED_CHANNEL_STAT_COLUMNS)),
                           len(Era5))
+
 
 def process_tensors(variable):
   (variable_name, variable_num_id) = variable
   print(f'> processing variable {variable_name}')
 
-  cyclone_tensor_filename = f'{file_prefix}_{variable_name}_{common.CYCLONE_TENSOR_FILE_POSTFIX}.npy'
+  cyclone_tensor_filename = f'{file_prefix}_{variable_name}_\
+{common.CYCLONE_CHANNEL_FILE_POSTFIX}.npy'
   print(f'> loading {cyclone_tensor_filename}')
-  cyclone_variable_tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
+  cyclone_variable_tensor_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
                                                 cyclone_tensor_filename)
-  cyclone_var_tensor = np.load(file=cyclone_variable_tensor_file_path,\
+  cyclone_var_tensor = np.load(file=cyclone_variable_tensor_file_path,
                                mmap_mode=None, allow_pickle=True)
-  no_cyclone_tensor_filename = f'{file_prefix}_{variable_name}_{common.NO_CYCLONE_TENSOR_FILE_POSTFIX}.npy'
+  no_cyclone_tensor_filename = f'{file_prefix}_{variable_name}_\
+{common.NO_CYCLONE_CHANNEL_FILE_POSTFIX}.npy'
   print(f'> loading {no_cyclone_tensor_filename}')
-  no_cyclone_variable_tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,\
+  no_cyclone_variable_tensor_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
                                                    no_cyclone_tensor_filename)
-  no_cyclone_var_tensor = np.load(file=no_cyclone_variable_tensor_file_path,\
+  no_cyclone_var_tensor = np.load(file=no_cyclone_variable_tensor_file_path,
                                mmap_mode=None, allow_pickle=True)
 
   print(f'> concatenating the tensors ({variable_name})')
@@ -79,16 +78,18 @@ def process_tensors(variable):
   scaler.transform(tmp)
   std_concat_var_tensor = tmp.reshape(concat_var_tensor.shape, order='C')
   # DEBUG
-  #print(f'> [DEBUG] mean: {std_concat_var_tensor.mean()}')
-  #print(f'> [DEBUG] stddev: {std_concat_var_tensor.std()}')
+  # print(f'> [DEBUG] mean: {std_concat_var_tensor.mean()}')
+  # print(f'> [DEBUG] stddev: {std_concat_var_tensor.std()}')
 
-  std_concat_var_tensor_filename = f'{common.MERGED_TENSOR_FILE_PREFIX}_{file_prefix}_{variable_name}_{common.MERGED_TENSOR_FILE_POSTFIX}.npy'
-  std_concat_var_tensor_file_path = path.join(common.MERGED_TENSOR_PARENT_DIR_PATH, \
+  std_concat_var_tensor_filename = f'{common.MERGED_CHANNEL_FILE_PREFIX}_\
+{file_prefix}_{variable_name}_{common.MERGED_CHANNEL_FILE_POSTFIX}.npy'
+  std_concat_var_tensor_file_path = path.join(common.MERGED_CHANNEL_PARENT_DIR_PATH,
                                               std_concat_var_tensor_filename)
   print(f'> saving {std_concat_var_tensor_filename} (shape={std_concat_var_tensor.shape})')
   np.save(file=std_concat_var_tensor_file_path, arr=std_concat_var_tensor, allow_pickle=True)
 
 ############################ STANDARDIZE CHANNELS #############################
+
 
 # Parallel processing of the tensors.
 list_variables = list()
@@ -104,12 +105,14 @@ for variable in Era5:
 with Pool(processes = num_processes) as pool:
     pool.map(process_tensors, list_variables)
 
-stats_filename = f'{common.MERGED_TENSOR_FILE_PREFIX}_{file_prefix}_{common.STATS_FILE_POSTFIX}.csv'
+stats_filename = f'{common.MERGED_CHANNEL_FILE_PREFIX}_{file_prefix}_\
+{common.STATS_FILE_POSTFIX}.csv'
 print(f'> saving stats file {stats_filename}')
-stats_dataframe_file_path = path.join(common.MERGED_TENSOR_PARENT_DIR_PATH, stats_filename)
+stats_dataframe_file_path = path.join(common.MERGED_CHANNEL_PARENT_DIR_PATH,
+                                      stats_filename)
 with open (stats_dataframe_file_path, 'w') as csv_file:
   csv_writter = csv.writer(csv_file, delimiter=',', lineterminator='\n')
-  csv_writter.writerow(common.MERGED_TENSORS_STAT_COLUMNS)
+  csv_writter.writerow(common.MERGED_CHANNEL_STAT_COLUMNS)
   for line in stats_array:
     csv_writter.writerow (line)
 
@@ -117,14 +120,13 @@ with open (stats_dataframe_file_path, 'w') as csv_file:
 
 print('> building the tensor')
 
-cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                         f'{file_prefix}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
+cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
+                          f'{file_prefix}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
 nb_cyclone_images   = int(os.popen(f'wc -l < {cyclone_db_file_path}').read()[:-1])-1 # -1 <=> header.
 
-no_cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,\
-                      f'{file_prefix}_{common.NO_CYCLONE_DB_FILE_POSTFIX}.csv')
+no_cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
+                       f'{file_prefix}_{common.NO_CYCLONE_DB_FILE_POSTFIX}.csv')
 nb_no_cyclone_images   = int(os.popen(f'wc -l < {no_cyclone_db_file_path}').read()[:-1])-1 # -1 <=> header.
-
 
 del no_cyclone_db_file_path
 del cyclone_db_file_path
@@ -135,11 +137,12 @@ nb_images = nb_cyclone_images + nb_no_cyclone_images
 channels = []
 
 for variable in Era5:
-  channel_filename = f'{common.MERGED_TENSOR_FILE_PREFIX}_{file_prefix}_{variable.name.lower()}_{common.MERGED_TENSOR_FILE_POSTFIX}.npy'
+  channel_filename = f'{common.MERGED_CHANNEL_FILE_PREFIX}_{file_prefix}_\
+{variable.name.lower()}_{common.MERGED_CHANNEL_FILE_POSTFIX}.npy'
   print(f'> loading {channel_filename}')
-  channel_file_path = path.join(common.MERGED_TENSOR_PARENT_DIR_PATH,\
+  channel_file_path = path.join(common.MERGED_CHANNEL_PARENT_DIR_PATH,
                                 channel_filename)
-  channel_imgs = np.load(file=channel_file_path,\
+  channel_imgs = np.load(file=channel_file_path,
                          mmap_mode=None, allow_pickle=True)
   channels.append(channel_imgs)
 
@@ -169,14 +172,17 @@ del tensor
 shuffled_labels = merge_labels[permutation]
 del merge_labels
 
-tensor_filename = f'{common.SHUFFLED_TENSOR_FILE_PREFIX}_{file_prefix}_{common.SHUFFLED_TENSOR_FILE_POSTFIX}.npy'
+tensor_filename = f'{common.SHUFFLED_FILE_PREFIX}_{file_prefix}_\
+{common.SHUFFLED_TENSOR_FILE_POSTFIX}.npy'
 print('> saving the tensor {tensor_filename} (shape: {tensor.shape})')
-tensor_file_path = path.join(common.SHUFFLED_TENSOR_PARENT_DIR_PATH, tensor_filename)
+tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH, tensor_filename)
 np.save(file=tensor_file_path, arr=shuffled_tensor, allow_pickle=True)
 
-shuffled_labels_filename  = f'{common.SHUFFLED_TENSOR_FILE_PREFIX}_{file_prefix}_labels.npy'
+shuffled_labels_filename  = f'{common.SHUFFLED_FILE_PREFIX}_{file_prefix}_\
+{common.SHUFFLED_LABELS_FILE_POSTFIX}.npy'
 print(f'> saving the labels {shuffled_labels_filename}')
-shuffled_labels_file_path = path.join(common.SHUFFLED_TENSOR_PARENT_DIR_PATH, shuffled_labels_filename)
+shuffled_labels_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,
+                                      shuffled_labels_filename)
 np.save(file=shuffled_labels_file_path, arr=shuffled_labels, allow_pickle=True)
 
 stop = time.time()

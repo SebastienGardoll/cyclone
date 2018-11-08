@@ -18,12 +18,14 @@ start = time.time()
 CYCLONE_HEADER_PATTERN = re.compile('^([A-Z0-9]+), +[-\w]+, +(\d+),$')
 CYCLONE_DESC_PATTERN = re.compile('^(\d{4})(\d{2})(\d{2}), (\d{4}), ([ A-Z]), ([A-Z]{2}), +(\d+\.\d+)([NS]), +(\d+\.\d+)([WE]), +(-?[\d ]+), +(-?[\d ]+).+$')
 
-HOUR_TIME_STEP_MAPPING = {'0000':0, '0600':1, '1200':2, '1800':3}
+HOUR_TIME_STEP_MAPPING  = {'0000':0, '0600':1, '1200':2, '1800':3}
 
-CYCLONE_DF_COLUMNS      = ['cyclone_id', 'hurdat2_id', 'year', 'month', 'day',\
+CYCLONE_DF_COLUMNS      = ['cyclone_id', 'hurdat2_id', 'year', 'month', 'day',
                            'time_step', 'status', 'lat', 'lon',\
                            'max_sustained_wind', 'min_pressure']
-CYCLONE_MAPPING_COLUMNS = ['cyclone_id', 'hurdat2_id', 'first_img_id', 'last_img_id_plus_1']
+CYCLONE_MAPPING_COLUMNS = ['cyclone_id', 'hurdat2_id', 'first_img_id',
+                           'last_img_id_plus_1']
+
 
 def parse_hour(hour_literal):
   try:
@@ -33,6 +35,7 @@ def parse_hour(hour_literal):
     logging.error("unsupported hour ('%s')"%(hour_literal))
     return None
 
+
 def extract_header(line):
   match = CYCLONE_HEADER_PATTERN.match(line)
   if match:
@@ -41,6 +44,7 @@ def extract_header(line):
     return (hurdat_id, int(nb_lines))
   else:
     raise Exception("unsupported header ('%s')"%(line))
+
 
 def extract_record(line, cyclone_id, hurdat2_id):
   match = CYCLONE_DESC_PATTERN.match(line)
@@ -80,15 +84,17 @@ def extract_record(line, cyclone_id, hurdat2_id):
     logging.error("unsupported record ('%s')"%(line))
     return None
 
+
 # Default values
-dataset_parent_dir_path='/home/sgardoll/ouragan/dataset'
-hurdat2_file_path = path.join(dataset_parent_dir_path, "hurdat2-1851-2017-050118.txt")
+dataset_parent_dir_path = '/home/sgardoll/ouragan/dataset'
+hurdat2_file_path = path.join(dataset_parent_dir_path,
+                              "hurdat2-1851-2017-050118.txt")
 
 if (len(sys.argv) > 1) and (sys.argv[1].strip()):
   hurdat2_file_path = sys.argv[1].strip()
   dataset_parent_dir_path = path.dirname(hurdat2_file_path)
 
-#hurdat2_file_path = '/home/sgardoll/ouragan/dataset/tmp' # DEBUG
+# hurdat2_file_path = '/home/sgardoll/ouragan/dataset/tmp' # DEBUG
 hurdat2_file = open(hurdat2_file_path, 'r')
 cyclone_dataframe = pd.DataFrame(columns=CYCLONE_DF_COLUMNS)
 cyclone_mapping   = pd.DataFrame(columns=CYCLONE_MAPPING_COLUMNS)
