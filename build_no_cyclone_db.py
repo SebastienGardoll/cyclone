@@ -104,7 +104,7 @@ print(f'> number of records before removing the duplicates: {len(no_cyclone_data
 no_cyclone_dataframe = no_cyclone_dataframe.drop_duplicates()
 print(f'> number of records  AFTER removing the duplicates: {len(no_cyclone_dataframe)}')
 
-# Sort by date (month) (optimize building tensors)
+# Sort by date (month) (optimize building channels)
 print("> sorting the rows")
 no_cyclone_dataframe.sort_values(by=["year", "month"], ascending=True,
                                  inplace=True)

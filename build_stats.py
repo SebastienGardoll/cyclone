@@ -34,56 +34,56 @@ TRANSPARENCY = False
 
 # Default values
 file_prefix         = '2000_10'
-tensor_file_postfix = common.CYCLONE_CHANNEL_FILE_POSTFIX
-tensor_dir_path     = common.CHANNEL_PARENT_DIR_PATH
+channel_file_postfix = common.CYCLONE_CHANNEL_FILE_POSTFIX
+channel_dir_path     = common.CHANNEL_PARENT_DIR_PATH
 graphic_mode        = 2
 
 if (len(sys.argv) > 4) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
     (sys.argv[3].strip()) and (sys.argv[4].strip()):
   file_prefix         = sys.argv[1].strip()
-  tensor_file_postfix = sys.argv[2].strip()
-  tensor_dir_path     = sys.argv[3].strip()
+  channel_file_postfix = sys.argv[2].strip()
+  channel_dir_path     = sys.argv[3].strip()
   graphic_mode        = int(sys.argv[4].strip())
 
-stats_parent_dir_path = path.join(tensor_dir_path,
+stats_parent_dir_path = path.join(channel_dir_path,
                                   f'{file_prefix}_{common.STATS_FILE_POSTFIX}')
 os.makedirs(stats_parent_dir_path, exist_ok=True)
 
 stats_dataframe = pd.DataFrame(columns=common.STAT_COLUMNS)
 
-channel_tensors = dict()
+channels = dict()
 for variable in Era5:
-  variable_tensor_file_path = path.join(tensor_dir_path,
-             f'{file_prefix}_{variable.name.lower()}_{tensor_file_postfix}.npy')
-  channel_tensors[variable] = np.load(file=variable_tensor_file_path,\
-                                      mmap_mode=None, allow_pickle=True)
+  variable_channel_file_path = path.join(channel_dir_path,
+             f'{file_prefix}_{variable.name.lower()}_{channel_file_postfix}.npy')
+  channels[variable] = np.load(file=variable_channel_file_path, \
+                               mmap_mode=None, allow_pickle=True)
 for variable in Era5:
   print('', flush=True)
-  print(f'> computing statistics for {variable.name} tensor', flush=True)
-  print(f'  > flatten the tensor', flush=True)
-  channel_tensor         = channel_tensors[variable]
-  raveled_channel_tensor = channel_tensor.ravel()
+  print(f'> computing statistics for channel {variable.name}', flush=True)
+  print(f'  > flatten the channel', flush=True)
+  channel         = channels[variable]
+  raveled_channel = channel.ravel()
   if graphic_mode != 0:
-    sns.distplot(raveled_channel_tensor, fit=stats.norm)
+    sns.distplot(raveled_channel, fit=stats.norm)
     plot_file_path = path.join(stats_parent_dir_path,\
-      f'{variable.name.lower()}_{tensor_file_postfix}_distplot.{PLOT_FILE_FORMAT}')
+      f'{variable.name.lower()}_{channel_file_postfix}_distplot.{PLOT_FILE_FORMAT}')
     plt.savefig(plot_file_path, dpi=DPI, orientation=PAPER_ORIENTATION,
                 papertype=PAPER_TYPE, format=PLOT_FILE_FORMAT,
                 transparent=TRANSPARENCY)
     if graphic_mode == 2:
       plt.show()
-  mean   = raveled_channel_tensor.mean() # np.mean or std can be applied
-  stddev = raveled_channel_tensor.std()  # directly on unraveled arrays.
-  max_value = raveled_channel_tensor.max()
-  min_value = raveled_channel_tensor.min()
-  q1 = np.percentile(raveled_channel_tensor, 25)
-  q2 = np.percentile(raveled_channel_tensor, 50)
-  q3 = np.percentile(raveled_channel_tensor, 75)
-  kurtosis_value = stats.kurtosis(raveled_channel_tensor)
-  skewness_value = stats.skew(raveled_channel_tensor)
-  shapiro_test   = stats.shapiro(raveled_channel_tensor)[1]
-  dagostino_test = stats.normaltest(raveled_channel_tensor)[1]
-  ks_test        = stats.kstest(raveled_channel_tensor, 'norm')[1]
+  mean   = raveled_channel.mean() # np.mean or std can be applied
+  stddev = raveled_channel.std()  # directly on unraveled arrays.
+  max_value = raveled_channel.max()
+  min_value = raveled_channel.min()
+  q1 = np.percentile(raveled_channel, 25)
+  q2 = np.percentile(raveled_channel, 50)
+  q3 = np.percentile(raveled_channel, 75)
+  kurtosis_value = stats.kurtosis(raveled_channel)
+  skewness_value = stats.skew(raveled_channel)
+  shapiro_test   = stats.shapiro(raveled_channel)[1]
+  dagostino_test = stats.normaltest(raveled_channel)[1]
+  ks_test        = stats.kstest(raveled_channel, 'norm')[1]
   print(f'  > mean={mean}, stddev={stddev}, min={min_value}, max={max_value}, \
           q1={q1}, q1={q2}, q1={q3}, kurtosis={kurtosis_value}, \
           skewness={skewness_value}, shapiro-test={shapiro_test},\
@@ -93,7 +93,7 @@ for variable in Era5:
   stats_row = pd.Series(values, index=common.STAT_COLUMNS)
   stats_dataframe = stats_dataframe.append(stats_row, ignore_index=True)
 
-stats_dataframe_filename = f'{file_prefix}_{tensor_file_postfix}_\
+stats_dataframe_filename = f'{file_prefix}_{channel_file_postfix}_\
 {common.STATS_FILE_POSTFIX}.csv'
 stats_dataframe_file_path = path.join(stats_parent_dir_path,
                                       stats_dataframe_filename)
