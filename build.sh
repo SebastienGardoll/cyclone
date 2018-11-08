@@ -38,33 +38,34 @@ date
 cd "${SCRIPT_DIR_PATH}"
 
 set +u
+
+if [[ -z "${1}" ]]; then
+  echo "> skip building dbs"
+fi
+
 if [[ "${1}" = 'very_all' ]]; then
   echo -e "\n*********** BUILD CYCLONE DB ***********\n"
   python3 build_cyclone_db.py
 
   echo -e "\n*********** BUILD NO CYCLONE DB ***********\n"
   python3 build_no_cyclone_db.py "${FILE_PREFIX}"
-else
-  echo "> skip building dbs"
 fi
 
 if [[ "${1}" = 'all' ]]; then
   echo -e "\n*********** BUILD NO CYCLONE DB ***********\n"
   python3 build_no_cyclone_db.py "${FILE_PREFIX}"
-else
-  echo "> skip building dbs"
 fi
 
 set -u
 
 echo -e "\n*********** BUILD CYCLONE CHANNELS ***********\n"
-#python3 build_cyclone_channels.py "${FILE_PREFIX}"
+python3 build_cyclone_channels.py "${FILE_PREFIX}"
 
 echo -e "\n*********** BUILD NO CYCLONE CHANNELS ***********\n"
-#python3 build_no_cyclone_channels.py "${FILE_PREFIX}"
+python3 build_no_cyclone_channels.py "${FILE_PREFIX}"
 
 echo -e "\n*********** MERGE CHANNELS ***********\n"
-#python3 merge_channels.py "${FILE_PREFIX}" ${NUM_PROCESSES}
+python3 merge_channels.py "${FILE_PREFIX}" ${NUM_PROCESSES}
 
 if [ ${GRAPHIC_MODE} -eq 0 ]; then
   echo "> skip computing stats"

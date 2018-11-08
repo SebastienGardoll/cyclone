@@ -102,6 +102,7 @@ for variable in Era5:
 # Giving a list of the Era5 enum items doesn't work
 # (ValueError: <common.Variable object at 0x7f1448c0fc50> is not a valid Era5).
 # Don't know why...
+print(f'> allocating {num_processes} process(es)')
 with Pool(processes = num_processes) as pool:
     pool.map(process_channels, list_variables)
 
