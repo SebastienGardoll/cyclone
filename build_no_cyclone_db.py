@@ -86,7 +86,7 @@ for (index, row) in CYCLONE_DATAFRAME.iterrows():
   cyclone_lon = row["lon"]
   if current_year != cyclone_year:
     current_year = cyclone_year
-    print(f'  > compute year:{current_year}')
+    print(f'  > compute year: {current_year}')
   cyclone_values = (cyclone_year, cyclone_month, cyclone_day,\
                     cyclone_time_step, cyclone_lat, cyclone_lon)
   values = compute_no_cyclone(cyclone_values, common.ONE_DAY)
