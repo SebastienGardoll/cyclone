@@ -72,7 +72,7 @@ for variable in Era5:
                 transparent = TRANSPARENCY)
     if graphic_mode == 2:
       plt.show()
-  mean   = raveled_channel_tensor.mean()
+  mean   = raveled_channel_tensor.mean() # np.mean or std can do it directly on unraveled arrays.
   stddev = raveled_channel_tensor.std()
   max_value = raveled_channel_tensor.max()
   min_value = raveled_channel_tensor.min()

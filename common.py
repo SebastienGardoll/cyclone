@@ -59,11 +59,13 @@ SHUFFLED_LABELS_FILE_POSTFIX   = 'labels'
 STATS_FILE_POSTFIX             = 'stats'
 
 MERGED_TENSOR_FILE_PREFIX      = 'merged'
-SHUFFLED_TENSOR_FILE_PREFIX     = 'shuffled'
+SHUFFLED_TENSOR_FILE_PREFIX    = 'shuffled'
 
 STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',\
                 'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',\
                 'ks-test']
+
+MERGED_TENSORS_STAT_COLUMNS = ['mean', 'stddev']
 
                        ######## STATIC CLASSES ########
 
