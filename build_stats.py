@@ -33,17 +33,17 @@ PLOT_FILE_FORMAT = 'pdf'
 TRANSPARENCY = False
 
 # Default values
-file_prefix         = '2000_10'
+file_prefix          = '2000_10'
 channel_file_postfix = common.CYCLONE_CHANNEL_FILE_POSTFIX
 channel_dir_path     = common.CHANNEL_PARENT_DIR_PATH
-graphic_mode        = 2
+graphic_mode         = 2
 
 if (len(sys.argv) > 4) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and\
     (sys.argv[3].strip()) and (sys.argv[4].strip()):
-  file_prefix         = sys.argv[1].strip()
+  file_prefix          = sys.argv[1].strip()
   channel_file_postfix = sys.argv[2].strip()
   channel_dir_path     = sys.argv[3].strip()
-  graphic_mode        = int(sys.argv[4].strip())
+  graphic_mode         = int(sys.argv[4].strip())
 
 stats_parent_dir_path = path.join(channel_dir_path,
                                   f'{file_prefix}_{common.STATS_FILE_POSTFIX}')
@@ -64,12 +64,12 @@ for variable in Era5:
   channel         = channels[variable]
   raveled_channel = channel.ravel()
   if graphic_mode != 0:
-    sns.distplot(raveled_channel, fit=stats.norm)
+    plt.clf()
+    sns_plot = sns.distplot(raveled_channel, fit=stats.norm)
     plot_file_path = path.join(stats_parent_dir_path,\
       f'{variable.name.lower()}_{channel_file_postfix}_distplot.{PLOT_FILE_FORMAT}')
     plt.savefig(plot_file_path, dpi=DPI, orientation=PAPER_ORIENTATION,
-                papertype=PAPER_TYPE, format=PLOT_FILE_FORMAT,
-                transparent=TRANSPARENCY)
+                papertype=PAPER_TYPE, format=PLOT_FILE_FORMAT, transparent=TRANSPARENCY)
     if graphic_mode == 2:
       plt.show()
   mean   = raveled_channel.mean() # np.mean or std can be applied

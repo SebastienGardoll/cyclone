@@ -11,7 +11,7 @@ MINICONDA_HOME="${HOME}/miniconda2"
 MINICONDA_ENV_PATH="${MINICONDA_HOME}/envs/sandbox"
 source "${MINICONDA_HOME}/bin/activate" "${MINICONDA_ENV_PATH}"
 
-readonly FILE_PREFIX='2000_10'
+readonly FILE_PREFIX='2k'
 
 readonly CYCLONE_CHANNEL_POSTFIX='cyclone_channel'
 readonly NO_CYCLONE_CHANNEL_POSTFIX='no_cyclone_channel'
