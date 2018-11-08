@@ -27,11 +27,6 @@ class BuildTensor:
     self._nb_images = nb_images
     self._file_prefix = file_prefix
     self._file_postfix = file_postfix
-    # Static allocation of the tensor.
-    self._all_tensor = np.ndarray(shape=(nb_images, common.NB_CHANNELS,
-                                         common.Y_RESOLUTION,
-                                         common.X_RESOLUTION),
-                                  dtype=np.float32)
     self._channel_tensors = dict()
     for variable in Era5:
       self._channel_tensors[variable] = np.ndarray(
@@ -71,18 +66,12 @@ class BuildTensor:
       for channel_index, variable in enumerate(Era5):
         region = utils.extract_region(nc_datasets[variable], variable, day,
                                       time_step, lat, lon)
-        np.copyto(dst=self._all_tensor[img_id][channel_index], src=region,
-                  casting='no')
         channel_tensor = self._channel_tensors[variable]
         np.copyto(dst=channel_tensor[img_id], src=region, casting='no')
         if has_to_show_plot:
           plt.imshow(region, cmap='gist_rainbow_r',interpolation="none")
           plt.show()
 
-    all_tensor_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
-                            f'{self._file_prefix}_all_{self._file_postfix}.npy')
-    print(f'> saving all tensor (shape={self._all_tensor.shape})')
-    np.save(file=all_tensor_file_path, arr=self._all_tensor, allow_pickle=True)
     for variable in Era5:
       variable_tensor_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
         f'{self._file_prefix}_{variable.name.lower()}_{self._file_postfix}.npy')
