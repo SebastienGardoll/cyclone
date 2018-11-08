@@ -6,6 +6,8 @@ Created on Mon Oct 22 17:14:50 2018
 @author: Sébastien Gardoll
 """
 
+import psutil
+import os
 import os.path as path
 
 import common
@@ -79,5 +81,7 @@ class BuildChannels:
       print(f'> saving {variable.name.lower()} channel (shape={channel.shape})')
       np.save(file=variable_channel_file_path, arr=channel, allow_pickle=True)
     stop = time.time()
-    print("> spend %f seconds processing"%((stop-start)))
+    print(f'> spend {(stop-start):.2f} seconds processing')
     # 1912.136137 <=> 32 mins.
+    process = psutil.Process(os.getpid())
+    print(f'> maximum memory footprint: {process.memory_info().rss/common.MEGA_BYTES_FACTOR:.2f} MiB')

@@ -20,6 +20,9 @@ from datetime import timedelta
 
                     ######## STATIC VARIABLES ########
 
+# System
+MEGA_BYTES_FACTOR = 1024*1024
+
 # NetCDF resolution.
 TIME_SAMPLING = 4
 LAT_RESOLUTION = 0.25

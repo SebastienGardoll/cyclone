@@ -170,4 +170,4 @@ month_extraction.to_csv(month_extraction_file_path, sep = ',', na_rep = '', head
 #month_extraction.shape # (49, 11)
 
 stop = time.time()
-print("> spend %f seconds processing"%((stop-start)))
+print(f'> spend {(stop-start):.2f} seconds processing')

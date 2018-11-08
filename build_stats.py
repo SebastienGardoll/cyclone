@@ -104,4 +104,4 @@ stats_dataframe.to_csv(stats_dataframe_file_path, sep=',', na_rep='',
                        encoding='utf8', line_terminator='\n')
 stop = time.time()
 print('', flush=True)
-print("> spend %f seconds processing"%((stop-start)), flush=True)
+print(f'> spend {(stop-start):.2f} seconds processing', flush=True)

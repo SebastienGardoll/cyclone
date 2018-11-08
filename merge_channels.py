@@ -5,6 +5,8 @@ Created on Tue Oct 23 14:58:15 2018
 
 @author: Sébastien Gardoll
 """
+import psutil
+
 import os
 import os.path as path
 
@@ -169,13 +171,15 @@ merge_labels = np.concatenate((labels_cyclone, labels_no_cyclone))
 print('> shuffling the tensor and the labels')
 permutation = np.random.permutation((nb_cyclone_images + nb_no_cyclone_images))
 shuffled_tensor = tensor[permutation]
+process = psutil.Process(os.getpid())
+max_mem = process.memory_info().rss/common.MEGA_BYTES_FACTOR
 del tensor
 shuffled_labels = merge_labels[permutation]
 del merge_labels
 
 tensor_filename = f'{common.SHUFFLED_FILE_PREFIX}_{file_prefix}_\
 {common.SHUFFLED_TENSOR_FILE_POSTFIX}.npy'
-print('> saving the tensor {tensor_filename} (shape: {tensor.shape})')
+print(f'> saving the tensor {tensor_filename} (shape: {shuffled_tensor.shape})')
 tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH, tensor_filename)
 np.save(file=tensor_file_path, arr=shuffled_tensor, allow_pickle=True)
 
@@ -187,7 +191,12 @@ shuffled_labels_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,
 np.save(file=shuffled_labels_file_path, arr=shuffled_labels, allow_pickle=True)
 
 stop = time.time()
-print("> spend %f seconds processing"%((stop-start)))
+print(f'> spend {(stop-start):.2f} seconds processing')
+process = psutil.Process(os.getpid())
+current_mem = process.memory_info().rss/common.MEGA_BYTES_FACTOR
+if current_mem > max_mem:
+  max_mem = current_mem
+print(f'> maximum memory footprint: {max_mem:.2f} MiB')
 
 ################################### DEBUG ######################################
 
