@@ -122,9 +122,6 @@ def is_overlapping(lat1, lon1, lat2, lon2):
 def round_nearest(value, resolution, num_decimal):
   return round(round(value / resolution) * resolution, num_decimal)
 
-def compute_std(value, mean, stddev):
-  return ((value - mean)/stddev)
-
                        ######## CHECKINGS ########
 
 if X_RESOLUTION % 2 != 0:
