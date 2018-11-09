@@ -41,6 +41,10 @@ HALF_LON_FRAME = int(X_RESOLUTION*LON_RESOLUTION / 2)
 LAT_FRAME = HALF_LAT_FRAME * 2
 LON_FRAME = HALF_LON_FRAME * 2
 
+# 0 refers to a no cyclone.
+# 1 refers to a cyclone.
+NUM_CLASSES = 2
+
 # Paths
 NETCDF_PARENT_DIR_PATH         = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
 ROOT_DIR_PATH                  = '/home/sgardoll/ouragan'
@@ -49,6 +53,8 @@ DATASET_PARENT_DIR_PATH        = path.join(ROOT_DIR_PATH, 'dataset')
 CHANNEL_PARENT_DIR_PATH        = path.join(ROOT_DIR_PATH, 'channels')
 MERGED_CHANNEL_PARENT_DIR_PATH = path.join(ROOT_DIR_PATH, 'merged_channels')
 TENSOR_PARENT_DIR_PATH         = path.join(ROOT_DIR_PATH, 'tensor')
+CNN_PARENT_DIR_PATH            = path.join(ROOT_DIR_PATH, 'cnn')
+
 STAT_SCRIPT_NAME               = 'build_stats.py'
 
 ONE_DAY = timedelta(days=1)
@@ -146,3 +152,5 @@ if Y_RESOLUTION % 2 != 0:
 os.makedirs(CHANNEL_PARENT_DIR_PATH, exist_ok=True)
 os.makedirs(MERGED_CHANNEL_PARENT_DIR_PATH, exist_ok=True)
 os.makedirs(TENSOR_PARENT_DIR_PATH, exist_ok=True)
+os.makedirs(CNN_PARENT_DIR_PATH, exist_ok=True)
+
