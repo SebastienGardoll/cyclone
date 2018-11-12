@@ -103,5 +103,6 @@ stats_dataframe.to_csv(stats_dataframe_file_path, sep=',', na_rep='',
                        header=True, index=True, index_label='id',
                        encoding='utf8', line_terminator='\n')
 stop = time.time()
+formatted_time =common.display_duration((stop-start))
 print('', flush=True)
-print(f'> spend {(stop-start):.2f} seconds processing', flush=True)
+print(f'> spend {formatted_time} processing', flush=True)

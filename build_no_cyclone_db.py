@@ -117,4 +117,5 @@ no_cyclone_dataframe.to_csv(no_cyclone_dataframe_file_path, sep=',',
                             line_terminator='\n')
 
 stop = time.time()
-print(f'> spend {(stop-start):.2f} seconds processing')
+formatted_time =common.display_duration((stop-start))
+print(f'> spend {formatted_time} processing')

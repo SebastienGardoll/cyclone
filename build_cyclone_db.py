@@ -26,6 +26,26 @@ CYCLONE_DF_COLUMNS      = ['cyclone_id', 'hurdat2_id', 'year', 'month', 'day',
 CYCLONE_MAPPING_COLUMNS = ['cyclone_id', 'hurdat2_id', 'first_img_id',
                            'last_img_id_plus_1']
 
+def display_duration(time_in_sec):
+  remainder = time_in_sec % 60
+  if remainder == time_in_sec:
+    return f'{time_in_sec:.2f} seconds'
+  else:
+    seconds = remainder
+    minutes = int(time_in_sec / 60)
+    remainder = minutes % 60
+    if remainder == minutes:
+      return f'{minutes} mins, {seconds:.2f} seconds'
+    else:
+      hours   = int(minutes / 60)
+      minutes = remainder
+      remainder = hours % 24
+      if remainder == hours:
+        return f'{hours} hours, {minutes} mins, {seconds:.2f} seconds'
+      else:
+        days = int(hours / 24)
+        hours = remainder
+        return f'{days} days, {hours} hours, {minutes} mins, {seconds:.2f} seconds'
 
 def parse_hour(hour_literal):
   try:
@@ -170,4 +190,5 @@ month_extraction.to_csv(month_extraction_file_path, sep = ',', na_rep = '', head
 #month_extraction.shape # (49, 11)
 
 stop = time.time()
-print(f'> spend {(stop-start):.2f} seconds processing')
+formatted_time =display_duration((stop-start))
+print(f'> spend {formatted_time} processing')

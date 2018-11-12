@@ -191,7 +191,8 @@ shuffled_labels_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,
 np.save(file=shuffled_labels_file_path, arr=shuffled_labels, allow_pickle=True)
 
 stop = time.time()
-print(f'> spend {(stop-start):.2f} seconds processing')
+formatted_time =common.display_duration((stop-start))
+print(f'> spend {formatted_time} processing')
 process = psutil.Process(os.getpid())
 current_mem = process.memory_info().rss/common.MEGA_BYTES_FACTOR
 if current_mem > max_mem:

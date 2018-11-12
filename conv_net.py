@@ -158,4 +158,5 @@ if current_mem > max_mem:
 print(f'> maximum memory footprint: {max_mem:.2f} MiB')
 
 stop = time.time()
-print(f'> spend {(stop-start):.2f} seconds processing')
+formatted_time =common.display_duration((stop-start))
+print(f'> spend {formatted_time} processing')
