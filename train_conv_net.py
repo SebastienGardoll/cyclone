@@ -32,7 +32,11 @@ start = time.time()
 
                            ####### SETTINGS #######
 
-file_prefix = '2k'
+file_prefix = '2000_10'
+
+if (len(sys.argv) > 1) and (sys.argv[1].strip()):
+  file_prefix = sys.argv[1].strip()
+
 num_core    = 0
 num_classes = common.NUM_CLASSES
 max_mem     = -1
