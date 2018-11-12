@@ -71,6 +71,7 @@ class BuildChannels:
         channel = self._channels[variable]
         np.copyto(dst=channel[img_id], src=region, casting='no')
         if has_to_show_plot:
+          print(f'\n  > showing variable {variable.name.lower()}')
           plt.imshow(region, cmap='gist_rainbow_r',interpolation="none")
           plt.show()
 
