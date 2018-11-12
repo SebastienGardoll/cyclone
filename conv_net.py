@@ -81,6 +81,7 @@ if current_mem > max_mem:
   max_mem = current_mem
 
 print('> making test and training datasets')
+# Split arrays or matrices into random train and test subsets.
 x_train, x_test, y_train_not_cat, y_test_not_cat = train_test_split(tensor,
                                                   labels, test_size=test_ratio)
 del tensor, labels
