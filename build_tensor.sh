@@ -14,7 +14,30 @@ MINICONDA_ENV_PATH="${MINICONDA_HOME}/envs/sandbox"
 echo "> sourcing ${MINICONDA_ENV_PATH}"
 source "${MINICONDA_HOME}/bin/activate" "${MINICONDA_ENV_PATH}"
 
-readonly FILE_PREFIX="${1}"
+set +u
+if [[ -n "${DATASET_PREFIX}" ]]; then
+    readonly FILE_PREFIX="${DATASET_PREFIX}"
+else
+  if [[ -n "${1}" ]]; then
+    readonly FILE_PREFIX="${1}"
+  else
+    readonly FILE_PREFIX="2000_10"
+  fi
+fi
+
+if [[ -n "${BUILD_OPTION}" ]]; then
+    readonly BUILD_KIND="${BUILD_OPTION}"
+else
+  if [[ -n "${2}" ]]; then
+    readonly BUILD_KIND="${2}"
+  else
+    readonly BUILD_KIND='skip'
+  fi
+fi
+set -u
+
+
+readonly NUM_PROCESSES=1
 
 readonly CYCLONE_CHANNEL_POSTFIX='cyclone_channel'
 readonly NO_CYCLONE_CHANNEL_POSTFIX='no_cyclone_channel'
@@ -34,17 +57,13 @@ readonly CHANNEL_PARENT_DIR_PATH="${PROJECT_DIR_PATH}/channels"
 # 2 means compute graphics and display them.
 readonly GRAPHIC_MODE=1
 
-readonly NUM_PROCESSES=1
-
 cd "${SCRIPT_DIR_PATH}"
 
-set +u
-
-if [[ -z "${2}" ]]; then
+if [[ "${BUILD_KIND}" = 'skip' ]]; then
   echo "> skip building dbs"
 fi
 
-if [[ "${2}" = 'very_all' ]]; then
+if [[ "${BUILD_KIND}" = 'very_all' ]]; then
   echo -e "\n*********** BUILD CYCLONE DB ***********\n"
   python3 build_cyclone_db.py
 
@@ -52,12 +71,10 @@ if [[ "${2}" = 'very_all' ]]; then
   python3 build_no_cyclone_db.py "${FILE_PREFIX}"
 fi
 
-if [[ "${2}" = 'all' ]]; then
+if [[ "${BUILD_KIND}" = 'all' ]]; then
   echo -e "\n*********** BUILD NO CYCLONE DB ***********\n"
   python3 build_no_cyclone_db.py "${FILE_PREFIX}"
 fi
-
-set -u
 
 echo -e "\n*********** BUILD CYCLONE CHANNELS ***********\n"
 python3 build_cyclone_channels.py "${FILE_PREFIX}"
