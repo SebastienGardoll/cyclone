@@ -3,11 +3,7 @@
 set -e
 set -u
 
-readonly BASE_DIR_PATH="$(pwd)"
-SCRIPT_DIR_PATH="$(dirname $0)"; cd "${SCRIPT_DIR_PATH}"
-readonly SCRIPT_DIR_PATH="$(pwd)" ; cd "${BASE_DIR_PATH}"
-
-date
+echo "> starting at $(date)"
 
 MINICONDA_HOME="${HOME}/miniconda2"
 MINICONDA_ENV_PATH="${MINICONDA_HOME}/envs/sandbox"
@@ -39,6 +35,8 @@ set -u
 
 readonly NUM_PROCESSES=1
 
+readonly SCRIPT_DIR_PATH='/home/sgardoll/ouragan/spyder'
+
 readonly CYCLONE_CHANNEL_POSTFIX='cyclone_channel'
 readonly NO_CYCLONE_CHANNEL_POSTFIX='no_cyclone_channel'
 readonly CYCLONE_DB_POSTFIX='cyclone_dataset'
@@ -47,10 +45,10 @@ readonly NO_CYCLONE_DB_POSTFIX='no_cyclone_dataset'
 readonly MERGED_PREFIX="merged_${FILE_PREFIX}"
 readonly MERGED_CHANNEL_POSTFIX='channel'
 
-readonly PROJECT_DIR_PATH='/data/sgardoll/ouragan_data'
-readonly TENSOR_PARENT_DIR_PATH="${PROJECT_DIR_PATH}/tensor"
-readonly MERGED_CHANNEL_PARENT_DIR_PATH="${PROJECT_DIR_PATH}/merged_channels"
-readonly CHANNEL_PARENT_DIR_PATH="${PROJECT_DIR_PATH}/channels"
+readonly DATA_DIR_PATH='/data/sgardoll/ouragan_data'
+readonly TENSOR_PARENT_DIR_PATH="${DATA_DIR_PATH}/tensor"
+readonly MERGED_CHANNEL_PARENT_DIR_PATH="${DATA_DIR_PATH}/merged_channels"
+readonly CHANNEL_PARENT_DIR_PATH="${DATA_DIR_PATH}/channels"
 
 # 0 means don't compute graphics for stats.
 # 1 means compute graphics but don't display them.
@@ -97,5 +95,6 @@ else
 "${CHANNEL_PARENT_DIR_PATH}" ${GRAPHIC_MODE}
 fi
 
-date
+echo "> ending at $(date)"
+
 exit 0
