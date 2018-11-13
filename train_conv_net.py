@@ -32,23 +32,29 @@ start = time.time()
 
                            ####### SETTINGS #######
 
-file_prefix = '2000_10'
+file_prefix = '2k'
 
 if (len(sys.argv) > 1) and (sys.argv[1].strip()):
   file_prefix = sys.argv[1].strip()
 
-num_core    = 0
+num_core    = 4
 num_classes = common.NUM_CLASSES
 max_mem     = -1
 
 # TODO optimize settings.
 batch_size  = 5
-epochs      = 100
+epochs      = 50
 loss        = keras.losses.binary_crossentropy # https://keras.io/losses/
 metrics     = ['accuracy']
 optimizer   = keras.optimizers.SGD() # https://keras.io/optimizers/
 #optimizer   = keras.optimizers.Adadelta()
 test_ratio  = 0.3
+
+if (len(sys.argv) > 2) and (sys.argv[1].strip()) and (sys.argv[2].strip()):
+  file_prefix = sys.argv[1].strip()
+  num_core = int(sys.argv[2].strip())
+  print(f'> setting file prefix to {file_prefix}')
+  print(f'> setting number of core to {num_core}')
 
 config = K.tf.ConfigProto()
 
@@ -59,9 +65,6 @@ K.set_session(K.tf.Session(config=config))
 
 # set data_format to 'channels_last'
 keras.backend.set_image_data_format('channels_last')
-
-if (len(sys.argv) > 1) and (sys.argv[1].strip()):
-  file_prefix = sys.argv[1].strip()
 
                          ####### LOADING DATA #######
 

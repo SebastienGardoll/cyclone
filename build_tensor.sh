@@ -7,21 +7,24 @@ readonly BASE_DIR_PATH="$(pwd)"
 SCRIPT_DIR_PATH="$(dirname $0)"; cd "${SCRIPT_DIR_PATH}"
 readonly SCRIPT_DIR_PATH="$(pwd)" ; cd "${BASE_DIR_PATH}"
 
+date
+
 MINICONDA_HOME="${HOME}/miniconda2"
 MINICONDA_ENV_PATH="${MINICONDA_HOME}/envs/sandbox"
+echo "> sourcing ${MINICONDA_ENV_PATH}"
 source "${MINICONDA_HOME}/bin/activate" "${MINICONDA_ENV_PATH}"
 
-readonly FILE_PREFIX='2k'
+readonly FILE_PREFIX="${1}"
 
 readonly CYCLONE_CHANNEL_POSTFIX='cyclone_channel'
 readonly NO_CYCLONE_CHANNEL_POSTFIX='no_cyclone_channel'
-readonly CYCLONE_DB_POSTFIX='extraction_dataset'
+readonly CYCLONE_DB_POSTFIX='cyclone_dataset'
 readonly NO_CYCLONE_DB_POSTFIX='no_cyclone_dataset'
 
 readonly MERGED_PREFIX="merged_${FILE_PREFIX}"
 readonly MERGED_CHANNEL_POSTFIX='channel'
 
-readonly PROJECT_DIR_PATH='/home/sgardoll/ouragan'
+readonly PROJECT_DIR_PATH='/data/sgardoll/ouragan_data'
 readonly TENSOR_PARENT_DIR_PATH="${PROJECT_DIR_PATH}/tensor"
 readonly MERGED_CHANNEL_PARENT_DIR_PATH="${PROJECT_DIR_PATH}/merged_channels"
 readonly CHANNEL_PARENT_DIR_PATH="${PROJECT_DIR_PATH}/channels"
@@ -31,19 +34,17 @@ readonly CHANNEL_PARENT_DIR_PATH="${PROJECT_DIR_PATH}/channels"
 # 2 means compute graphics and display them.
 readonly GRAPHIC_MODE=1
 
-readonly NUM_PROCESSES=8
-
-date
+readonly NUM_PROCESSES=1
 
 cd "${SCRIPT_DIR_PATH}"
 
 set +u
 
-if [[ -z "${1}" ]]; then
+if [[ -z "${2}" ]]; then
   echo "> skip building dbs"
 fi
 
-if [[ "${1}" = 'very_all' ]]; then
+if [[ "${2}" = 'very_all' ]]; then
   echo -e "\n*********** BUILD CYCLONE DB ***********\n"
   python3 build_cyclone_db.py
 
@@ -51,7 +52,7 @@ if [[ "${1}" = 'very_all' ]]; then
   python3 build_no_cyclone_db.py "${FILE_PREFIX}"
 fi
 
-if [[ "${1}" = 'all' ]]; then
+if [[ "${2}" = 'all' ]]; then
   echo -e "\n*********** BUILD NO CYCLONE DB ***********\n"
   python3 build_no_cyclone_db.py "${FILE_PREFIX}"
 fi

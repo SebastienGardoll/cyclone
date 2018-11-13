@@ -47,13 +47,13 @@ NUM_CLASSES = 2
 
 # Paths
 NETCDF_PARENT_DIR_PATH         = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
-ROOT_DIR_PATH                  = '/home/sgardoll/ouragan'
-SCRIPT_DIR_PATH                = path.join(ROOT_DIR_PATH, 'spyder')
-DATASET_PARENT_DIR_PATH        = path.join(ROOT_DIR_PATH, 'dataset')
-CHANNEL_PARENT_DIR_PATH        = path.join(ROOT_DIR_PATH, 'channels')
-MERGED_CHANNEL_PARENT_DIR_PATH = path.join(ROOT_DIR_PATH, 'merged_channels')
-TENSOR_PARENT_DIR_PATH         = path.join(ROOT_DIR_PATH, 'tensor')
-CNN_PARENT_DIR_PATH            = path.join(ROOT_DIR_PATH, 'cnn')
+ROOT_DATA_DIR_PATH             = '/data/sgardoll/ouragan_data'
+SCRIPT_DIR_PATH                = '/home/sgardoll/ouragan/spyder'
+DATASET_PARENT_DIR_PATH        = path.join(ROOT_DATA_DIR_PATH, 'dataset')
+CHANNEL_PARENT_DIR_PATH        = path.join(ROOT_DATA_DIR_PATH, 'channels')
+MERGED_CHANNEL_PARENT_DIR_PATH = path.join(ROOT_DATA_DIR_PATH, 'merged_channels')
+TENSOR_PARENT_DIR_PATH         = path.join(ROOT_DATA_DIR_PATH, 'tensor')
+CNN_PARENT_DIR_PATH            = path.join(ROOT_DATA_DIR_PATH, 'cnn')
 
 STAT_SCRIPT_NAME               = 'build_stats.py'
 
@@ -61,7 +61,7 @@ ONE_DAY = timedelta(days=1)
 ONE_WEEK = timedelta(days=7)
 
 CYCLONE_CHANNEL_FILE_POSTFIX    = 'cyclone_channel'
-CYCLONE_DB_FILE_POSTFIX         = 'extraction_dataset'
+CYCLONE_DB_FILE_POSTFIX         = 'cyclone_dataset'
 NO_CYCLONE_CHANNEL_FILE_POSTFIX = 'no_cyclone_channel'
 NO_CYCLONE_DB_FILE_POSTFIX      = 'no_cyclone_dataset'
 MERGED_CHANNEL_FILE_POSTFIX     = 'channel'

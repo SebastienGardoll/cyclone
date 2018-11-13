@@ -106,7 +106,7 @@ def extract_record(line, cyclone_id, hurdat2_id):
 
 
 # Default values
-dataset_parent_dir_path = '/home/sgardoll/ouragan/dataset'
+dataset_parent_dir_path = '/data/sgardoll/ouragan_data/dataset'
 hurdat2_file_path = path.join(dataset_parent_dir_path,
                               "hurdat2-1851-2017-050118.txt")
 
@@ -158,33 +158,39 @@ print(f'> number of row skipped: {skipped_row_count}')
 
 hurdat2_file.close()
 
-cyclone_mapping_file_path = path.join(dataset_parent_dir_path, "cyclone_mapping.csv")
+filename = "all_cyclone_mapping.csv"
+print(f'> saving {filename}')
+cyclone_mapping_file_path = path.join(dataset_parent_dir_path, filename)
 cyclone_mapping.to_csv(cyclone_mapping_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='id', encoding = 'utf8', line_terminator = '\n')
 
-print(f'> saving cyclone_dataset.csv ({len(cyclone_dataframe)} rows)')
-cyclone_dataframe_file_path = path.join(dataset_parent_dir_path, "cyclone_dataset.csv")
+filename = 'all_cyclone_dataset.csv'
+print(f'> saving {filename} ({len(cyclone_dataframe)} rows)')
+cyclone_dataframe_file_path = path.join(dataset_parent_dir_path, filename)
 cyclone_dataframe.to_csv(cyclone_dataframe_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
 
 # Extraction of post 2000 records.
 extraction_2k = cyclone_dataframe[cyclone_dataframe['year'] >= 2000]
-print(f'> saving 2k_extraction_dataset.csv ({len(extraction_2k)} rows)')
-extraction_2k_file_path = path.join(dataset_parent_dir_path, "2k_extraction_dataset.csv")
+filename = '2k_cyclone_dataset.csv'
+print(f'> saving {filename} ({len(extraction_2k)} rows)')
+extraction_2k_file_path = path.join(dataset_parent_dir_path, filename)
 extraction_2k.to_csv(extraction_2k_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
 #extraction_2k.shape # (4952, 11)
 
 year_extraction = extraction_2k[extraction_2k['year'] < 2001]
-print(f'> saving 2000_extraction_dataset.csv ({len(year_extraction)} rows)')
-year_extraction_file_path = path.join(dataset_parent_dir_path, "2000_extraction_dataset.csv")
+filename = '2000_cyclone_dataset.csv'
+print(f'> saving {filename} ({len(year_extraction)} rows)')
+year_extraction_file_path = path.join(dataset_parent_dir_path, filename)
 year_extraction.to_csv(year_extraction_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
 #year_extraction.shape # (265, 11)
 
 month_extraction = year_extraction[year_extraction['month'] == 10]
-print(f'> saving 2000_10_extraction_dataset.csv ({len(month_extraction)} rows)')
-month_extraction_file_path = path.join(dataset_parent_dir_path, "2000_10_extraction_dataset.csv")
+filename = '2000_10_cyclone_dataset.csv'
+print(f'> saving {filename} ({len(month_extraction)} rows)')
+month_extraction_file_path = path.join(dataset_parent_dir_path, filename)
 month_extraction.to_csv(month_extraction_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
 #month_extraction.shape # (49, 11)
