@@ -23,8 +23,6 @@ HOUR_TIME_STEP_MAPPING  = {'0000':0, '0600':1, '1200':2, '1800':3}
 CYCLONE_DF_COLUMNS      = ['cyclone_id', 'hurdat2_id', 'year', 'month', 'day',
                            'time_step', 'status', 'lat', 'lon',\
                            'max_sustained_wind', 'min_pressure']
-CYCLONE_MAPPING_COLUMNS = ['cyclone_id', 'hurdat2_id', 'first_img_id',
-                           'last_img_id_plus_1']
 
 def display_duration(time_in_sec):
   remainder = time_in_sec % 60
@@ -117,7 +115,6 @@ if (len(sys.argv) > 1) and (sys.argv[1].strip()):
 # hurdat2_file_path = '/home/sgardoll/ouragan/dataset/tmp' # DEBUG
 hurdat2_file = open(hurdat2_file_path, 'r')
 cyclone_dataframe = pd.DataFrame(columns=CYCLONE_DF_COLUMNS)
-cyclone_mapping   = pd.DataFrame(columns=CYCLONE_MAPPING_COLUMNS)
 
 lines = hurdat2_file.readlines()
 cyclone_id = 0
@@ -148,8 +145,6 @@ while index < len(lines):
       skipped_row_count = skipped_row_count + 1
   last_record_line_plus_1 = row_count
   mapping_values = [cyclone_id, hurdat_id, first_record_line, last_record_line_plus_1]
-  cyclone_mapping_row = pd.Series(mapping_values, index=CYCLONE_MAPPING_COLUMNS)
-  cyclone_mapping = cyclone_mapping.append(cyclone_mapping_row, ignore_index=True)
   cyclone_id = cyclone_id + 1
   index = index + 1
 
@@ -158,11 +153,12 @@ print(f'> number of row skipped: {skipped_row_count}')
 
 hurdat2_file.close()
 
-filename = "all_cyclone_mapping.csv"
-print(f'> saving {filename}')
-cyclone_mapping_file_path = path.join(dataset_parent_dir_path, filename)
-cyclone_mapping.to_csv(cyclone_mapping_file_path, sep = ',', na_rep = '', header = True,\
-  index = True, index_label='id', encoding = 'utf8', line_terminator = '\n')
+print('> sorting cyclone dataset according to the date')
+cyclone_dataframe = cyclone_dataframe.sort_values(by=['year', 'month', 'day', 'time_step'],
+                                                  ascending=True, inplace=True)
+
+print('> rebuilding the index of the cyclone dataset')
+cyclone_dataframe = cyclone_dataframe.reset_index(drop=True)
 
 filename = 'all_cyclone_dataset.csv'
 print(f'> saving {filename} ({len(cyclone_dataframe)} rows)')

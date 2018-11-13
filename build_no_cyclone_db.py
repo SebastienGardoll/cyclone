@@ -106,8 +106,9 @@ print(f'> number of records  AFTER removing the duplicates: {len(no_cyclone_data
 
 # Sort by date (month) (optimize building channels)
 print('> sorting the rows')
-no_cyclone_dataframe.sort_values(by=["year", "month"], ascending=True,
-                                 inplace=True)
+no_cyclone_dataframe = no_cyclone_dataframe.sort_values(by=["year", "month"],
+                                                        ascending=True,
+                                                        inplace=True)
 # Rebuild the ids of the dataframe.
 print('> rebuilding the index of the dataframe')
 no_cyclone_dataframe = no_cyclone_dataframe.reset_index(drop=True)
