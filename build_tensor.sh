@@ -32,6 +32,7 @@ else
 fi
 set -u
 
+export PYTHONUNBUFFERED='true'
 
 readonly NUM_PROCESSES=1
 

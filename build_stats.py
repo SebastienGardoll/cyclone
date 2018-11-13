@@ -58,9 +58,9 @@ for variable in Era5:
   channels[variable] = np.load(file=variable_channel_file_path, \
                                mmap_mode=None, allow_pickle=True)
 for variable in Era5:
-  print('', flush=True)
-  print(f'> computing statistics for channel {variable.name}', flush=True)
-  print(f'  > flatten the channel', flush=True)
+  print('')
+  print(f'> computing statistics for channel {variable.name}')
+  print(f'  > flatten the channel')
   channel         = channels[variable]
   raveled_channel = channel.ravel()
   if graphic_mode != 0:
@@ -87,7 +87,7 @@ for variable in Era5:
   print(f'  > mean={mean}, stddev={stddev}, min={min_value}, max={max_value}, \
           q1={q1}, q1={q2}, q1={q3}, kurtosis={kurtosis_value}, \
           skewness={skewness_value}, shapiro-test={shapiro_test},\
-          dagostino-test={dagostino_test}, ks-test={ks_test}', flush=True)
+          dagostino-test={dagostino_test}, ks-test={ks_test}')
   values=[variable.name.lower(), mean, stddev, min_value, max_value, q1, q2,
           q3, kurtosis_value, skewness_value, shapiro_test, dagostino_test, ks_test]
   stats_row = pd.Series(values, index=common.STAT_COLUMNS)
@@ -97,12 +97,12 @@ stats_dataframe_filename = f'{file_prefix}_{channel_file_postfix}_\
 {common.STATS_FILE_POSTFIX}.csv'
 stats_dataframe_file_path = path.join(stats_parent_dir_path,
                                       stats_dataframe_filename)
-print('', flush=True)
-print(f'> saving {stats_dataframe_filename}', flush=True)
+print('')
+print(f'> saving {stats_dataframe_filename}')
 stats_dataframe.to_csv(stats_dataframe_file_path, sep=',', na_rep='',
                        header=True, index=True, index_label='id',
                        encoding='utf8', line_terminator='\n')
 stop = time.time()
 formatted_time =common.display_duration((stop-start))
-print('', flush=True)
-print(f'> spend {formatted_time} processing', flush=True)
+print('')
+print(f'> spend {formatted_time} processing')
