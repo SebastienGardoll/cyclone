@@ -105,12 +105,17 @@ no_cyclone_dataframe = no_cyclone_dataframe.drop_duplicates()
 print(f'> number of records  AFTER removing the duplicates: {len(no_cyclone_dataframe)}')
 
 # Sort by date (month) (optimize building channels)
-print("> sorting the rows")
+print('> sorting the rows')
 no_cyclone_dataframe.sort_values(by=["year", "month"], ascending=True,
                                  inplace=True)
-print("> saving the no cyclone db on disk")
+# Rebuild the ids of the dataframe.
+print('> rebuilding the index of the dataframe')
+no_cyclone_dataframe = no_cyclone_dataframe.reset_index(drop=True)
+
+filename = f'{FILE_PREFIX}_{common.NO_CYCLONE_DB_FILE_POSTFIX}.csv'
+print(f'> saving the {filename} on disk')
 no_cyclone_dataframe_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
-                       f'{FILE_PREFIX}_{common.NO_CYCLONE_DB_FILE_POSTFIX}.csv')
+                                           filename)
 no_cyclone_dataframe.to_csv(no_cyclone_dataframe_file_path, sep=',',
                             na_rep='', header=True, index=True,
                             index_label='id', encoding='utf8',
