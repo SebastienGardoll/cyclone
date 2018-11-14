@@ -11,25 +11,35 @@ echo "> sourcing ${MINICONDA_ENV_PATH}"
 source "${MINICONDA_HOME}/bin/activate" "${MINICONDA_ENV_PATH}"
 
 set +u
-if [[ -n "${DATASET_PREFIX}" ]]; then
-    readonly FILE_PREFIX="${DATASET_PREFIX}"
+
+ARGS_FIRST='false'
+
+if [[ -n "${1}" ]]; then
+  readonly FILE_PREFIX="${1}"
+  ARGS_FIRST='true'
 else
-  if [[ -n "${1}" ]]; then
-    readonly FILE_PREFIX="${1}"
+  if [[ -n "${DATASET_PREFIX}" ]]; then
+    readonly FILE_PREFIX="${DATASET_PREFIX}"
   else
     readonly FILE_PREFIX="2000_10"
   fi
 fi
 
-if [[ -n "${BUILD_OPTION}" ]]; then
-    readonly BUILD_KIND="${BUILD_OPTION}"
-else
+if [[ "${ARGS_FIRST}" == 'true' ]]; then
   if [[ -n "${2}" ]]; then
     readonly BUILD_KIND="${2}"
+  else
+    echo '#### missing build option ####'
+    exit 1
+  fi
+else
+  if [[ -n "${BUILD_OPTION}" ]]; then
+    readonly BUILD_KIND="${BUILD_OPTION}"
   else
     readonly BUILD_KIND='skip'
   fi
 fi
+
 set -u
 
 export PYTHONUNBUFFERED='true'
