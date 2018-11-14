@@ -154,8 +154,8 @@ print(f'> number of row skipped: {skipped_row_count}')
 hurdat2_file.close()
 
 print('> sorting cyclone dataset according to the date')
-cyclone_dataframe = cyclone_dataframe.sort_values(by=['year', 'month', 'day', 'time_step'],
-                                                  ascending=True, inplace=True)
+cyclone_dataframe.sort_values(by=['year', 'month', 'day', 'time_step'],
+                              ascending=True, inplace=True)
 
 print('> rebuilding the index of the cyclone dataset')
 cyclone_dataframe = cyclone_dataframe.reset_index(drop=True)
