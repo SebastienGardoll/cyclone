@@ -75,15 +75,15 @@ def compute_no_cyclone(time, delta):
 
 no_cyclone_dataframe = pd.DataFrame(columns=NO_CYCLONE_DF_COLUMNS.keys())
 
-print("> computing the no cyclone records")
+print('> computing the no cyclone records')
 current_year = -1
 for (index, row) in CYCLONE_DATAFRAME.iterrows():
-  cyclone_year      = row["year"]
-  cyclone_month     = row["month"]
-  cyclone_day       = row["day"]
-  cyclone_time_step = row["time_step"]
-  cyclone_lat = row["lat"]
-  cyclone_lon = row["lon"]
+  cyclone_year      = row['year']
+  cyclone_month     = row['month']
+  cyclone_day       = row['day']
+  cyclone_time_step = row['time_step']
+  cyclone_lat = row['lat']
+  cyclone_lon = row['lon']
   if current_year != cyclone_year:
     current_year = cyclone_year
     print(f'  > compute year: {current_year}')
@@ -106,8 +106,8 @@ print(f'> number of records  AFTER removing the duplicates: {len(no_cyclone_data
 
 # Sort by date (month) (optimize building channels)
 print('> sorting the rows')
-no_cyclone_dataframe.sort_values(by=["year", "month"], ascending=True,
-                                 inplace=True)
+no_cyclone_dataframe.sort_values(by=['year', 'month', 'day', 'time_step'],
+                                 ascending=True, inplace=True)
 # Rebuild the ids of the dataframe.
 print('> rebuilding the index of the dataframe')
 no_cyclone_dataframe = no_cyclone_dataframe.reset_index(drop=True)
