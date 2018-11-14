@@ -47,6 +47,7 @@ readonly MERGED_PREFIX="merged_${FILE_PREFIX}"
 readonly MERGED_CHANNEL_POSTFIX='channel'
 
 readonly DATA_DIR_PATH='/data/sgardoll/ouragan_data'
+readonly DATA_BACKUP_DIR_PATH='/data/sgardoll/ouragan_data.clean'
 readonly TENSOR_PARENT_DIR_PATH="${DATA_DIR_PATH}/tensor"
 readonly MERGED_CHANNEL_PARENT_DIR_PATH="${DATA_DIR_PATH}/merged_channels"
 readonly CHANNEL_PARENT_DIR_PATH="${DATA_DIR_PATH}/channels"
@@ -63,6 +64,12 @@ if [[ "${BUILD_KIND}" = 'skip' ]]; then
 fi
 
 if [[ "${BUILD_KIND}" = 'very_all' ]]; then
+
+  echo -e "\n*********** CLEAN ${DATA_DIR_PATH} ***********\n"
+
+  rm -vfr "${DATA_DIR_PATH}"
+  cp -vrp "${DATA_BACKUP_DIR_PATH}" "${DATA_DIR_PATH}"
+
   echo -e "\n*********** BUILD CYCLONE DB ***********\n"
   python3 build_cyclone_db.py
 
