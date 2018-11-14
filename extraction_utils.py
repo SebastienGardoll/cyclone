@@ -103,6 +103,7 @@ def test1():
   plt.figure()
   plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
   plt.show()
+  nc_dataset.close()
 
 """
 ferret
@@ -127,3 +128,4 @@ def test2():
   plt.figure()
   plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
   plt.show()
+  nc_dataset.close()

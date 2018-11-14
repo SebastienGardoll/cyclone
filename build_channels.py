@@ -48,6 +48,11 @@ class BuildChannels:
               Era5.V850 : utils.open_netcdf(parent_dir_path, Era5.V850, year, month)}
     return result
 
+  @staticmethod
+  def close_dataset_dict(dataset_dict):
+    for dataset in dataset_dict.values():
+      dataset.close()
+
   def build(self, row_processor, row_iterator, has_to_skip_first_row,
             has_to_show_plot):
     start = time.time()
@@ -64,6 +69,8 @@ class BuildChannels:
       if (current_year != previous_year) or (current_month != previous_month):
         previous_year  = current_year
         previous_month = current_month
+        if nc_datasets:
+          self.close_dataset_dict(nc_datasets)
         nc_datasets    = self.build_dataset_dict(current_year, current_month)
       for channel_index, variable in enumerate(Era5):
         region = utils.extract_region(nc_datasets[variable], variable, day,
