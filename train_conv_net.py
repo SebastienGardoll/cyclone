@@ -33,11 +33,14 @@ start = time.time()
                            ####### SETTINGS #######
 
 file_prefix = '2k'
+num_threads = 4
 
-if (len(sys.argv) > 1) and (sys.argv[1].strip()):
+if (len(sys.argv) > 2) and (sys.argv[1].strip()) and (sys.argv[2].strip()):
   file_prefix = sys.argv[1].strip()
+  num_threads = int(sys.argv[2].strip())
+  print(f'> setting file prefix to {file_prefix}')
+  print(f'> setting number of core to {num_threads}')
 
-num_core    = 4
 num_classes = common.NUM_CLASSES
 max_mem     = -1
 
@@ -50,16 +53,10 @@ optimizer   = keras.optimizers.SGD() # https://keras.io/optimizers/
 #optimizer   = keras.optimizers.Adadelta()
 test_ratio  = 0.3
 
-if (len(sys.argv) > 2) and (sys.argv[1].strip()) and (sys.argv[2].strip()):
-  file_prefix = sys.argv[1].strip()
-  num_core = int(sys.argv[2].strip())
-  print(f'> setting file prefix to {file_prefix}')
-  print(f'> setting number of core to {num_core}')
-
 config = K.tf.ConfigProto()
 
-config.intra_op_parallelism_threads = num_core
-config.inter_op_parallelism_threads = num_core
+config.intra_op_parallelism_threads = num_threads
+config.inter_op_parallelism_threads = num_threads
 
 K.set_session(K.tf.Session(config=config))
 
