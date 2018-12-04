@@ -53,10 +53,18 @@ optimizer   = keras.optimizers.SGD() # https://keras.io/optimizers/
 #optimizer   = keras.optimizers.Adadelta()
 test_ratio  = 0.3
 
-config = K.tf.ConfigProto()
+if num_threads > 1:
+  num_threads = num_threads - 1
 
-config.intra_op_parallelism_threads = num_threads
+config = K.tf.ConfigProto()#device_count={"CPU":num_threads})
+
+# maximum number of threads per core ?
+config.intra_op_parallelism_threads = 1
+
+# maximum number of core ?
 config.inter_op_parallelism_threads = num_threads
+
+# maximum is not the actual number of threads/cores used !
 
 K.set_session(K.tf.Session(config=config))
 
@@ -134,8 +142,10 @@ plot_model(model, to_file=cnn_architecture_file_path, show_shapes=True,
 
                       ####### FITTING MODEL #######
 
+# examples per second: https://github.com/tensorflow/models/blob/master/tutorials/image/cifar10/cifar10_train.py
+
 print('> fitting the model')
-model.fit(x=x_train, y=y_train, epochs=epochs, batch_size=batch_size)
+model.fit(x=x_train, y=y_train, epochs=epochs, batch_size=batch_size, verbose=2)
 
 print('> evaluating the model (keras method)')
 loss, metric = model.evaluate(x=x_test, y=y_test, verbose=1)

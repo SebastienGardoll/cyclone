@@ -202,11 +202,11 @@ print(f'> maximum memory footprint: {max_mem:.2f} MiB')
 ################################### DEBUG ######################################
 
 ''' DEBUG
-a = np.load(file='/home/seb/private/home_ciclad/ouragan/channels/2000_10_msl_cyclone_channel.npy',\
+a = np.load(file='/home/seb/private/home_ciclad/cyclone/channels/2000_10_msl_cyclone_channel.npy',\
             mmap_mode=None, allow_pickle=True)
 print(a.shape)
 
-b = np.load(file='/home/seb/private/home_ciclad/ouragan/channels/2000_10_msl_no_cyclone_channel.npy',\
+b = np.load(file='/home/seb/private/home_ciclad/cyclone/channels/2000_10_msl_no_cyclone_channel.npy',\
             mmap_mode=None, allow_pickle=True)
 print(b.shape)
 
@@ -267,13 +267,13 @@ print(compute_std(b[(b.shape[0]-1)][31][31], mean, stddev))
 print(d[(a.shape[0]-1)][31][31])
 print(d[(d.shape[0]-1)][31][31])
 
-a =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/ouragan/merged_channels/merged_2000_10_msl_channel.npy',\
+a =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_msl_channel.npy',\
                                mmap_mode=None, allow_pickle=True)
 
-b =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/ouragan/merged_channels/merged_2000_10_ta200_channel.npy',\
+b =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_ta200_channel.npy',\
                                mmap_mode=None, allow_pickle=True)
 
-c =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/ouragan/merged_channels/merged_2000_10_ta500_channel.npy',\
+c =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_ta500_channel.npy',\
                                mmap_mode=None, allow_pickle=True)
 
 

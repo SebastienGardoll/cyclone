@@ -104,7 +104,7 @@ def extract_record(line, cyclone_id, hurdat2_id):
 
 
 # Default values
-dataset_parent_dir_path = '/data/sgardoll/ouragan_data/dataset'
+dataset_parent_dir_path = '/data/sgardoll/cyclone_data/dataset'
 hurdat2_file_path = path.join(dataset_parent_dir_path,
                               "hurdat2-1851-2017-050118.txt")
 
@@ -112,7 +112,7 @@ if (len(sys.argv) > 1) and (sys.argv[1].strip()):
   hurdat2_file_path = sys.argv[1].strip()
   dataset_parent_dir_path = path.dirname(hurdat2_file_path)
 
-# hurdat2_file_path = '/home/sgardoll/ouragan/dataset/tmp' # DEBUG
+# hurdat2_file_path = '/home/sgardoll/cyclone/dataset/tmp' # DEBUG
 hurdat2_file = open(hurdat2_file_path, 'r')
 cyclone_dataframe = pd.DataFrame(columns=CYCLONE_DF_COLUMNS)
 
