@@ -44,7 +44,7 @@ set -u
 
 export PYTHONUNBUFFERED='true'
 
-readonly SCRIPT_DIR_PATH='/home/sgardoll/ouragan/spyder'
+readonly SCRIPT_DIR_PATH='/home/sgardoll/cyclone/spyder'
 
 echo -e "\n*********** BUILD CONV NET ***********\n"
 

@@ -46,7 +46,7 @@ export PYTHONUNBUFFERED='true'
 
 readonly NUM_PROCESSES=1
 
-readonly SCRIPT_DIR_PATH='/home/sgardoll/ouragan/spyder'
+readonly SCRIPT_DIR_PATH='/home/sgardoll/cyclone/spyder'
 
 readonly CYCLONE_CHANNEL_POSTFIX='cyclone_channel'
 readonly NO_CYCLONE_CHANNEL_POSTFIX='no_cyclone_channel'
@@ -56,8 +56,8 @@ readonly NO_CYCLONE_DB_POSTFIX='no_cyclone_dataset'
 readonly MERGED_PREFIX="merged_${FILE_PREFIX}"
 readonly MERGED_CHANNEL_POSTFIX='channel'
 
-readonly DATA_DIR_PATH='/data/sgardoll/ouragan_data'
-readonly DATA_BACKUP_DIR_PATH='/data/sgardoll/ouragan_data.clean'
+readonly DATA_DIR_PATH='/data/sgardoll/cyclone_data'
+readonly DATA_BACKUP_DIR_PATH='/data/sgardoll/cyclone_data.clean'
 readonly TENSOR_PARENT_DIR_PATH="${DATA_DIR_PATH}/tensor"
 readonly MERGED_CHANNEL_PARENT_DIR_PATH="${DATA_DIR_PATH}/merged_channels"
 readonly CHANNEL_PARENT_DIR_PATH="${DATA_DIR_PATH}/channels"
