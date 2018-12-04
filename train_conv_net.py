@@ -161,7 +161,7 @@ fpr_keras, tpr_keras, thresholds_keras = roc_curve(y_test_not_cat, y_pred)
 auc_model = auc(fpr_keras, tpr_keras)
 print(f'  > {auc_model}')
 
-model_filename  = 'model.h5'
+model_filename  = f'{file_prefix}_model.h5'
 model_file_path = path.join(common.CNN_PARENT_DIR_PATH, model_filename)
 print(f'> saving the model ({model_filename})')
 model.save(model_file_path)
