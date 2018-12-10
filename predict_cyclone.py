@@ -20,13 +20,7 @@ import csv
 import numpy as np
 import pandas as pd
 
-'''
-import keras
-from keras import backend as K
-from keras.models import Model
-from keras.layers import Dense, Input, Conv2D, MaxPooling2D, Flatten
-from keras.utils import plot_model
-'''
+from keras.models import load_model
 
 import configparser
 
@@ -47,12 +41,14 @@ def extract_region(img):
   (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx) = img
   for variable in Era5:
     nc_dataset = normalized_dataset[variable.value.num_id]
-    extract = nc_dataset[lat_min_idx:lat_max_idx][lon_min_idx:lon_max_idx]
-    print(nc_dataset[lat_min_idx:lat_max_idx])
     dest_array = channels[variable.value.num_id][id]
-    for x_index in range(0, common.X_RESOLUTION):
-      for y_index in range(0, common.Y_RESOLUTION):
-        dest_array[x_index][y_index] = extract[x_index][y_index]
+    x_index = 0
+    for current_lat in range(lat_min_idx, lat_max_idx):
+      y_index = 0
+      for current_lon in range(lon_min_idx, lon_max_idx):
+        dest_array[x_index][y_index] = nc_dataset[current_lat][current_lon]
+        y_index = y_index + 1
+      x_index = x_index + 1
 
 def open_cyclone_db():
   cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
@@ -196,5 +192,32 @@ while current_lat_min_idx < lat_max_idx:
 channels = mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
   common.Y_RESOLUTION), common.X_RESOLUTION), id_counter), len(Era5))
 
+print(f'> extracting the subregions (proc: {nb_proc})')
 with Pool(processes = nb_proc) as pool:
   pool.map(extract_region, image_list)
+
+print('> stacking the channels')
+numpy_channels = np.ctypeslib.as_array(channels)
+tensor = np.stack(numpy_channels, axis=3)
+
+# TODO unique name. Add name into settings file ?
+tensor_filename = f'{file_prefix}_prediction_tensor.npy'
+file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH, tensor_filename)
+print(f'> saving the tensor on disk ({tensor_filename})')
+np.save(file=file_path, arr=tensor, allow_pickle=True)
+
+cnn_filename = f'{file_prefix}_{common.CNN_FILE_POSTFIX}.h5'
+cnn_file_path = path.join(common.CNN_PARENT_DIR_PATH, cnn_filename)
+print(f'> loading the CNN model ({cnn_filename})')
+model = load_model(cnn_file_path)
+model.summary()
+
+print('> compute prediction of the subregions')
+# Compute the probabilities.
+y_pred_prob  = model.predict(tensor, verbose=1)
+
+# TODO
+# y_pred_class = np.argmax(y_pred_prob, axis=1) # Compute the closest class.
+
+# TODO compute the lat/lon of the subregions.
+

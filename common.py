@@ -54,6 +54,7 @@ CHANNEL_PARENT_DIR_PATH        = path.join(ROOT_DATA_DIR_PATH, 'channels')
 MERGED_CHANNEL_PARENT_DIR_PATH = path.join(ROOT_DATA_DIR_PATH, 'merged_channels')
 TENSOR_PARENT_DIR_PATH         = path.join(ROOT_DATA_DIR_PATH, 'tensor')
 CNN_PARENT_DIR_PATH            = path.join(ROOT_DATA_DIR_PATH, 'cnn')
+PREDICT_TENSOR_PARENT_DIR_PATH = path.join(ROOT_DATA_DIR_PATH, 'predict_tensor')
 
 STAT_SCRIPT_NAME               = 'build_stats.py'
 
@@ -68,6 +69,7 @@ MERGED_CHANNEL_FILE_POSTFIX     = 'channel'
 SHUFFLED_TENSOR_FILE_POSTFIX    = 'tensor'
 SHUFFLED_LABELS_FILE_POSTFIX    = 'labels'
 STATS_FILE_POSTFIX              = 'stats'
+CNN_FILE_POSTFIX                = 'model'
 
 MERGED_CHANNEL_FILE_PREFIX      = 'merged'
 SHUFFLED_FILE_PREFIX            = 'shuffled'
@@ -174,4 +176,4 @@ os.makedirs(CHANNEL_PARENT_DIR_PATH, exist_ok=True)
 os.makedirs(MERGED_CHANNEL_PARENT_DIR_PATH, exist_ok=True)
 os.makedirs(TENSOR_PARENT_DIR_PATH, exist_ok=True)
 os.makedirs(CNN_PARENT_DIR_PATH, exist_ok=True)
-
+os.makedirs(PREDICT_TENSOR_PARENT_DIR_PATH, exist_ok=True)
