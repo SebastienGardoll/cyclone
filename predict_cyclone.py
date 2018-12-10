@@ -8,6 +8,7 @@ Created on Tues Dec  4 10:41:31 2018
 import os.path as path
 
 import multiprocessing as mp
+from multiprocessing import Pool
 import ctypes
 
 import common
@@ -42,11 +43,30 @@ def normalize_dataset(chan_array, variable, netcdf_dataset, time_step, mean, std
   numpy_wrapping = np.ctypeslib.as_array(chan_array)
   np.copyto(dst=numpy_wrapping, src=unsharable_norm_dataset, casting='no')
 
+def extract_region(img):
+  (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx) = img
+  for variable in Era5:
+    nc_dataset = normalized_dataset[variable.value.num_id]
+    extract = nc_dataset[lat_min_idx:lat_max_idx][lon_min_idx:lon_max_idx]
+    print(nc_dataset[lat_min_idx:lat_max_idx])
+    dest_array = channels[variable.value.num_id][id]
+    for x_index in range(0, common.X_RESOLUTION):
+      for y_index in range(0, common.Y_RESOLUTION):
+        dest_array[x_index][y_index] = extract[x_index][y_index]
+
+def open_cyclone_db():
+  cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
+    f'{file_prefix}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
+  cyclone_db_file = open(cyclone_db_file_path, 'r')
+  cyclone_dataframe = pd.read_csv(cyclone_db_file, sep=',', header=0, index_col=0, na_values='')
+  cyclone_db_file.close()
+  return cyclone_dataframe
+
 config_file_path = path.join(common.SCRIPT_DIR_PATH, 'prediction.ini')
 config = configparser.ConfigParser()
 config.read(config_file_path)
 
-# Manage an already computed stack of images. TODO
+# TODO Manage an already computed stack of images. TODO
 # if (len(sys.argv) > 1) and (sys.argv[1].strip()):
 #
 
@@ -65,6 +85,8 @@ lon_min = float(config['region']['lon_min'])
 file_prefix    = config['model']['file_prefix']
 threshold_prob = float(config['model']['threshold_prob'])
 
+nb_proc = int(config['sys']['nb_proc'])
+
 # Checkings
 
 if lat_max < lat_min:
@@ -76,14 +98,6 @@ if lon_max < lon_min:
   exit(-1)
 
 # Open the cyclone db.
-def open_cyclone_db():
-  cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
-    f'{file_prefix}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
-  cyclone_db_file = open(cyclone_db_file_path, 'r')
-  cyclone_dataframe = pd.read_csv(cyclone_db_file, sep=',', header=0, index_col=0, na_values='')
-  cyclone_db_file.close()
-  return cyclone_dataframe
-
 cyclone_dataframe = open_cyclone_db()
 
 # Check if there is any cyclone for the given settings.
@@ -124,8 +138,8 @@ with open (stats_dataframe_file_path, 'r') as csv_file:
     mean = float(mean)
     stddev = float(stddev)
     normalize_dataset(normalized_dataset[variable.value.num_id],
-                                               variable, netcdf_dict[variable],
-                                               time_step, mean, stddev)
+                      variable, netcdf_dict[variable],
+                      time_step, mean, stddev)
 
 # Round lat&lon so as to compute synchronize with ERA5 resolution.
 rounded_lat_max = common.round_nearest(lat_max, common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
@@ -182,13 +196,5 @@ while current_lat_min_idx < lat_max_idx:
 channels = mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
   common.Y_RESOLUTION), common.X_RESOLUTION), id_counter), len(Era5))
 
-def extract_region(img):
-  (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx) = img
-  for variable in Era5:
-    nc_dataset = normalized_dataset[variable.value.num_id]
-    extract = nc_dataset[lat_min_idx:lat_max_idx][lon_min_idx:lon_max_idx]
-    dest_array = channels[variable.value.num_id][id]
-    for x_index in range(0, common.X_RESOLUTION):
-      for y_index in range(0, common.Y_RESOLUTION):
-        dest_array[x_index][y_index] = extract[x_index][y_index]
-
+with Pool(processes = nb_proc) as pool:
+  pool.map(extract_region, image_list)

@@ -3,3 +3,5 @@ tmp.py
 screenlog*
 nohup.out
 log
+*~
+prediction.ini
