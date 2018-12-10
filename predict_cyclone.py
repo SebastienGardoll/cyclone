@@ -221,3 +221,6 @@ y_pred_prob  = model.predict(tensor, verbose=1)
 
 # TODO compute the lat/lon of the subregions.
 
+stop = time.time()
+formatted_time =common.display_duration((stop-start))
+print(f'> spend {formatted_time} processing')
