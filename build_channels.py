@@ -36,19 +36,6 @@ class BuildChannels:
                   dtype=np.float32)
 
   @staticmethod
-  def build_dataset_dict(year, month):
-    parent_dir_path = common.NETCDF_PARENT_DIR_PATH
-    result = {Era5.MSL  : utils.open_netcdf(parent_dir_path, Era5.MSL, year, month),
-              Era5.U10  : utils.open_netcdf(parent_dir_path, Era5.U10, year, month),
-              Era5.V10  : utils.open_netcdf(parent_dir_path, Era5.V10, year, month),
-              Era5.TCWV : utils.open_netcdf(parent_dir_path, Era5.TCWV, year, month),
-              Era5.TA200: utils.open_netcdf(parent_dir_path, Era5.TA200, year, month),
-              Era5.TA500: utils.open_netcdf(parent_dir_path, Era5.TA500, year, month),
-              Era5.U850 : utils.open_netcdf(parent_dir_path, Era5.U850, year, month),
-              Era5.V850 : utils.open_netcdf(parent_dir_path, Era5.V850, year, month)}
-    return result
-
-  @staticmethod
   def close_dataset_dict(dataset_dict):
     for dataset in dataset_dict.values():
       dataset.close()
@@ -71,7 +58,7 @@ class BuildChannels:
         previous_month = current_month
         if nc_datasets:
           self.close_dataset_dict(nc_datasets)
-        nc_datasets    = self.build_dataset_dict(current_year, current_month)
+        nc_datasets    = utils.build_dataset_dict(current_year, current_month)
       for channel_index, variable in enumerate(Era5):
         region = utils.extract_region(nc_datasets[variable], variable, day,
                                       time_step, lat, lon)

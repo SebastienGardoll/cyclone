@@ -78,6 +78,18 @@ def open_netcdf(parent_dir_path, variable, year, month):
     logging.error(f'> cannot open {file_path}: {str(e)}')
   return result
 
+def build_dataset_dict(year, month):
+  parent_dir_path = common.NETCDF_PARENT_DIR_PATH
+  result = {Era5.MSL  : open_netcdf(parent_dir_path, Era5.MSL, year, month),
+            Era5.U10  : open_netcdf(parent_dir_path, Era5.U10, year, month),
+            Era5.V10  : open_netcdf(parent_dir_path, Era5.V10, year, month),
+            Era5.TCWV : open_netcdf(parent_dir_path, Era5.TCWV, year, month),
+            Era5.TA200: open_netcdf(parent_dir_path, Era5.TA200, year, month),
+            Era5.TA500: open_netcdf(parent_dir_path, Era5.TA500, year, month),
+            Era5.U850 : open_netcdf(parent_dir_path, Era5.U850, year, month),
+            Era5.V850 : open_netcdf(parent_dir_path, Era5.V850, year, month)}
+  return result
+
                            ######## TESTS ########
 
 """
