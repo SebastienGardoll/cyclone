@@ -212,10 +212,13 @@ model.summary()
 
 print('> compute prediction of the subregions')
 # Compute the probabilities.
-y_pred_prob  = model.predict(tensor, verbose=1)
+y_pred_prob = model.predict(tensor, verbose=1)
+# Keep only the probabilities.
+y_pred_prob = np.delete(y_pred_prob, obj=0, axis=1).squeeze()
 
-# TODO
-# y_pred_class = np.argmax(y_pred_prob, axis=1) # Compute the closest class.
+# True corresponds to a cyclone.
+class_func = np.vectorize(lambda prob: True if prob >= threshold_prob else False)
+y_pred_class = np.apply_along_axis(class_func, 0, y_pred_prob)
 
 # TODO compute the lat/lon of the subregions.
 
