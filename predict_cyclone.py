@@ -42,13 +42,13 @@ def extract_region(img):
   for variable in Era5:
     nc_dataset = normalized_dataset[variable.value.num_id]
     dest_array = channels[variable.value.num_id][id]
-    x_index = 0
+    y_index = 0
     for current_lat in range(lat_min_idx, lat_max_idx):
-      y_index = 0
+      x_index = 0
       for current_lon in range(lon_min_idx, lon_max_idx):
         dest_array[x_index][y_index] = nc_dataset[current_lat][current_lon]
-        y_index = y_index + 1
-      x_index = x_index + 1
+        x_index = x_index + 1
+      y_index = y_index + 1
 
 def open_cyclone_db():
   cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
@@ -67,7 +67,6 @@ config.read(config_file_path)
 #
 
 # Settings
-
 year      = int(config['date']['year'])
 month     = int(config['date']['month'])
 day       = int(config['date']['day'])
@@ -161,38 +160,37 @@ lon_max_idx = longitude_indexes[rounded_lon_max]
 lon_min_idx = longitude_indexes[rounded_lon_min]
 
 # DEBUG
-'''
-print(f'lat_max_idx: {lat_max_idx}')
+#'''
 print(f'lat_min_idx: {lat_min_idx}')
-print(f'lon_max_idx: {lon_max_idx}')
+print(f'lat_max_idx: {lat_max_idx}')
 print(f'lon_min_idx: {lon_min_idx}')
-'''
+print(f'lon_max_idx: {lon_max_idx}')
+#'''
 
 # Chunks the given region into multiple subregion <=> images.
 # Tuple composition: (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx).
+print(f'> chunking the selected region (lat min: {rounded_lat_min} ; \
+lat max: {rounded_lat_max} ; lon min: {rounded_lon_min} ; lon max: {rounded_lon_max})')
 id_counter = 0
 image_list = []
 current_lat_min_idx = lat_min_idx
-
-print(f'> chunking the selected region (lat min: {rounded_lat_min} ; \
-lat max: {rounded_lat_max} ; lon min: {rounded_lon_min} ; lon max: {rounded_lon_max})')
 while current_lat_min_idx < lat_max_idx:
   current_lat_max_idx = current_lat_min_idx + common.Y_RESOLUTION
   current_lon_min_idx = lon_min_idx
   while True:
     current_lon_max_idx = current_lon_min_idx + common.X_RESOLUTION
     image_list.append((id_counter, current_lat_min_idx, current_lat_max_idx, current_lon_min_idx, current_lon_max_idx))
-    current_lon_min_idx = current_lon_max_idx
+    current_lon_min_idx = current_lon_min_idx + 1
     id_counter = id_counter + 1
     if current_lon_min_idx > lon_max_idx:
-      current_lat_min_idx = current_lat_max_idx
+      current_lat_min_idx = current_lat_min_idx + 1
       break
 
 # Allocation of the channels.
 channels = mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
   common.Y_RESOLUTION), common.X_RESOLUTION), id_counter), len(Era5))
 
-print(f'> extracting the subregions (proc: {nb_proc})')
+print(f'> extracting the {id_counter} subregions (proc: {nb_proc})')
 with Pool(processes = nb_proc) as pool:
   pool.map(extract_region, image_list)
 

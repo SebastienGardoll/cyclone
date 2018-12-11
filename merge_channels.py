@@ -41,7 +41,7 @@ if num_processes > len(Era5):
 
 # Static Allocation of the shared array of statistics.
 stats_array = mp.RawArray(ctypes.ARRAY(ctypes.c_double,
-                                       len(common.MERGED_CHANNEL_STAT_COLUMNS)),
+                          len(common.MERGED_CHANNEL_STAT_COLUMNS)),
                           len(Era5))
 
 
