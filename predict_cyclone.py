@@ -20,7 +20,9 @@ import csv
 import numpy as np
 import pandas as pd
 
+import keras
 from keras.models import load_model
+from keras import backend as K
 
 import configparser
 
@@ -40,15 +42,9 @@ def normalize_dataset(chan_array, variable, netcdf_dataset, time_step, mean, std
 def extract_region(img):
   (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx) = img
   for variable in Era5:
-    nc_dataset = normalized_dataset[variable.value.num_id]
-    dest_array = channels[variable.value.num_id][id]
-    y_index = 0
-    for current_lat in range(lat_min_idx, lat_max_idx):
-      x_index = 0
-      for current_lon in range(lon_min_idx, lon_max_idx):
-        dest_array[x_index][y_index] = nc_dataset[current_lat][current_lon]
-        x_index = x_index + 1
-      y_index = y_index + 1
+    nc_dataset = np.ctypeslib.as_array(normalized_dataset[variable.value.num_id])
+    dest_array = np.ctypeslib.as_array(channels[variable.value.num_id][id])
+    np.copyto(dst=dest_array, src=nc_dataset[lat_min_idx:lat_max_idx, lon_min_idx:lon_max_idx], casting='no')
 
 def open_cyclone_db():
   cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
@@ -82,6 +78,23 @@ threshold_prob = float(config['model']['threshold_prob'])
 
 nb_proc  = int(config['sys']['nb_proc'])
 is_debug = bool(config['sys']['is_debug'])
+
+
+config = K.tf.ConfigProto()#device_count={"CPU":num_threads})
+
+# maximum number of threads per core ?
+config.intra_op_parallelism_threads = 1
+
+# maximum number of core ?
+config.inter_op_parallelism_threads = nb_proc
+
+# maximum is not the actual number of threads/cores used !
+
+K.set_session(K.tf.Session(config=config))
+
+# set data_format to 'channels_last'
+keras.backend.set_image_data_format('channels_last')
+
 
 # Checkings
 
