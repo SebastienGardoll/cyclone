@@ -22,7 +22,6 @@ import pandas as pd
 
 import keras
 from keras.models import load_model
-from keras import backend as K
 
 import configparser
 
@@ -78,22 +77,8 @@ threshold_prob = float(config['model']['threshold_prob'])
 nb_proc  = int(config['sys']['nb_proc'])
 is_debug = bool(config['sys']['is_debug'])
 
-
-config = K.tf.ConfigProto()#device_count={"CPU":num_threads})
-
-# maximum number of threads per core ?
-config.intra_op_parallelism_threads = 1
-
-# maximum number of core ?
-config.inter_op_parallelism_threads = nb_proc
-
-# maximum is not the actual number of threads/cores used !
-
-K.set_session(K.tf.Session(config=config))
-
 # set data_format to 'channels_last'
 keras.backend.set_image_data_format('channels_last')
-
 
 # Checkings
 
