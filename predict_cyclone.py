@@ -36,14 +36,13 @@ def normalize_dataset(chan_array, variable, netcdf_dataset, time_step, mean, std
     level_index = variable.value.index_mapping[variable.value.level]
     data = netcdf_dataset[variable.value.str_id][time_step][level_index]
   unsharable_norm_dataset = (data - mean)/stddev
-  numpy_wrapping = np.ctypeslib.as_array(chan_array)
-  np.copyto(dst=numpy_wrapping, src=unsharable_norm_dataset, casting='no')
+  np.copyto(dst=chan_array, src=unsharable_norm_dataset, casting='no')
 
 def extract_region(img):
   (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx) = img
   for variable in Era5:
-    nc_dataset = np.ctypeslib.as_array(normalized_dataset[variable.value.num_id])
-    dest_array = np.ctypeslib.as_array(channels[variable.value.num_id][id])
+    nc_dataset = normalized_dataset[variable.value.num_id]
+    dest_array = channels[variable.value.num_id][id]
     np.copyto(dst=dest_array, src=nc_dataset[lat_min_idx:lat_max_idx, lon_min_idx:lon_max_idx], casting='no')
 
 def open_cyclone_db():
@@ -142,8 +141,8 @@ for variable in Era5:
     shape = netcdf_dict[variable][variable.value.str_id][time_step].shape
     break
 
-normalized_dataset = mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
-  shape[1]), shape[0]), len(Era5))
+normalized_dataset = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
+  shape[1]), shape[0]), len(Era5)))
 
 print(f'> loading netcdf files and normalizing them ({stats_filename})')
 with open (stats_dataframe_file_path, 'r') as csv_file:
@@ -219,8 +218,8 @@ if is_debug:
   print(f'  > intermediate processing time: {formatted_time}')
 
 # Allocation of the channels.
-channels = mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
-  common.Y_RESOLUTION), common.X_RESOLUTION), id_counter), len(Era5))
+channels = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
+  common.Y_RESOLUTION), common.X_RESOLUTION), id_counter), len(Era5)))
 
 print(f'> extracting the {id_counter} subregions (proc: {nb_proc})')
 with Pool(processes = nb_proc) as pool:
@@ -232,8 +231,7 @@ if is_debug:
   print(f'  > intermediate processing time: {formatted_time}')
 
 print('> stacking the channels')
-numpy_channels = np.ctypeslib.as_array(channels)
-tensor = np.stack(numpy_channels, axis=3)
+tensor = np.stack(channels, axis=3)
 
 if is_debug:
   intermediate_time_6 = time.time()
