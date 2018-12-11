@@ -80,7 +80,8 @@ lon_min = float(config['region']['lon_min'])
 file_prefix    = config['model']['file_prefix']
 threshold_prob = float(config['model']['threshold_prob'])
 
-nb_proc = int(config['sys']['nb_proc'])
+nb_proc  = int(config['sys']['nb_proc'])
+is_debug = bool(config['sys']['is_debug'])
 
 # Checkings
 
@@ -105,15 +106,23 @@ existing_cyclones = cyclone_dataframe[(cyclone_dataframe.year == year) &
 if existing_cyclones.empty:
   print('> [WARN] the selected region doesn\'t have any cyclone')
 
+if is_debug:
+  intermediate_time_1 = time.time()
+  formatted_time =common.display_duration((intermediate_time_1-start))
+  print(f'  > intermediate processing time: {formatted_time}')
+
 print(f'> opening netcdf files (year: {year}; month: {month})')
 netcdf_dict = utils.build_dataset_dict(year, month)
 
+if is_debug:
+  intermediate_time_2 = time.time()
+  formatted_time =common.display_duration((intermediate_time_2-intermediate_time_1))
+  print(f'  > intermediate processing time: {formatted_time}')
+
 stats_filename = f'{common.MERGED_CHANNEL_FILE_PREFIX}_{file_prefix}_\
 {common.STATS_FILE_POSTFIX}.csv'
-print(f'> opening stats file {stats_filename}')
 stats_dataframe_file_path = path.join(common.MERGED_CHANNEL_PARENT_DIR_PATH,
                                       stats_filename)
-
 # Allocation of the datasets which values are normalized.
 for variable in Era5:
   if variable.value.level is None:
@@ -123,7 +132,7 @@ for variable in Era5:
 normalized_dataset = mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
   shape[1]), shape[0]), len(Era5))
 
-print(f'> loading netcdf files and normalizing them')
+print(f'> loading netcdf files and normalizing them ({stats_filename})')
 with open (stats_dataframe_file_path, 'r') as csv_file:
   csv_reader = csv.reader(csv_file, delimiter=',', lineterminator='\n')
   next(csv_reader) # Skip the header.
@@ -135,6 +144,11 @@ with open (stats_dataframe_file_path, 'r') as csv_file:
     normalize_dataset(normalized_dataset[variable.value.num_id],
                       variable, netcdf_dict[variable],
                       time_step, mean, stddev)
+
+if is_debug:
+  intermediate_time_3 = time.time()
+  formatted_time =common.display_duration((intermediate_time_3-intermediate_time_2))
+  print(f'  > intermediate processing time: {formatted_time}')
 
 # Round lat&lon so as to compute synchronize with ERA5 resolution.
 rounded_lat_max = common.round_nearest(lat_max, common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
@@ -186,6 +200,11 @@ while current_lat_min_idx < lat_max_idx:
       current_lat_min_idx = current_lat_min_idx + 1
       break
 
+if is_debug:
+  intermediate_time_4 = time.time()
+  formatted_time =common.display_duration((intermediate_time_4-intermediate_time_3))
+  print(f'  > intermediate processing time: {formatted_time}')
+
 # Allocation of the channels.
 channels = mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
   common.Y_RESOLUTION), common.X_RESOLUTION), id_counter), len(Era5))
@@ -194,15 +213,30 @@ print(f'> extracting the {id_counter} subregions (proc: {nb_proc})')
 with Pool(processes = nb_proc) as pool:
   pool.map(extract_region, image_list)
 
+if is_debug:
+  intermediate_time_5 = time.time()
+  formatted_time =common.display_duration((intermediate_time_5-intermediate_time_4))
+  print(f'  > intermediate processing time: {formatted_time}')
+
 print('> stacking the channels')
 numpy_channels = np.ctypeslib.as_array(channels)
 tensor = np.stack(numpy_channels, axis=3)
+
+if is_debug:
+  intermediate_time_6 = time.time()
+  formatted_time =common.display_duration((intermediate_time_6-intermediate_time_5))
+  print(f'  > intermediate processing time: {formatted_time}')
 
 # TODO unique name. Add name into settings file ?
 tensor_filename = f'{file_prefix}_prediction_tensor.npy'
 file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH, tensor_filename)
 print(f'> saving the tensor on disk ({tensor_filename})')
 np.save(file=file_path, arr=tensor, allow_pickle=True)
+
+if is_debug:
+  intermediate_time_7 = time.time()
+  formatted_time =common.display_duration((intermediate_time_7-intermediate_time_6))
+  print(f'  > intermediate processing time: {formatted_time}')
 
 cnn_filename = f'{file_prefix}_{common.CNN_FILE_POSTFIX}.h5'
 cnn_file_path = path.join(common.CNN_PARENT_DIR_PATH, cnn_filename)
@@ -215,6 +249,11 @@ print('> compute prediction of the subregions')
 y_pred_prob = model.predict(tensor, verbose=1)
 # Keep only the probabilities.
 y_pred_prob = np.delete(y_pred_prob, obj=0, axis=1).squeeze()
+
+if is_debug:
+  intermediate_time_8 = time.time()
+  formatted_time =common.display_duration((intermediate_time_8-intermediate_time_7))
+  print(f'  > intermediate processing time: {formatted_time}')
 
 # True corresponds to a cyclone.
 class_func = np.vectorize(lambda prob: True if prob >= threshold_prob else False)
