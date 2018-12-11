@@ -160,12 +160,12 @@ lon_max_idx = longitude_indexes[rounded_lon_max]
 lon_min_idx = longitude_indexes[rounded_lon_min]
 
 # DEBUG
-#'''
+'''
 print(f'lat_min_idx: {lat_min_idx}')
 print(f'lat_max_idx: {lat_max_idx}')
 print(f'lon_min_idx: {lon_min_idx}')
 print(f'lon_max_idx: {lon_max_idx}')
-#'''
+'''
 
 # Chunks the given region into multiple subregion <=> images.
 # Tuple composition: (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx).
@@ -219,6 +219,9 @@ y_pred_prob = np.delete(y_pred_prob, obj=0, axis=1).squeeze()
 # True corresponds to a cyclone.
 class_func = np.vectorize(lambda prob: True if prob >= threshold_prob else False)
 y_pred_class = np.apply_along_axis(class_func, 0, y_pred_prob)
+
+print(f'> Is there any cyclones predicted (threshold_prob = {threshold_prob}) ?\
+ => {y_pred_class.any()}')
 
 # TODO compute the lat/lon of the subregions.
 
