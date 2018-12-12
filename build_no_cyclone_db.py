@@ -73,7 +73,7 @@ def compute_no_cyclone(time, delta):
                             ######## MAIN ########
 
 
-no_cyclone_dataframe = pd.DataFrame(columns=NO_CYCLONE_DF_COLUMNS.keys())
+no_cyclone_list = []
 
 print('> computing the no cyclone records')
 current_year = -1
@@ -89,13 +89,12 @@ for (index, row) in CYCLONE_DATAFRAME.iterrows():
     print(f'  > compute year: {current_year}')
   cyclone_values = (cyclone_year, cyclone_month, cyclone_day,\
                     cyclone_time_step, cyclone_lat, cyclone_lon)
-  values = compute_no_cyclone(cyclone_values, common.ONE_DAY)
-  row_to_add = pd.Series(values, index=NO_CYCLONE_DF_COLUMNS.keys())
-  no_cyclone_dataframe = no_cyclone_dataframe.append(row_to_add, ignore_index=True)
-  values = compute_no_cyclone(cyclone_values, common.ONE_WEEK)
-  row_to_add = pd.Series(values, index=NO_CYCLONE_DF_COLUMNS.keys())
-  no_cyclone_dataframe = no_cyclone_dataframe.append(row_to_add, ignore_index=True)
+  no_cyclone_list.append(compute_no_cyclone(cyclone_values, common.ONE_DAY))
+  no_cyclone_list.append(compute_no_cyclone(cyclone_values, common.ONE_WEEK))
 
+# Appending rowes one by one in the while loop takes far more time then this.
+no_cyclone_dataframe = pd.DataFrame(data=no_cyclone_list,
+                                    columns=NO_CYCLONE_DF_COLUMNS.keys())
 # Specify the schema.
 no_cyclone_dataframe = no_cyclone_dataframe.astype(dtype = NO_CYCLONE_DF_COLUMNS)
 
