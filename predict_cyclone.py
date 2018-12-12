@@ -38,7 +38,7 @@ def normalize_dataset(chan_array, variable, netcdf_dataset, time_step, mean, std
   np.copyto(dst=chan_array, src=unsharable_norm_dataset, casting='no')
 
 def extract_region(img):
-  (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx) = img
+  (id, (lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx), coord) = img
   for variable in Era5:
     nc_dataset = normalized_dataset[variable.value.num_id]
     dest_array = channels[variable.value.num_id][id]
@@ -164,7 +164,7 @@ latitude_indexes  = np.load(path.join(common.DATASET_PARENT_DIR_PATH,
                                       'latitude_indexes.npy')).item()
 longitude_indexes = np.load(path.join(common.DATASET_PARENT_DIR_PATH,
                                       'longitude_indexes.npy')).item()
-# Min/max is inverted for latitude.
+# Min&max are inverted for latitude.
 lat_max_idx = latitude_indexes[rounded_lat_min]
 lat_min_idx = latitude_indexes[rounded_lat_max]
 lon_max_idx = longitude_indexes[rounded_lon_max]
@@ -179,22 +179,31 @@ print(f'lon_max_idx: {lon_max_idx}')
 '''
 
 # Chunks the given region into multiple subregion <=> images.
-# Tuple composition: (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx).
+# Tuple composition: (id, (lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx),
+# (lat_min, lat_max, lon_min, lon_max)).
 print(f'> chunking the selected region (lat min: {rounded_lat_min} ; \
 lat max: {rounded_lat_max} ; lon min: {rounded_lon_min} ; lon max: {rounded_lon_max})')
 id_counter = 0
 image_list = []
 current_lat_min_idx = lat_min_idx
+current_lat_max     = rounded_lat_max # Latitude indexes are inverted.
 while current_lat_min_idx < lat_max_idx:
   current_lat_max_idx = current_lat_min_idx + common.Y_RESOLUTION
   current_lon_min_idx = lon_min_idx
+  current_lat_min     = current_lat_max - common.LAT_FRAME
+  current_lon_min     = rounded_lon_min
   while True:
     current_lon_max_idx = current_lon_min_idx + common.X_RESOLUTION
-    image_list.append((id_counter, current_lat_min_idx, current_lat_max_idx, current_lon_min_idx, current_lon_max_idx))
+    current_lon_max     = current_lon_min + common.LON_FRAME
+    image_list.append((id_counter, (current_lat_min_idx, current_lat_max_idx,
+      current_lon_min_idx, current_lon_max_idx), (current_lat_min,
+      current_lat_max, current_lon_min, current_lon_max)))
     current_lon_min_idx = current_lon_min_idx + 1
+    current_lon_min     = current_lon_min + common.LON_RESOLUTION
     id_counter = id_counter + 1
     if current_lon_min_idx > lon_max_idx:
       current_lat_min_idx = current_lat_min_idx + 1
+      current_lat_max     = current_lat_max - common.LAT_RESOLUTION
       break
 
 if is_debug:
@@ -255,7 +264,7 @@ if is_debug:
 class_func = np.vectorize(lambda prob: True if prob >= threshold_prob else False)
 y_pred_class = np.apply_along_axis(class_func, 0, y_pred_prob)
 
-print(f'> Is there any cyclones predicted (threshold_prob = {threshold_prob}) ?\
+print(f'> Is there any cyclones predicted (threshold_prob: {threshold_prob}) ?\
  => {y_pred_class.any()}')
 
 # TODO compute the lat/lon of the subregions.
