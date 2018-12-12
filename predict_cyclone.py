@@ -101,7 +101,12 @@ existing_cyclones = cyclone_dataframe[(cyclone_dataframe.year == year) &
   (cyclone_dataframe.time_step == time_step)]
 
 if existing_cyclones.empty:
-  print('> [WARN] the selected region doesn\'t have any cyclone')
+  print('> [WARN] the selected region doesn\'t have any cyclone for the given\
+ time period (year: {year} ; month: {month} ; day: {day} ; time_step: {time_step})')
+else:
+  nb_cyclones = len(existing_cyclones)
+  print(f'> found {nb_cyclones} cyclone(s) for the given time period\
+ (year: {year} ; month: {month} ; day: {day} ; time_step: {time_step})')
 
 if is_debug:
   intermediate_time_1 = time.time()
@@ -258,7 +263,6 @@ cnn_filename = f'{file_prefix}_{common.CNN_FILE_POSTFIX}.h5'
 cnn_file_path = path.join(common.CNN_PARENT_DIR_PATH, cnn_filename)
 print(f'> loading the CNN model ({cnn_filename})')
 model = load_model(cnn_file_path)
-model.summary()
 
 print('> compute prediction of the subregions')
 # Compute the probabilities.
@@ -285,7 +289,7 @@ image_df = pd.concat((image_df, y_pred_prob, y_pred_class), axis=1)
 cyclone_images_df = image_df[image_df.is_cyclone == True]
 
 if not cyclone_images_df.empty:
-  print('  > model has predicted {len(cyclone_images_df)} cyclone(s)')
+  print(f'  > model has predicted {len(cyclone_images_df)} cyclone(s)')
 else:
   print('  > model has NOT predicted any cyclone')
 
