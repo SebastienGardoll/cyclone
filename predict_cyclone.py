@@ -242,11 +242,12 @@ if is_debug:
   formatted_time =common.display_duration((intermediate_time_6-intermediate_time_5))
   print(f'  > intermediate processing time: {formatted_time}')
 
-# TODO unique name. Add name into settings file ?
-tensor_filename = f'{file_prefix}_prediction_tensor.npy'
-file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH, tensor_filename)
-print(f'> saving the tensor on disk ({tensor_filename})')
-np.save(file=file_path, arr=tensor, allow_pickle=True)
+if not is_debug:
+  # TODO unique name. Add name into settings file ?
+  tensor_filename = f'{file_prefix}_prediction_tensor.npy'
+  file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH, tensor_filename)
+  print(f'> saving the tensor on disk ({tensor_filename})')
+  np.save(file=file_path, arr=tensor, allow_pickle=True)
 
 if is_debug:
   intermediate_time_7 = time.time()
