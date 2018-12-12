@@ -349,3 +349,6 @@ import extraction_utils as utils
 region = utils.extract_region(netcdf_dict[variable], variable, day, time_step, debug_lat, debug_lon)
 plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
 plt.show()
+
+# The images must be the same, even if the image from the _CHANNELS is based on
+# normalized values from netcdf file.
