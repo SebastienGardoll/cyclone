@@ -40,8 +40,8 @@ def normalize_dataset(chan_array, variable, netcdf_dataset, time_step, mean, std
 def extract_region(img):
   (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx) = img
   for variable in Era5:
-    nc_dataset = normalized_dataset[variable.value.num_id]
-    dest_array = channels[variable.value.num_id][id]
+    nc_dataset = _NORMALIZED_DATASET[variable.value.num_id]
+    dest_array = _CHANNELS[variable.value.num_id][id]
     np.copyto(dst=dest_array, src=nc_dataset[lat_min_idx:lat_max_idx, lon_min_idx:lon_max_idx], casting='no')
 
 def open_cyclone_db():
@@ -133,7 +133,7 @@ for variable in Era5:
 
 # Making use of numpy array backended by ctypes shared array has been successfully
 # tested while in multiprocessing context.
-normalized_dataset = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
+_NORMALIZED_DATASET = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
   shape[1]), shape[0]), len(Era5)))
 
 print(f'> loading netcdf files and normalizing them ({stats_filename})')
@@ -145,9 +145,14 @@ with open (stats_dataframe_file_path, 'r') as csv_file:
     (mean, stddev) = next(csv_reader)
     mean = float(mean)
     stddev = float(stddev)
-    normalize_dataset(normalized_dataset[variable.value.num_id],
+    normalize_dataset(_NORMALIZED_DATASET[variable.value.num_id],
                       variable, netcdf_dict[variable],
                       time_step, mean, stddev)
+
+if not is_debug:
+  for dataset in netcdf_dict.values():
+    dataset.close()
+
 if is_debug:
   intermediate_time_3 = time.time()
   formatted_time =common.display_duration((intermediate_time_3-intermediate_time_2))
@@ -231,8 +236,9 @@ if is_debug:
 # Allocation of the channels.
 # Making use of numpy array backended by ctypes shared array has been successfully
 # tested while in multiprocessing context.
-channels = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
-  common.Y_RESOLUTION), common.X_RESOLUTION), id_counter), len(Era5)))
+_CHANNELS = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(
+  ctypes.ARRAY(ctypes.c_float, common.Y_RESOLUTION), common.X_RESOLUTION), id_counter),
+  len(Era5)))
 
 print(f'> extracting the {id_counter} subregions (proc: {nb_proc})')
 with Pool(processes = nb_proc) as pool:
@@ -244,7 +250,7 @@ if is_debug:
   print(f'  > intermediate processing time: {formatted_time}')
 
 print('> stacking the channels')
-tensor = np.stack(channels, axis=3)
+tensor = np.stack(_CHANNELS, axis=3)
 
 if is_debug:
   intermediate_time_6 = time.time()
@@ -313,3 +319,33 @@ if is_debug:
 stop = time.time()
 formatted_time =common.display_duration((stop-start))
 print(f'> spend {formatted_time} processing')
+
+# DEBUG
+
+# 2000,8,6,0,HU,14.5,-33.2
+# => lat: 10.5 -> 18.5
+#    lon: -37.25 -> -29.25
+debug_lat     = 14.5
+debug_lon     = -33.25
+variable      = Era5.MSL
+
+debug_lat_min = debug_lat - common.HALF_LAT_FRAME
+debug_lat_max = debug_lat + common.HALF_LAT_FRAME
+debug_lon_min = debug_lon - common.HALF_LON_FRAME
+debug_lon_max = debug_lon + common.HALF_LON_FRAME
+
+record = image_df[(image_df.lat_min == debug_lat_min) & (image_df.lat_max == debug_lat_max) & (image_df.lon_min == debug_lon_min) & (image_df.lon_max == debug_lon_max)]
+print(record)
+#       lat_min  lat_max  lon_min  lon_max          prob  is_cyclone
+#30537     10.5     18.5   -37.25   -29.25  3.056721e-10       False
+debug_id = record.index[0]
+
+from matplotlib import pyplot as plt
+region = _CHANNELS[variable.value.num_id][debug_id]
+plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
+plt.show()
+
+import extraction_utils as utils
+region = utils.extract_region(netcdf_dict[variable], variable, day, time_step, debug_lat, debug_lon)
+plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
+plt.show()
