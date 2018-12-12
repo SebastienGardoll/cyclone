@@ -210,7 +210,7 @@ image_df_colums = {'lat_min': np.float32,
                    'lat_max': np.float32,
                    'lon_min': np.float32,
                    'lon_max': np.float32}
-# Appending rowes one by one in the while loop takes far more time then this.
+# Appending rows one by one in the while loop takes far more time then this.
 image_df = pd.DataFrame(data=image_list, columns=image_df_colums.keys())
 # Specify the schema.
 image_df = image_df.astype(dtype = image_df_colums)
@@ -261,23 +261,37 @@ model.summary()
 
 print('> compute prediction of the subregions')
 # Compute the probabilities.
-y_pred_prob = model.predict(tensor, verbose=1)
+y_pred_prob_npy = model.predict(tensor, verbose=1)
 # Keep only the probabilities.
-y_pred_prob = np.delete(y_pred_prob, obj=0, axis=1).squeeze()
+y_pred_prob_npy = np.delete(y_pred_prob_npy, obj=0, axis=1).squeeze()
 
 if is_debug:
   intermediate_time_8 = time.time()
   formatted_time =common.display_duration((intermediate_time_8-intermediate_time_7))
   print(f'  > intermediate processing time: {formatted_time}')
 
+print('> computing results')
+
 # True corresponds to a cyclone.
 class_func = np.vectorize(lambda prob: True if prob >= threshold_prob else False)
-y_pred_class = np.apply_along_axis(class_func, 0, y_pred_prob)
+y_pred_class_npy = np.apply_along_axis(class_func, 0, y_pred_prob_npy)
 
-print(f'> Is there any cyclones predicted (threshold_prob: {threshold_prob}) ?\
- => {y_pred_class.any()}')
+y_pred_prob = pd.DataFrame(data=y_pred_prob_npy, columns=['prob'])
+y_pred_class = pd.DataFrame(data=y_pred_class_npy, columns=['is_cyclone'])
 
+# Concatenate the data frames.
+image_df = pd.concat((image_df, y_pred_prob, y_pred_class), axis=1)
+cyclone_images_df = image_df[image_df.is_cyclone == True]
 
+if not cyclone_images_df.empty:
+  print('  > model has predicted {len(cyclone_images_df)} cyclone(s)')
+else:
+  print('  > model has NOT predicted any cyclone')
+
+if is_debug:
+  intermediate_time_9 = time.time()
+  formatted_time =common.display_duration((intermediate_time_9-intermediate_time_8))
+  print(f'  > intermediate processing time: {formatted_time}')
 
 stop = time.time()
 formatted_time =common.display_duration((stop-start))

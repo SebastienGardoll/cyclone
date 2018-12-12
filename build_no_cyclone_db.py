@@ -92,7 +92,7 @@ for (index, row) in CYCLONE_DATAFRAME.iterrows():
   no_cyclone_list.append(compute_no_cyclone(cyclone_values, common.ONE_DAY))
   no_cyclone_list.append(compute_no_cyclone(cyclone_values, common.ONE_WEEK))
 
-# Appending rowes one by one in the while loop takes far more time then this.
+# Appending rows one by one in the while loop takes far more time then this.
 no_cyclone_dataframe = pd.DataFrame(data=no_cyclone_list,
                                     columns=NO_CYCLONE_DF_COLUMNS.keys())
 # Specify the schema.
