@@ -38,7 +38,7 @@ def normalize_dataset(chan_array, variable, netcdf_dataset, time_step, mean, std
   np.copyto(dst=chan_array, src=unsharable_norm_dataset, casting='no')
 
 def extract_region(img):
-  (id, (lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx), coord) = img
+  (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx) = img
   for variable in Era5:
     nc_dataset = normalized_dataset[variable.value.num_id]
     dest_array = channels[variable.value.num_id][id]
@@ -141,7 +141,6 @@ with open (stats_dataframe_file_path, 'r') as csv_file:
     normalize_dataset(normalized_dataset[variable.value.num_id],
                       variable, netcdf_dict[variable],
                       time_step, mean, stddev)
-
 if is_debug:
   intermediate_time_3 = time.time()
   formatted_time =common.display_duration((intermediate_time_3-intermediate_time_2))
@@ -184,6 +183,7 @@ print(f'lon_max_idx: {lon_max_idx}')
 print(f'> chunking the selected region (lat min: {rounded_lat_min} ; \
 lat max: {rounded_lat_max} ; lon min: {rounded_lon_min} ; lon max: {rounded_lon_max})')
 id_counter = 0
+index_list = []
 image_list = []
 current_lat_min_idx = lat_min_idx
 current_lat_max     = rounded_lat_max # Latitude indexes are inverted.
@@ -195,9 +195,9 @@ while current_lat_min_idx < lat_max_idx:
   while True:
     current_lon_max_idx = current_lon_min_idx + common.X_RESOLUTION
     current_lon_max     = current_lon_min + common.LON_FRAME
-    image_list.append((id_counter, (current_lat_min_idx, current_lat_max_idx,
-      current_lon_min_idx, current_lon_max_idx), (current_lat_min,
-      current_lat_max, current_lon_min, current_lon_max)))
+    index_list.append((id_counter, current_lat_min_idx, current_lat_max_idx,
+      current_lon_min_idx, current_lon_max_idx))
+    image_list.append([current_lat_min, current_lat_max, current_lon_min, current_lon_max])
     current_lon_min_idx = current_lon_min_idx + 1
     current_lon_min     = current_lon_min + common.LON_RESOLUTION
     id_counter = id_counter + 1
@@ -205,6 +205,16 @@ while current_lat_min_idx < lat_max_idx:
       current_lat_min_idx = current_lat_min_idx + 1
       current_lat_max     = current_lat_max - common.LAT_RESOLUTION
       break
+
+image_df_colums = {'lat_min': np.float32,
+                   'lat_max': np.float32,
+                   'lon_min': np.float32,
+                   'lon_max': np.float32}
+# Appending rowes one by one in the while loop takes far more time then this.
+image_df = pd.DataFrame(data=image_list, columns=image_df_colums.keys())
+# Specify the schema.
+image_df = image_df.astype(dtype = image_df_colums)
+del image_list
 
 if is_debug:
   intermediate_time_4 = time.time()
@@ -217,7 +227,7 @@ channels = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.AR
 
 print(f'> extracting the {id_counter} subregions (proc: {nb_proc})')
 with Pool(processes = nb_proc) as pool:
-  pool.map(extract_region, image_list)
+  pool.map(extract_region, index_list)
 
 if is_debug:
   intermediate_time_5 = time.time()
@@ -267,7 +277,7 @@ y_pred_class = np.apply_along_axis(class_func, 0, y_pred_prob)
 print(f'> Is there any cyclones predicted (threshold_prob: {threshold_prob}) ?\
  => {y_pred_class.any()}')
 
-# TODO compute the lat/lon of the subregions.
+
 
 stop = time.time()
 formatted_time =common.display_duration((stop-start))
