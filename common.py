@@ -70,6 +70,7 @@ SHUFFLED_TENSOR_FILE_POSTFIX    = 'tensor'
 SHUFFLED_LABELS_FILE_POSTFIX    = 'labels'
 STATS_FILE_POSTFIX              = 'stats'
 CNN_FILE_POSTFIX                = 'model'
+PREDICTION_FILE_POSTFIX         = 'predict'
 
 MERGED_CHANNEL_FILE_PREFIX      = 'merged'
 SHUFFLED_FILE_PREFIX            = 'shuffled'

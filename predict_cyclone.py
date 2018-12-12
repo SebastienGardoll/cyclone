@@ -290,6 +290,14 @@ cyclone_images_df = image_df[image_df.is_cyclone == True]
 
 if not cyclone_images_df.empty:
   print(f'  > model has predicted {len(cyclone_images_df)} cyclone(s)')
+  filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
+  print(f'> saving the {filename} on disk')
+  no_cyclone_dataframe_file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH,
+                                           filename)
+  cyclone_images_df.to_csv(no_cyclone_dataframe_file_path, sep=',',
+                           na_rep='', header=True, index=True,
+                           index_label='id', encoding='utf8',
+                           line_terminator='\n')
 else:
   print('  > model has NOT predicted any cyclone')
 
