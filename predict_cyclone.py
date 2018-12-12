@@ -131,6 +131,8 @@ for variable in Era5:
     shape = netcdf_dict[variable][variable.value.str_id][time_step].shape
     break
 
+# Making use of numpy array backended by ctypes shared array has been successfully
+# tested while in multiprocessing context.
 normalized_dataset = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
   shape[1]), shape[0]), len(Era5)))
 
@@ -174,8 +176,8 @@ lat_min_idx = latitude_indexes[rounded_lat_max]
 lon_max_idx = longitude_indexes[rounded_lon_max]
 lon_min_idx = longitude_indexes[rounded_lon_min]
 
-# DEBUG
 '''
+# DEBUG
 print(f'lat_min_idx: {lat_min_idx}')
 print(f'lat_max_idx: {lat_max_idx}')
 print(f'lon_min_idx: {lon_min_idx}')
@@ -227,6 +229,8 @@ if is_debug:
   print(f'  > intermediate processing time: {formatted_time}')
 
 # Allocation of the channels.
+# Making use of numpy array backended by ctypes shared array has been successfully
+# tested while in multiprocessing context.
 channels = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
   common.Y_RESOLUTION), common.X_RESOLUTION), id_counter), len(Era5)))
 
