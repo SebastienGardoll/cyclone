@@ -114,7 +114,7 @@ if (len(sys.argv) > 1) and (sys.argv[1].strip()):
 
 # hurdat2_file_path = '/home/sgardoll/cyclone/dataset/tmp' # DEBUG
 hurdat2_file = open(hurdat2_file_path, 'r')
-cyclone_dataframe = pd.DataFrame(columns=CYCLONE_DF_COLUMNS)
+cyclone_list = []
 
 lines = hurdat2_file.readlines()
 cyclone_id = 0
@@ -134,8 +134,7 @@ while index < len(lines):
     current_line = lines[index]
     cyclone_values = extract_record(current_line, cyclone_id, hurdat_id)
     if cyclone_values is not None:
-      cyclone_row = pd.Series(cyclone_values, index=CYCLONE_DF_COLUMNS)
-      cyclone_dataframe = cyclone_dataframe.append(cyclone_row, ignore_index=True)
+      cyclone_list.append(cyclone_values)
       row_count = row_count + 1
       current_year = cyclone_values[2]
       if current_year != previous_year:
@@ -147,6 +146,8 @@ while index < len(lines):
   mapping_values = [cyclone_id, hurdat_id, first_record_line, last_record_line_plus_1]
   cyclone_id = cyclone_id + 1
   index = index + 1
+
+cyclone_dataframe = pd.DataFrame(data=cyclone_list, columns=CYCLONE_DF_COLUMNS)
 
 print(f'> number of row skipped: {skipped_row_count}')
 # 18 198
