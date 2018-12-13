@@ -136,6 +136,8 @@ for variable in Era5:
 _NORMALIZED_DATASET = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
   shape[1]), shape[0]), len(Era5)))
 
+time_index = utils._compute_time_index(day, time_step)
+
 print(f'> loading netcdf files and normalizing them ({stats_filename})')
 with open (stats_dataframe_file_path, 'r') as csv_file:
   csv_reader = csv.reader(csv_file, delimiter=',', lineterminator='\n')
@@ -147,7 +149,7 @@ with open (stats_dataframe_file_path, 'r') as csv_file:
     stddev = float(stddev)
     normalize_dataset(_NORMALIZED_DATASET[variable.value.num_id],
                       variable, netcdf_dict[variable],
-                      time_step, mean, stddev)
+                      time_index, mean, stddev)
 
 if not is_debug:
   for dataset in netcdf_dict.values():
@@ -320,7 +322,7 @@ stop = time.time()
 formatted_time =common.display_duration((stop-start))
 print(f'> spend {formatted_time} processing')
 
-#'''
+'''
 # DEBUG
 
 # 2000,8,6,0,HU,14.5,-33.2
@@ -355,3 +357,4 @@ plt.show()
 
 # The images must be the same, even if the image from the _CHANNELS is based on
 # normalized values from netcdf file.
+'''

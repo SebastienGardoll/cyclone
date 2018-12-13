@@ -47,6 +47,8 @@ def extract_region(nc_dataset, variable, day, time_step, lat, lon):
   lat_max_index  = _LATITUDE_INDEXES[(rounded_lat - common.HALF_LAT_FRAME)]
   lon_min_index  = _LONGITUDE_INDEXES[(rounded_lon - common.HALF_LON_FRAME)]
   lon_max_index  = _LONGITUDE_INDEXES[(rounded_lon + common.HALF_LON_FRAME)]
+  #DEBUG
+  #print(f'lat_min_index: {lat_min_index} ; lat_max_index: {lat_max_index} ; lon_min_index: {lon_min_index} ; lon_max_index: {lon_max_index}')
   if variable.value.level is None:
     result = nc_dataset[variable.value.str_id][time_min_index:time_max_index,
                        lat_min_index:lat_max_index, lon_min_index:lon_max_index][0]
