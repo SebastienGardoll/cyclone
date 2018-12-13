@@ -294,7 +294,7 @@ model = load_model(cnn_file_path)
 
 print('> compute prediction of the subregions')
 # Compute the probabilities.
-y_pred_prob_npy = model.predict(tensor, verbose=1)
+y_pred_prob_npy = model.predict(tensor, verbose=0)
 # Keep only the probabilities.
 y_pred_prob_npy = np.delete(y_pred_prob_npy, obj=0, axis=1).squeeze()
 
@@ -317,7 +317,7 @@ image_df = pd.concat((image_df, y_pred_prob, y_pred_class), axis=1)
 cyclone_images_df = image_df[image_df.is_cyclone == True]
 
 if not cyclone_images_df.empty:
-  print(f'  > model has predicted {len(cyclone_images_df)} image(s) of cyclone')
+  print(f'  > model has classified {len(cyclone_images_df)} image(s) as cyclone')
   filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
   print(f'> saving the {filename} on disk')
   no_cyclone_dataframe_file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH,
@@ -327,7 +327,7 @@ if not cyclone_images_df.empty:
                            index_label='id', encoding='utf8',
                            line_terminator='\n')
 else:
-  print('  > model has NOT predicted any cyclone')
+  print('  > model has NOT classified any image as cyclone')
 
 if is_debug:
   intermediate_time_9 = time.time()
