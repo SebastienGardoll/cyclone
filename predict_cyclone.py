@@ -301,7 +301,7 @@ image_df = pd.concat((image_df, y_pred_prob, y_pred_class), axis=1)
 cyclone_images_df = image_df[image_df.is_cyclone == True]
 
 if not cyclone_images_df.empty:
-  print(f'  > model has predicted {len(cyclone_images_df)} cyclone(s)')
+  print(f'  > model has predicted {len(cyclone_images_df)} image(s) of cyclone')
   filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
   print(f'> saving the {filename} on disk')
   no_cyclone_dataframe_file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH,
@@ -322,39 +322,37 @@ stop = time.time()
 formatted_time =common.display_duration((stop-start))
 print(f'> spend {formatted_time} processing')
 
-'''
-# DEBUG
 
-# 2000,8,6,0,HU,14.5,-33.2
-# => lat: 10.5 -> 18.5
-#    lon: -37.25 -> -29.25
-debug_lat     = 14.5
-debug_lon     = -33.25
-variable      = Era5.MSL
 
-debug_lat_min = debug_lat - common.HALF_LAT_FRAME
-debug_lat_max = debug_lat + common.HALF_LAT_FRAME
-debug_lon_min = debug_lon - common.HALF_LON_FRAME
-debug_lon_max = debug_lon + common.HALF_LON_FRAME
+def test():
+  # => lat: 10.5 -> 18.5
+  #    lon: -37.25 -> -29.25
+  debug_lat     = 14.5
+  debug_lon     = -33.25
+  variable      = Era5.MSL
 
-record = image_df[(image_df.lat_min == debug_lat_min) & (image_df.lat_max == debug_lat_max) & (image_df.lon_min == debug_lon_min) & (image_df.lon_max == debug_lon_max)]
-print(record)
-#       lat_min  lat_max  lon_min  lon_max          prob  is_cyclone
-#30537     10.5     18.5   -37.25   -29.25  3.056721e-10       False
-debug_id = record.index[0]
+  debug_lat_min = debug_lat - common.HALF_LAT_FRAME
+  debug_lat_max = debug_lat + common.HALF_LAT_FRAME
+  debug_lon_min = debug_lon - common.HALF_LON_FRAME
+  debug_lon_max = debug_lon + common.HALF_LON_FRAME
 
-print(f'indexes: {index_list[debug_id]}')
-print(f'recomputed indexes: lat_min_index = {latitude_indexes[debug_lat_max]} ; lat_max_index = {latitude_indexes[debug_lat_min]} ; lon_min_index = {longitude_indexes[debug_lon_min]} ; lon_max_index = {longitude_indexes[debug_lon_max]}')
+  record = image_df[(image_df.lat_min == debug_lat_min) & (image_df.lat_max == debug_lat_max) & (image_df.lon_min == debug_lon_min) & (image_df.lon_max == debug_lon_max)]
+  print(record)
+  #       lat_min  lat_max  lon_min  lon_max          prob  is_cyclone
+  #30537     10.5     18.5   -37.25   -29.25  3.056721e-10       False
+  debug_id = record.index[0]
 
-from matplotlib import pyplot as plt
-region = _CHANNELS[variable.value.num_id][debug_id]
-plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
-plt.show()
+  print(f'indexes: {index_list[debug_id]}')
+  print(f'recomputed indexes: lat_min_index = {latitude_indexes[debug_lat_max]} ; lat_max_index = {latitude_indexes[debug_lat_min]} ; lon_min_index = {longitude_indexes[debug_lon_min]} ; lon_max_index = {longitude_indexes[debug_lon_max]}')
 
-region = utils.extract_region(netcdf_dict[variable], variable, day, time_step, debug_lat, debug_lon)
-plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
-plt.show()
+  from matplotlib import pyplot as plt
+  region = _CHANNELS[variable.value.num_id][debug_id]
+  plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
+  plt.show()
 
-# The images must be the same, even if the image from the _CHANNELS is based on
-# normalized values from netcdf file.
-'''
+  region = utils.extract_region(netcdf_dict[variable], variable, day, time_step, debug_lat, debug_lon)
+  plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
+  plt.show()
+
+  # The images must be the same, even if the image from the _CHANNELS is based on
+  # normalized values from netcdf file.
