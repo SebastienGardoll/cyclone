@@ -16,6 +16,7 @@ from netCDF4 import Dataset
 import os.path as path
 
 import numpy as np
+from matplotlib import pyplot as plt
 
 import logging
 
@@ -91,6 +92,11 @@ def build_dataset_dict(year, month):
             Era5.U850 : open_netcdf(parent_dir_path, Era5.U850, year, month),
             Era5.V850 : open_netcdf(parent_dir_path, Era5.V850, year, month)}
   return result
+
+def display_region(netcdf_dataset, variable, day, time_step, lat, lon):
+  region = extract_region(netcdf_dataset, variable, day, time_step, lat, lon)
+  plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
+  plt.show()
 
                            ######## TESTS ########
 
