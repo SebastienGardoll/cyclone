@@ -320,6 +320,7 @@ stop = time.time()
 formatted_time =common.display_duration((stop-start))
 print(f'> spend {formatted_time} processing')
 
+#'''
 # DEBUG
 
 # 2000,8,6,0,HU,14.5,-33.2
@@ -340,12 +341,14 @@ print(record)
 #30537     10.5     18.5   -37.25   -29.25  3.056721e-10       False
 debug_id = record.index[0]
 
+print(f'indexes: {index_list[debug_id]}')
+print(f'recomputed indexes: lat_min_index = {latitude_indexes[debug_lat_max]} ; lat_max_index = {latitude_indexes[debug_lat_min]} ; lon_min_index = {longitude_indexes[debug_lon_min]} ; lon_max_index = {longitude_indexes[debug_lon_max]}')
+
 from matplotlib import pyplot as plt
 region = _CHANNELS[variable.value.num_id][debug_id]
 plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
 plt.show()
 
-import extraction_utils as utils
 region = utils.extract_region(netcdf_dict[variable], variable, day, time_step, debug_lat, debug_lon)
 plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
 plt.show()
