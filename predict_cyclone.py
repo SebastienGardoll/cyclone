@@ -52,6 +52,15 @@ def open_cyclone_db():
   cyclone_db_file.close()
   return cyclone_dataframe
 
+def format_record(idx, record):
+  lat = record['lat']
+  lon = record['lon']
+  lat_min = common.round_nearest((lat - common.HALF_LAT_FRAME), common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
+  lat_max = common.round_nearest((lat + common.HALF_LAT_FRAME), common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
+  lon_min = common.round_nearest((lon - common.HALF_LON_FRAME), common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
+  lon_max = common.round_nearest((lon + common.HALF_LON_FRAME), common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
+  return f'  > id: {idx} ; lat = {lat} ; lon = {lon} ; lat_min = {lat_min} ; lat_max = {lat_max} ; lon_min = {lon_min} ; lon_max = {lon_max}'
+
 config_file_path = path.join(common.SCRIPT_DIR_PATH, 'prediction.ini')
 config = configparser.ConfigParser()
 config.read(config_file_path)
@@ -99,15 +108,6 @@ existing_cyclones = cyclone_dataframe[(cyclone_dataframe.year == year) &
   (cyclone_dataframe.month == month) &
   (cyclone_dataframe.day == day) &
   (cyclone_dataframe.time_step == time_step)]
-
-def format_record(idx, record):
-  lat = record['lat']
-  lon = record['lon']
-  lat_min = common.round_nearest((lat - common.HALF_LAT_FRAME), common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
-  lat_max = common.round_nearest((lat + common.HALF_LAT_FRAME), common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
-  lon_min = common.round_nearest((lon - common.HALF_LON_FRAME), common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
-  lon_max = common.round_nearest((lon + common.HALF_LON_FRAME), common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
-  return f'  > id: {idx} ; lat = {lat} ; lon = {lon} ; lat_min = {lat_min} ; lat_max = {lat_max} ; lon_min = {lon_min} ; lon_max = {lon_max}'
 
 if existing_cyclones.empty:
   print('> [WARN] the selected region doesn\'t have any cyclone for the given\
@@ -343,7 +343,7 @@ def test(debug_lat, debug_lon):
   #    lon: -37.25 -> -29.25
 
   debug_lat = common.round_nearest(debug_lat, common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
-  debug_lat = common.round_nearest(debug_lon, common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
+  debug_lon = common.round_nearest(debug_lon, common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
   variable      = Era5.MSL
 
   debug_lat_min = debug_lat - common.HALF_LAT_FRAME
