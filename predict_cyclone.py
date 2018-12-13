@@ -85,6 +85,7 @@ threshold_prob = float(config['model']['threshold_prob'])
 
 nb_proc  = int(config['sys']['nb_proc'])
 is_debug = bool(config['sys']['is_debug'])
+save_tensor = bool(config['sys']['save_tensor'])
 
 # set data_format to 'channels_last'
 keras.backend.set_image_data_format('channels_last')
@@ -161,7 +162,6 @@ with open (stats_dataframe_file_path, 'r') as csv_file:
     normalize_dataset(_NORMALIZED_DATASET[variable.value.num_id],
                       variable, netcdf_dict[variable],
                       time_index, mean, stddev)
-
 if not is_debug:
   for dataset in netcdf_dict.values():
     dataset.close()
@@ -275,7 +275,7 @@ if is_debug:
   formatted_time =common.display_duration((intermediate_time_6-intermediate_time_5))
   print(f'  > intermediate processing time: {formatted_time}')
 
-if not is_debug:
+if save_tensor:
   # TODO unique name. Add name into settings file ?
   tensor_filename = f'{file_prefix}_prediction_tensor.npy'
   file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH, tensor_filename)
