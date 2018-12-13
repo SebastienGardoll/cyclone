@@ -142,6 +142,9 @@ def is_overlapping(lat1, lon1, lat2, lon2):
 def round_nearest(value, resolution, num_decimal):
   return round(round(value / resolution) * resolution, num_decimal)
 
+def format_pourcentage(value):
+  return round(value*100, 2)
+
 def display_duration(time_in_sec):
   remainder = time_in_sec % 60
   if remainder == time_in_sec:

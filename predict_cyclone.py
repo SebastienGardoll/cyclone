@@ -52,14 +52,30 @@ def open_cyclone_db():
   cyclone_db_file.close()
   return cyclone_dataframe
 
-def format_record(idx, record):
-  lat = record['lat']
-  lon = record['lon']
+def compute_min_max(lat, lon):
   lat_min = common.round_nearest((lat - common.HALF_LAT_FRAME), common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
   lat_max = common.round_nearest((lat + common.HALF_LAT_FRAME), common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
   lon_min = common.round_nearest((lon - common.HALF_LON_FRAME), common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
   lon_max = common.round_nearest((lon + common.HALF_LON_FRAME), common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
+  return (lat_min, lat_max, lon_min, lon_max)
+
+def format_record(idx, record):
+  lat = record['lat']
+  lon = record['lon']
+  (lat_min, lat_max, lon_min, lon_max) = compute_min_max(lat, lon)
   return f'  > id: {idx} ; lat = {lat} ; lon = {lon} ; lat_min = {lat_min} ; lat_max = {lat_max} ; lon_min = {lon_min} ; lon_max = {lon_max}'
+
+def compute_false_positives(cyclone_images_df, recorded_cyclones):
+  false_positive_df = cyclone_images_df
+  for idx, recorded_cyclone in recorded_cyclones.iterrows():
+    lat = recorded_cyclone['lat']
+    lon = recorded_cyclone['lon']
+    #lat_min, lat_max, lon_min, lon_max = compute_min_max(lat, lon)
+    false_positive_df = false_positive_df[(false_positive_df.lat_min>lat) |
+                                          (false_positive_df.lat_max<lat) |
+                                          (false_positive_df.lon_min>lon) |
+                                          (false_positive_df.lon_max<lon)]
+  return false_positive_df
 
 config_file_path = path.join(common.SCRIPT_DIR_PATH, 'prediction.ini')
 config = configparser.ConfigParser()
@@ -105,19 +121,19 @@ cyclone_dataframe = open_cyclone_db()
 
 # Check if there is any cyclone for the given settings.
 
-existing_cyclones = cyclone_dataframe[(cyclone_dataframe.year == year) &
+recorded_cyclones = cyclone_dataframe[(cyclone_dataframe.year == year) &
   (cyclone_dataframe.month == month) &
   (cyclone_dataframe.day == day) &
   (cyclone_dataframe.time_step == time_step)]
 
-if existing_cyclones.empty:
+if recorded_cyclones.empty:
   print('> [WARN] the selected region doesn\'t have any cyclone for the given\
  time period (year: {year} ; month: {month} ; day: {day} ; time_step: {time_step})')
 else:
-  nb_cyclones = len(existing_cyclones)
+  nb_cyclones = len(recorded_cyclones)
   print(f'> found {nb_cyclones} cyclone(s) for the given time period\
  (year: {year} ; month: {month} ; day: {day} ; time_step: {time_step})')
-  for idx, record in existing_cyclones.iterrows():
+  for idx, record in recorded_cyclones.iterrows():
     print(format_record(idx, record))
 
 if is_debug:
@@ -326,6 +342,13 @@ if not cyclone_images_df.empty:
                            na_rep='', header=True, index=True,
                            index_label='id', encoding='utf8',
                            line_terminator='\n')
+  false_positives = compute_false_positives(cyclone_images_df, recorded_cyclones)
+  nb_false_positives = len(false_positives)
+  model_positives = len(cyclone_images_df)
+  true_positives = model_positives - nb_false_positives
+  precision = true_positives/model_positives
+  print(f'  > false positives: {nb_false_positives}')
+  print(f'  > precision (true positives fraction): {common.format_pourcentage(precision)}%')
 else:
   print('  > model has NOT classified any image as cyclone')
 
@@ -337,7 +360,6 @@ if is_debug:
 stop = time.time()
 formatted_time =common.display_duration((stop-start))
 print(f'> spend {formatted_time} processing')
-
 
 
 def test(debug_lat, debug_lon):
