@@ -222,7 +222,10 @@ while current_lat_min_idx < lat_max_idx:
     current_lon_max     = current_lon_min + common.LON_FRAME
     index_list.append((id_counter, current_lat_min_idx, current_lat_max_idx,
       current_lon_min_idx, current_lon_max_idx))
-    image_list.append([current_lat_min, current_lat_max, current_lon_min, current_lon_max])
+    image_list.append([(current_lat_min+common.HALF_LAT_FRAME),
+                       (current_lon_min+common.HALF_LON_FRAME),
+                       current_lat_min, current_lat_max, current_lon_min,
+                       current_lon_max])
     current_lon_min_idx = current_lon_min_idx + 1
     current_lon_min     = current_lon_min + common.LON_RESOLUTION
     id_counter = id_counter + 1
@@ -231,7 +234,9 @@ while current_lat_min_idx < lat_max_idx:
       current_lat_max     = current_lat_max - common.LAT_RESOLUTION
       break
 
-image_df_colums = {'lat_min': np.float32,
+image_df_colums = {'lat'    : np.float32,
+                   'lon'    : np.float32,
+                   'lat_min': np.float32,
                    'lat_max': np.float32,
                    'lon_min': np.float32,
                    'lon_max': np.float32}
