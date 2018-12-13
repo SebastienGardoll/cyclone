@@ -107,7 +107,7 @@ def format_record(idx, record):
   lat_max = common.round_nearest((lat + common.HALF_LAT_FRAME), common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
   lon_min = common.round_nearest((lon - common.HALF_LON_FRAME), common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
   lon_max = common.round_nearest((lon + common.HALF_LON_FRAME), common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
-  return f'  > id: {idx} ; lat_min = {lat_min} ; lat_max = {lat_max} ; lon_min = {lon_min} ; lon_max = {lon_max}'
+  return f'  > id: {idx} ; lat = {lat} ; lon = {lon} ; lat_min = {lat_min} ; lat_max = {lat_max} ; lon_min = {lon_min} ; lon_max = {lon_max}'
 
 if existing_cyclones.empty:
   print('> [WARN] the selected region doesn\'t have any cyclone for the given\
@@ -335,11 +335,12 @@ print(f'> spend {formatted_time} processing')
 
 
 
-def test():
+def test(debug_lat, debug_lon):
+  # Example:
+  # debug_lat     = 14.5
+  # debug_lon     = -33.25
   # => lat: 10.5 -> 18.5
   #    lon: -37.25 -> -29.25
-  debug_lat     = 14.5
-  debug_lon     = -33.25
   variable      = Era5.MSL
 
   debug_lat_min = debug_lat - common.HALF_LAT_FRAME
