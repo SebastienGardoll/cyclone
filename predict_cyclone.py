@@ -335,13 +335,6 @@ cyclone_images_df = image_df[image_df.is_cyclone == True]
 if not cyclone_images_df.empty:
   print(f'  > model has classified {len(cyclone_images_df)} image(s) as cyclone')
   filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
-  print(f'> saving the {filename} on disk')
-  no_cyclone_dataframe_file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH,
-                                           filename)
-  cyclone_images_df.to_csv(no_cyclone_dataframe_file_path, sep=',',
-                           na_rep='', header=True, index=True,
-                           index_label='id', encoding='utf8',
-                           line_terminator='\n')
   false_positives = compute_false_positives(cyclone_images_df, recorded_cyclones)
   nb_false_positives = len(false_positives)
   model_positives = len(cyclone_images_df)
@@ -349,6 +342,13 @@ if not cyclone_images_df.empty:
   precision = true_positives/model_positives
   print(f'  > false positives: {nb_false_positives}')
   print(f'  > precision (true positives fraction): {common.format_pourcentage(precision)}%')
+  print(f'> saving the {filename} on disk')
+  no_cyclone_dataframe_file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH,
+                                           filename)
+  cyclone_images_df.to_csv(no_cyclone_dataframe_file_path, sep=',',
+                           na_rep='', header=True, index=True,
+                           index_label='id', encoding='utf8',
+                           line_terminator='\n')
 else:
   print('  > model has NOT classified any image as cyclone')
 
