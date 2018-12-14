@@ -66,16 +66,26 @@ def format_record(idx, record):
   return f'  > id: {idx} ; lat = {lat} ; lon = {lon} ; lat_min = {lat_min} ; lat_max = {lat_max} ; lon_min = {lon_min} ; lon_max = {lon_max}'
 
 def compute_false_positives(cyclone_images_df, recorded_cyclones):
+  # False positives set decreases by the set of images which contain
+  # (geographically) a recorded cyclone.
   false_positive_df = cyclone_images_df
+  nb_missing_recorded_cyclones = 0
   for idx, recorded_cyclone in recorded_cyclones.iterrows():
     lat = recorded_cyclone['lat']
     lon = recorded_cyclone['lon']
-    #lat_min, lat_max, lon_min, lon_max = compute_min_max(lat, lon)
+    nb_previous_false_positives = len(false_positive_df)
+    # Remove the images that contain a recorded cyclone.
     false_positive_df = false_positive_df[(false_positive_df.lat_min>lat) |
                                           (false_positive_df.lat_max<lat) |
                                           (false_positive_df.lon_min>lon) |
                                           (false_positive_df.lon_max<lon)]
-  return false_positive_df
+    nb_after_false_positives = len(false_positive_df)
+    # If the number of false positives doesn't change, the current recorded
+    # cyclone doesn't correspond to any of the images that the model has
+    # tagged cyclone.
+    if nb_previous_false_positives == nb_after_false_positives:
+      nb_missing_recorded_cyclones = nb_missing_recorded_cyclones + 1
+  return false_positive_df, nb_missing_recorded_cyclones
 
 config_file_path = path.join(common.SCRIPT_DIR_PATH, 'prediction.ini')
 config = configparser.ConfigParser()
@@ -335,13 +345,19 @@ cyclone_images_df = image_df[image_df.is_cyclone == True]
 if not cyclone_images_df.empty:
   print(f'  > model has classified {len(cyclone_images_df)} image(s) as cyclone')
   filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
-  false_positives = compute_false_positives(cyclone_images_df, recorded_cyclones)
+  false_positives, nb_missing_recorded_cyclones = compute_false_positives(cyclone_images_df, recorded_cyclones)
   nb_false_positives = len(false_positives)
   model_positives = len(cyclone_images_df)
-  true_positives = model_positives - nb_false_positives
-  precision = true_positives/model_positives
+  model_true_positives = model_positives - nb_false_positives
+  precision = model_true_positives/model_positives
+  nb_recorded_cyclones = len(recorded_cyclones)
+  nb_detected_cyclones = nb_recorded_cyclones - nb_missing_recorded_cyclones
+  recall = nb_detected_cyclones/nb_recorded_cyclones
+  f1_score = 2 * (precision*recall)/(precision+recall)
   print(f'  > false positives: {nb_false_positives}')
   print(f'  > precision (true positives fraction): {common.format_pourcentage(precision)}%')
+  print(f'  > recall (fraction of relevant of positives): {common.format_pourcentage(recall)}%')
+  print(f'  > f1 score: {f1_score}')
   print(f'> saving the {filename} on disk')
   no_cyclone_dataframe_file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH,
                                            filename)
