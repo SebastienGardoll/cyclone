@@ -154,10 +154,15 @@ print(f'  > metric = {metric}')
 
 print('> computing AUC')
 
-y_pred = model.predict(x_test, verbose=1)
+y_pred_raw = model.predict(x_test, verbose=1)
+
 # Return the class (0 for no cyclone, 1 for cyclone).
-y_pred = np.argmax(y_pred, axis=1)
-fpr_keras, tpr_keras, thresholds_keras = roc_curve(y_test_not_cat, y_pred)
+y_pred_cat = np.argmax(y_pred_raw, axis=1)
+
+# Keep only the probabilities.
+y_pred_prob = np.delete(y_pred_raw, obj=0, axis=1).squeeze()
+
+fpr_keras, tpr_keras, thresholds_keras = roc_curve(y_test_not_cat, y_pred_prob)
 auc_model = auc(fpr_keras, tpr_keras)
 print(f'  > {auc_model}')
 
