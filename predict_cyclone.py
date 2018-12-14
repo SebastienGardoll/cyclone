@@ -87,6 +87,15 @@ def compute_false_positives(cyclone_images_df, recorded_cyclones):
       nb_missing_recorded_cyclones = nb_missing_recorded_cyclones + 1
   return false_positive_df, nb_missing_recorded_cyclones
 
+def compute_true_cat(coordinates, recorded_cyclones):
+  lat_min, lat_max, lon_min, lon_max = coordinates
+  for idx, recorded_cyclone in recorded_cyclones.iterrows():
+    lat = recorded_cyclone['lat']
+    lon = recorded_cyclone['lon']
+    if not (lat_min>lat or lat_max<lat or lon_min>lon or lon_max<lon):
+      return common.CYCLONE_LABEL
+  return common.NO_CYCLONE_LABEL
+    
 config_file_path = path.join(common.SCRIPT_DIR_PATH, 'prediction.ini')
 config = configparser.ConfigParser()
 config.read(config_file_path)
@@ -248,10 +257,13 @@ while current_lat_min_idx < lat_max_idx:
     current_lon_max     = current_lon_min + common.LON_FRAME
     index_list.append((id_counter, current_lat_min_idx, current_lat_max_idx,
       current_lon_min_idx, current_lon_max_idx))
+    true_cat = compute_true_cat((current_lat_min, current_lat_max,
+                                 current_lon_min, current_lon_max),
+                                recorded_cyclones)
     image_list.append([(current_lat_min+common.HALF_LAT_FRAME),
                        (current_lon_min+common.HALF_LON_FRAME),
                        current_lat_min, current_lat_max, current_lon_min,
-                       current_lon_max])
+                       current_lon_max, true_cat])
     current_lon_min_idx = current_lon_min_idx + 1
     current_lon_min     = current_lon_min + common.LON_RESOLUTION
     id_counter = id_counter + 1
@@ -260,12 +272,13 @@ while current_lat_min_idx < lat_max_idx:
       current_lat_max     = current_lat_max - common.LAT_RESOLUTION
       break
 
-image_df_colums = {'lat'    : np.float32,
-                   'lon'    : np.float32,
-                   'lat_min': np.float32,
-                   'lat_max': np.float32,
-                   'lon_min': np.float32,
-                   'lon_max': np.float32}
+image_df_colums = {'lat'     : np.float32,
+                   'lon'     : np.float32,
+                   'lat_min' : np.float32,
+                   'lat_max' : np.float32,
+                   'lon_min' : np.float32,
+                   'lon_max' : np.float32,
+                   'true_cat': np.float32}
 # Appending rows one by one in the while loop takes far more time then this.
 image_df = pd.DataFrame(data=image_list, columns=image_df_colums.keys())
 # Specify the schema.
@@ -332,15 +345,15 @@ if is_debug:
 print('> computing results')
 
 # True corresponds to a cyclone.
-cat_func = np.vectorize(lambda prob: True if prob >= threshold_prob else False)
+cat_func = np.vectorize(lambda prob: 1 if prob >= threshold_prob else 0)
 y_pred_cat_npy = np.apply_along_axis(cat_func, 0, y_pred_prob_npy)
 
-y_pred_prob = pd.DataFrame(data=y_pred_prob_npy, columns=['prob'])
-y_pred_cat = pd.DataFrame(data=y_pred_cat_npy, columns=['is_cyclone'])
+y_pred_prob = pd.DataFrame(data=y_pred_prob_npy, columns=['pred_prob'])
+y_pred_cat = pd.DataFrame(data=y_pred_cat_npy, columns=['pred_cat'])
 
 # Concatenate the data frames.
 image_df = pd.concat((image_df, y_pred_prob, y_pred_cat), axis=1)
-cyclone_images_df = image_df[image_df.is_cyclone == True]
+cyclone_images_df = image_df[image_df.pred_cat == 1]
 
 if not cyclone_images_df.empty:
   print(f'  > model has classified {len(cyclone_images_df)} image(s) as cyclone')
@@ -396,7 +409,7 @@ def test(debug_lat, debug_lon):
 
   record = image_df[(image_df.lat_min == debug_lat_min) & (image_df.lat_max == debug_lat_max) & (image_df.lon_min == debug_lon_min) & (image_df.lon_max == debug_lon_max)]
   print(record)
-  #       lat_min  lat_max  lon_min  lon_max          prob  is_cyclone
+  #       lat_min  lat_max  lon_min  lon_max          pred_prob  pred_cat
   #30537     10.5     18.5   -37.25   -29.25  3.056721e-10       False
   debug_id = record.index[0]
 

@@ -161,10 +161,10 @@ print(f'> building the labels (cyclones: {nb_cyclone_images} ; \
 no cyclones: {nb_no_cyclone_images})')
 
 labels_cyclone = np.ndarray(shape=(nb_cyclone_images), dtype=np.float32)
-labels_cyclone.fill(1.0)
+labels_cyclone.fill(common.CYCLONE_LABEL)
 
 labels_no_cyclone = np.ndarray(shape=(nb_no_cyclone_images), dtype=np.float32)
-labels_no_cyclone.fill(0.0)
+labels_no_cyclone.fill(common.NO_CYCLONE_LABEL)
 
 merge_labels = np.concatenate((labels_cyclone, labels_no_cyclone))
 

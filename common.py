@@ -43,7 +43,9 @@ LON_FRAME = HALF_LON_FRAME * 2
 
 # 0 refers to a no cyclone.
 # 1 refers to a cyclone.
-NUM_CLASSES = 2
+NUM_CLASSES      = 2
+CYCLONE_LABEL    = 1.0
+NO_CYCLONE_LABEL = 0.0
 
 # Paths
 NETCDF_PARENT_DIR_PATH         = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
