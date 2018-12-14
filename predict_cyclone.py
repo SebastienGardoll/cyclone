@@ -332,14 +332,14 @@ if is_debug:
 print('> computing results')
 
 # True corresponds to a cyclone.
-class_func = np.vectorize(lambda prob: True if prob >= threshold_prob else False)
-y_pred_class_npy = np.apply_along_axis(class_func, 0, y_pred_prob_npy)
+cat_func = np.vectorize(lambda prob: True if prob >= threshold_prob else False)
+y_pred_cat_npy = np.apply_along_axis(cat_func, 0, y_pred_prob_npy)
 
 y_pred_prob = pd.DataFrame(data=y_pred_prob_npy, columns=['prob'])
-y_pred_class = pd.DataFrame(data=y_pred_class_npy, columns=['is_cyclone'])
+y_pred_cat = pd.DataFrame(data=y_pred_cat_npy, columns=['is_cyclone'])
 
 # Concatenate the data frames.
-image_df = pd.concat((image_df, y_pred_prob, y_pred_class), axis=1)
+image_df = pd.concat((image_df, y_pred_prob, y_pred_cat), axis=1)
 cyclone_images_df = image_df[image_df.is_cyclone == True]
 
 if not cyclone_images_df.empty:
