@@ -20,6 +20,9 @@ import csv
 import numpy as np
 import pandas as pd
 
+from sklearn.metrics import roc_curve
+from sklearn.metrics import auc
+
 import keras
 from keras.models import load_model
 
@@ -95,7 +98,7 @@ def compute_true_cat(coordinates, recorded_cyclones):
     if not (lat_min>lat or lat_max<lat or lon_min>lon or lon_max<lon):
       return common.CYCLONE_LABEL
   return common.NO_CYCLONE_LABEL
-    
+
 config_file_path = path.join(common.SCRIPT_DIR_PATH, 'prediction.ini')
 config = configparser.ConfigParser()
 config.read(config_file_path)
@@ -257,6 +260,7 @@ while current_lat_min_idx < lat_max_idx:
     current_lon_max     = current_lon_min + common.LON_FRAME
     index_list.append((id_counter, current_lat_min_idx, current_lat_max_idx,
       current_lon_min_idx, current_lon_max_idx))
+    # TODO to be optimized.
     true_cat = compute_true_cat((current_lat_min, current_lat_max,
                                  current_lon_min, current_lon_max),
                                 recorded_cyclones)
@@ -353,11 +357,16 @@ y_pred_cat = pd.DataFrame(data=y_pred_cat_npy, columns=['pred_cat'])
 
 # Concatenate the data frames.
 image_df = pd.concat((image_df, y_pred_prob, y_pred_cat), axis=1)
+
+fpr_keras, tpr_keras, thresholds_keras = roc_curve(y_true=image_df.true_cat,
+                                                   y_score=y_pred_prob_npy)
+auc_model = auc(fpr_keras, tpr_keras)
+print(f'> AUC: {common.format_pourcentage(auc_model)}%')
+
 cyclone_images_df = image_df[image_df.pred_cat == 1]
 
 if not cyclone_images_df.empty:
   print(f'  > model has classified {len(cyclone_images_df)} image(s) as cyclone')
-  filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
   false_positives, nb_missing_recorded_cyclones = compute_false_positives(cyclone_images_df, recorded_cyclones)
   nb_false_positives = len(false_positives)
   model_positives = len(cyclone_images_df)
@@ -371,6 +380,7 @@ if not cyclone_images_df.empty:
   print(f'  > precision (true positives fraction): {common.format_pourcentage(precision)}%')
   print(f'  > recall (fraction of relevant of positives): {common.format_pourcentage(recall)}%')
   print(f'  > f1 score: {f1_score}')
+  filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
   print(f'> saving the {filename} on disk')
   no_cyclone_dataframe_file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH,
                                            filename)
