@@ -20,8 +20,7 @@ import csv
 import numpy as np
 import pandas as pd
 
-from sklearn.metrics import roc_curve
-from sklearn.metrics import auc
+from sklearn.metrics import roc_auc_score
 
 import keras
 from keras.models import load_model
@@ -260,14 +259,10 @@ while current_lat_min_idx < lat_max_idx:
     current_lon_max     = current_lon_min + common.LON_FRAME
     index_list.append((id_counter, current_lat_min_idx, current_lat_max_idx,
       current_lon_min_idx, current_lon_max_idx))
-    # TODO to be optimized.
-    true_cat = compute_true_cat((current_lat_min, current_lat_max,
-                                 current_lon_min, current_lon_max),
-                                recorded_cyclones)
     image_list.append([(current_lat_min+common.HALF_LAT_FRAME),
                        (current_lon_min+common.HALF_LON_FRAME),
                        current_lat_min, current_lat_max, current_lon_min,
-                       current_lon_max, true_cat])
+                       current_lon_max])
     current_lon_min_idx = current_lon_min_idx + 1
     current_lon_min     = current_lon_min + common.LON_RESOLUTION
     id_counter = id_counter + 1
@@ -281,8 +276,7 @@ image_df_colums = {'lat'     : np.float32,
                    'lat_min' : np.float32,
                    'lat_max' : np.float32,
                    'lon_min' : np.float32,
-                   'lon_max' : np.float32,
-                   'true_cat': np.float32}
+                   'lon_max' : np.float32}
 # Appending rows one by one in the while loop takes far more time then this.
 image_df = pd.DataFrame(data=image_list, columns=image_df_colums.keys())
 # Specify the schema.
@@ -348,20 +342,39 @@ if is_debug:
 
 print('> computing results')
 
+print('  > compute true labels of the subregions')
+
+true_cat_serie = None
+nb_missing_recorded_cyclones = 0
+for idx, recorded_cyclone in recorded_cyclones.iterrows():
+  lat = recorded_cyclone['lat']
+  lon = recorded_cyclone['lon']
+  current = (image_df.lat_min<lat) & (image_df.lat_max>lat) & (image_df.lon_min<lon) & (image_df.lon_max>lon)
+  if not current.any():
+    nb_missing_recorded_cyclones = nb_missing_recorded_cyclones + 1
+  if true_cat_serie is not None:
+    true_cat_serie = true_cat_serie | current
+  else:
+    true_cat_serie = current
+
+true_cat_serie = true_cat_serie.map(arg=lambda value: 1.0 if value else 0.0)
+true_cat_serie.name = 'true_cat'
+
 # True corresponds to a cyclone.
-cat_func = np.vectorize(lambda prob: 1 if prob >= threshold_prob else 0)
+cat_func = np.vectorize(lambda prob: 1.0 if prob >= threshold_prob else 0.0)
 y_pred_cat_npy = np.apply_along_axis(cat_func, 0, y_pred_prob_npy)
 
 y_pred_prob = pd.DataFrame(data=y_pred_prob_npy, columns=['pred_prob'])
 y_pred_cat = pd.DataFrame(data=y_pred_cat_npy, columns=['pred_cat'])
 
 # Concatenate the data frames.
-image_df = pd.concat((image_df, y_pred_prob, y_pred_cat), axis=1)
+image_df = pd.concat((image_df, true_cat_serie, y_pred_prob, y_pred_cat), axis=1)
 
-fpr_keras, tpr_keras, thresholds_keras = roc_curve(y_true=image_df.true_cat,
-                                                   y_score=y_pred_prob_npy)
-auc_model = auc(fpr_keras, tpr_keras)
+auc_model = roc_auc_score(y_true=image_df.true_cat, y_score=y_pred_prob_npy)
 print(f'  > AUC: {common.format_pourcentage(auc_model)}%')
+
+from sklearn.metrics import classification_report
+print(classification_report(y_true=image_df.true_cat, y_pred=y_pred_cat_npy, target_names=('no_cyclones', 'cyclones')))
 
 cyclone_images_df = image_df[image_df.pred_cat == 1]
 
