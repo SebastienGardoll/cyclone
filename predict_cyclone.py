@@ -32,12 +32,12 @@ import time
 start = time.time()
 previous_intermediate_time = start
 
-def normalize_dataset(chan_array, variable, netcdf_dataset, time_step, mean, stddev):
+def normalize_dataset(chan_array, variable, netcdf_dataset, time_index, mean, stddev):
   if variable.value.level is None:
-    data = netcdf_dataset[variable.value.str_id][time_step]
+    data = netcdf_dataset[variable.value.str_id][time_index]
   else:
     level_index = variable.value.index_mapping[variable.value.level]
-    data = netcdf_dataset[variable.value.str_id][time_step][level_index]
+    data = netcdf_dataset[variable.value.str_id][time_index][level_index]
   unsharable_norm_dataset = (data - mean)/stddev
   np.copyto(dst=chan_array, src=unsharable_norm_dataset, casting='no')
 
