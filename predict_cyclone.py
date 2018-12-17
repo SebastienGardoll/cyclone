@@ -30,6 +30,7 @@ import configparser
 
 import time
 start = time.time()
+previous_intermediate_time = start
 
 def normalize_dataset(chan_array, variable, netcdf_dataset, time_step, mean, stddev):
   if variable.value.level is None:
@@ -67,6 +68,14 @@ def format_record(idx, record):
   lon = record['lon']
   (lat_min, lat_max, lon_min, lon_max) = compute_min_max(lat, lon)
   return f'  > id: {idx} ; lat = {lat} ; lon = {lon} ; lat_min = {lat_min} ; lat_max = {lat_max} ; lon_min = {lon_min} ; lon_max = {lon_max}'
+
+def display_intermediate_time():
+  if is_debug:
+    global previous_intermediate_time
+    intermediate_time = time.time()
+    formatted_time =common.display_duration((intermediate_time-previous_intermediate_time))
+    previous_intermediate_time = intermediate_time
+    print(f'  > intermediate processing time: {formatted_time}')
 
 config_file_path = path.join(common.SCRIPT_DIR_PATH, 'prediction.ini')
 config = configparser.ConfigParser()
@@ -127,18 +136,12 @@ else:
   for idx, record in recorded_cyclones.iterrows():
     print(format_record(idx, record))
 
-if is_debug:
-  intermediate_time_1 = time.time()
-  formatted_time =common.display_duration((intermediate_time_1-start))
-  print(f'  > intermediate processing time: {formatted_time}')
+display_intermediate_time()
 
 print(f'> opening netcdf files (year: {year}; month: {month})')
 netcdf_dict = utils.build_dataset_dict(year, month)
 
-if is_debug:
-  intermediate_time_2 = time.time()
-  formatted_time =common.display_duration((intermediate_time_2-intermediate_time_1))
-  print(f'  > intermediate processing time: {formatted_time}')
+display_intermediate_time()
 
 stats_filename = f'{common.MERGED_CHANNEL_FILE_PREFIX}_{file_prefix}_\
 {common.STATS_FILE_POSTFIX}.csv'
@@ -173,10 +176,7 @@ if not is_debug:
   for dataset in netcdf_dict.values():
     dataset.close()
 
-if is_debug:
-  intermediate_time_3 = time.time()
-  formatted_time =common.display_duration((intermediate_time_3-intermediate_time_2))
-  print(f'  > intermediate processing time: {formatted_time}')
+display_intermediate_time()
 
 # Round lat&lon so as to compute synchronize with ERA5 resolution.
 rounded_lat_max = common.round_nearest(lat_max, common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
@@ -253,10 +253,7 @@ image_df = pd.DataFrame(data=image_list, columns=image_df_colums.keys())
 image_df = image_df.astype(dtype = image_df_colums)
 del image_list
 
-if is_debug:
-  intermediate_time_4 = time.time()
-  formatted_time =common.display_duration((intermediate_time_4-intermediate_time_3))
-  print(f'  > intermediate processing time: {formatted_time}')
+display_intermediate_time()
 
 # Allocation of the channels.
 # Making use of numpy array backended by ctypes shared array has been successfully
@@ -269,18 +266,12 @@ print(f'> extracting the {id_counter} subregions (proc: {nb_proc})')
 with Pool(processes = nb_proc) as pool:
   pool.map(extract_region, index_list)
 
-if is_debug:
-  intermediate_time_5 = time.time()
-  formatted_time =common.display_duration((intermediate_time_5-intermediate_time_4))
-  print(f'  > intermediate processing time: {formatted_time}')
+display_intermediate_time()
 
 print('> stacking the channels')
 tensor = np.stack(_CHANNELS, axis=3)
 
-if is_debug:
-  intermediate_time_6 = time.time()
-  formatted_time =common.display_duration((intermediate_time_6-intermediate_time_5))
-  print(f'  > intermediate processing time: {formatted_time}')
+display_intermediate_time()
 
 if save_tensor:
   # TODO unique name. Add name into settings file ?
@@ -288,27 +279,23 @@ if save_tensor:
   file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH, tensor_filename)
   print(f'> saving the tensor on disk ({tensor_filename})')
   np.save(file=file_path, arr=tensor, allow_pickle=True)
+  display_intermediate_time()
 
-if is_debug:
-  intermediate_time_7 = time.time()
-  formatted_time =common.display_duration((intermediate_time_7-intermediate_time_6))
-  print(f'  > intermediate processing time: {formatted_time}')
+print('> compute prediction of the subregions')
 
 cnn_filename = f'{file_prefix}_{common.CNN_FILE_POSTFIX}.h5'
 cnn_file_path = path.join(common.CNN_PARENT_DIR_PATH, cnn_filename)
-print(f'> loading the CNN model ({cnn_filename})')
+print(f'  > loading the CNN model ({cnn_filename})')
 model = load_model(cnn_file_path)
 
-print('> compute prediction of the subregions')
+
+print('  > predicting categories')
 # Compute the probabilities.
 y_pred_prob_npy = model.predict(tensor, verbose=0)
 # Keep only the probabilities.
 y_pred_prob_npy = np.delete(y_pred_prob_npy, obj=0, axis=1).squeeze()
 
-if is_debug:
-  intermediate_time_8 = time.time()
-  formatted_time =common.display_duration((intermediate_time_8-intermediate_time_7))
-  print(f'  > intermediate processing time: {formatted_time}')
+display_intermediate_time()
 
 print('> computing results')
 
@@ -353,10 +340,7 @@ print(f'  > AUC: {common.format_pourcentage(auc_model)}%')
 print(f'  > metrics report:')
 print(classification_report(y_true=image_df.true_cat, y_pred=y_pred_cat_npy, target_names=('no_cyclones', 'cyclones')))
 
-if is_debug:
-  intermediate_time_9 = time.time()
-  formatted_time =common.display_duration((intermediate_time_9-intermediate_time_8))
-  print(f'  > intermediate processing time: {formatted_time}')
+display_intermediate_time()
 
 if not cyclone_images_df.empty:
   filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
@@ -367,10 +351,7 @@ if not cyclone_images_df.empty:
                            na_rep='', header=True, index=True,
                            index_label='id', encoding='utf8',
                            line_terminator='\n')
-if is_debug:
-  intermediate_time_10 = time.time()
-  formatted_time =common.display_duration((intermediate_time_10-intermediate_time_9))
-  print(f'  > intermediate processing time: {formatted_time}')
+display_intermediate_time()
 
 stop = time.time()
 formatted_time =common.display_duration((stop-start))
