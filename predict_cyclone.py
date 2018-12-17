@@ -361,7 +361,7 @@ image_df = pd.concat((image_df, y_pred_prob, y_pred_cat), axis=1)
 fpr_keras, tpr_keras, thresholds_keras = roc_curve(y_true=image_df.true_cat,
                                                    y_score=y_pred_prob_npy)
 auc_model = auc(fpr_keras, tpr_keras)
-print(f'> AUC: {common.format_pourcentage(auc_model)}%')
+print(f'  > AUC: {common.format_pourcentage(auc_model)}%')
 
 cyclone_images_df = image_df[image_df.pred_cat == 1]
 
