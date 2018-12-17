@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 
 from sklearn.metrics import roc_auc_score
+from sklearn.metrics import classification_report
 
 import keras
 from keras.models import load_model
@@ -66,37 +67,6 @@ def format_record(idx, record):
   lon = record['lon']
   (lat_min, lat_max, lon_min, lon_max) = compute_min_max(lat, lon)
   return f'  > id: {idx} ; lat = {lat} ; lon = {lon} ; lat_min = {lat_min} ; lat_max = {lat_max} ; lon_min = {lon_min} ; lon_max = {lon_max}'
-
-def compute_false_positives(cyclone_images_df, recorded_cyclones):
-  # False positives set decreases by the set of images which contain
-  # (geographically) a recorded cyclone.
-  false_positive_df = cyclone_images_df
-  nb_missing_recorded_cyclones = 0
-  for idx, recorded_cyclone in recorded_cyclones.iterrows():
-    lat = recorded_cyclone['lat']
-    lon = recorded_cyclone['lon']
-    nb_previous_false_positives = len(false_positive_df)
-    # Remove the images that contain a recorded cyclone.
-    false_positive_df = false_positive_df[(false_positive_df.lat_min>lat) |
-                                          (false_positive_df.lat_max<lat) |
-                                          (false_positive_df.lon_min>lon) |
-                                          (false_positive_df.lon_max<lon)]
-    nb_after_false_positives = len(false_positive_df)
-    # If the number of false positives doesn't change, the current recorded
-    # cyclone doesn't correspond to any of the images that the model has
-    # tagged cyclone.
-    if nb_previous_false_positives == nb_after_false_positives:
-      nb_missing_recorded_cyclones = nb_missing_recorded_cyclones + 1
-  return false_positive_df, nb_missing_recorded_cyclones
-
-def compute_true_cat(coordinates, recorded_cyclones):
-  lat_min, lat_max, lon_min, lon_max = coordinates
-  for idx, recorded_cyclone in recorded_cyclones.iterrows():
-    lat = recorded_cyclone['lat']
-    lon = recorded_cyclone['lon']
-    if not (lat_min>lat or lat_max<lat or lon_min>lon or lon_max<lon):
-      return common.CYCLONE_LABEL
-  return common.NO_CYCLONE_LABEL
 
 config_file_path = path.join(common.SCRIPT_DIR_PATH, 'prediction.ini')
 config = configparser.ConfigParser()
@@ -342,8 +312,6 @@ if is_debug:
 
 print('> computing results')
 
-print('  > compute true labels of the subregions')
-
 true_cat_serie = None
 nb_missing_recorded_cyclones = 0
 for idx, recorded_cyclone in recorded_cyclones.iterrows():
@@ -370,43 +338,38 @@ y_pred_cat = pd.DataFrame(data=y_pred_cat_npy, columns=['pred_cat'])
 # Concatenate the data frames.
 image_df = pd.concat((image_df, true_cat_serie, y_pred_prob, y_pred_cat), axis=1)
 
-auc_model = roc_auc_score(y_true=image_df.true_cat, y_score=y_pred_prob_npy)
-print(f'  > AUC: {common.format_pourcentage(auc_model)}%')
-
-from sklearn.metrics import classification_report
-print(classification_report(y_true=image_df.true_cat, y_pred=y_pred_cat_npy, target_names=('no_cyclones', 'cyclones')))
-
 cyclone_images_df = image_df[image_df.pred_cat == 1]
 
 if not cyclone_images_df.empty:
   print(f'  > model has classified {len(cyclone_images_df)} image(s) as cyclone')
-  false_positives, nb_missing_recorded_cyclones = compute_false_positives(cyclone_images_df, recorded_cyclones)
-  nb_false_positives = len(false_positives)
-  model_positives = len(cyclone_images_df)
-  model_true_positives = model_positives - nb_false_positives
-  precision = model_true_positives/model_positives
-  nb_recorded_cyclones = len(recorded_cyclones)
-  nb_detected_cyclones = nb_recorded_cyclones - nb_missing_recorded_cyclones
-  recall = nb_detected_cyclones/nb_recorded_cyclones
-  f1_score = 2 * (precision*recall)/(precision+recall)
-  print(f'  > false positives: {nb_false_positives}')
-  print(f'  > precision (true positives fraction): {common.format_pourcentage(precision)}%')
-  print(f'  > recall (fraction of relevant of positives): {common.format_pourcentage(recall)}%')
-  print(f'  > f1 score: {f1_score}')
-  filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
-  print(f'> saving the {filename} on disk')
-  no_cyclone_dataframe_file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH,
-                                           filename)
-  cyclone_images_df.to_csv(no_cyclone_dataframe_file_path, sep=',',
-                           na_rep='', header=True, index=True,
-                           index_label='id', encoding='utf8',
-                           line_terminator='\n')
 else:
   print('  > model has NOT classified any image as cyclone')
+
+print('  > compute true labels of the subregions')
+
+auc_model = roc_auc_score(y_true=image_df.true_cat, y_score=y_pred_prob_npy)
+print(f'  > AUC: {common.format_pourcentage(auc_model)}%')
+
+print(f'  > metrics report:')
+print(classification_report(y_true=image_df.true_cat, y_pred=y_pred_cat_npy, target_names=('no_cyclones', 'cyclones')))
 
 if is_debug:
   intermediate_time_9 = time.time()
   formatted_time =common.display_duration((intermediate_time_9-intermediate_time_8))
+  print(f'  > intermediate processing time: {formatted_time}')
+
+if not cyclone_images_df.empty:
+  filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
+  print(f'> saving the {filename} on disk')
+  cyclone_images_file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH,
+                                       filename)
+  cyclone_images_df.to_csv(cyclone_images_file_path, sep=',',
+                           na_rep='', header=True, index=True,
+                           index_label='id', encoding='utf8',
+                           line_terminator='\n')
+if is_debug:
+  intermediate_time_10 = time.time()
+  formatted_time =common.display_duration((intermediate_time_10-intermediate_time_9))
   print(f'  > intermediate processing time: {formatted_time}')
 
 stop = time.time()
