@@ -172,9 +172,9 @@ with open (stats_dataframe_file_path, 'r') as csv_file:
     normalize_dataset(_NORMALIZED_DATASET[variable.value.num_id],
                       variable, netcdf_dict[variable],
                       time_index, mean, stddev)
-if not is_debug:
-  for dataset in netcdf_dict.values():
-    dataset.close()
+
+for dataset in netcdf_dict.values():
+  dataset.close()
 
 display_intermediate_time()
 
