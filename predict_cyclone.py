@@ -332,7 +332,7 @@ if not cyclone_images_df.empty:
 else:
   print('  > model has NOT classified any image as cyclone')
 
-print(f'  > model didn\'t find {nb_missing_recorded_cyclones} recorded cyclone(s)')
+print(f'  > model found {nb_cyclones-nb_missing_recorded_cyclones}/{nb_cyclones} recorded cyclone(s)')
 
 print('  > compute true labels of the subregions')
 
