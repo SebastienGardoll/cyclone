@@ -168,15 +168,25 @@ cyclone_dataframe.to_csv(cyclone_dataframe_file_path, sep = ',', na_rep = '', he
   index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
 
 # Extraction of post 2000 records.
-extraction_2k = cyclone_dataframe[cyclone_dataframe['year'] >= 2000]
-filename = '2k_cyclone_dataset.csv'
-print(f'> saving {filename} ({len(extraction_2k)} rows)')
-extraction_2k_file_path = path.join(dataset_parent_dir_path, filename)
-extraction_2k.to_csv(extraction_2k_file_path, sep = ',', na_rep = '', header = True,\
+extraction_2ka = cyclone_dataframe[cyclone_dataframe['year'] >= 2000]
+filename = '2ka_cyclone_dataset.csv'
+print(f'> saving {filename} ({len(extraction_2ka)} rows)')
+extraction_2ka_file_path = path.join(dataset_parent_dir_path, filename)
+extraction_2ka.to_csv(extraction_2ka_file_path, sep = ',', na_rep = '', header = True,\
   index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
 #extraction_2k.shape # (4952, 11)
 
-year_extraction = extraction_2k[extraction_2k['year'] < 2001]
+# Extraction of post 2000 records except August of 2000.
+extraction_2kb = cyclone_dataframe[(cyclone_dataframe.year >= 2000) &
+     (~ ((cyclone_dataframe.year == 2000) & (cyclone_dataframe.month == 8)))]
+filename = '2kb_cyclone_dataset.csv'
+print(f'> saving {filename} ({len(extraction_2kb)} rows)')
+extraction_2kb_file_path = path.join(dataset_parent_dir_path, filename)
+extraction_2kb.to_csv(extraction_2kb_file_path, sep = ',', na_rep = '', header = True,\
+  index = True, index_label='img_id', encoding = 'utf8', line_terminator = '\n')
+#extraction_2kb.shape # (4853, 11)
+
+year_extraction = extraction_2ka[extraction_2ka['year'] < 2001]
 filename = '2000_cyclone_dataset.csv'
 print(f'> saving {filename} ({len(year_extraction)} rows)')
 year_extraction_file_path = path.join(dataset_parent_dir_path, filename)
