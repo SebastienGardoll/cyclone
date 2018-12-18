@@ -332,6 +332,8 @@ if not cyclone_images_df.empty:
 else:
   print('  > model has NOT classified any image as cyclone')
 
+print(f'  > model didn\'t find {nb_missing_recorded_cyclones} recorded cyclone(s)')
+
 print('  > compute true labels of the subregions')
 
 auc_model = roc_auc_score(y_true=image_df.true_cat, y_score=y_pred_prob_npy)
