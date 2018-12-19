@@ -49,9 +49,7 @@ def extract_region(img):
     np.copyto(dst=dest_array, src=nc_dataset[lat_min_idx:lat_max_idx, lon_min_idx:lon_max_idx], casting='no')
 
 def open_cyclone_db():
-  cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
-    f'{file_prefix}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
-  cyclone_db_file = open(cyclone_db_file_path, 'r')
+  cyclone_db_file = open(common.CYCLONE_ALL_DB_FILE_PATH, 'r')
   cyclone_dataframe = pd.read_csv(cyclone_db_file, sep=',', header=0, index_col=0, na_values='')
   cyclone_db_file.close()
   return cyclone_dataframe

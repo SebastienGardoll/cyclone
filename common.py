@@ -58,6 +58,9 @@ TENSOR_PARENT_DIR_PATH         = path.join(ROOT_DATA_DIR_PATH, 'tensor')
 CNN_PARENT_DIR_PATH            = path.join(ROOT_DATA_DIR_PATH, 'cnn')
 PREDICT_TENSOR_PARENT_DIR_PATH = path.join(ROOT_DATA_DIR_PATH, 'predict_tensor')
 
+CYCLONE_ALL_DB_FILE_PATH = path.join(DATASET_PARENT_DIR_PATH,
+                                     'all_cyclone_dataset.csv')
+
 STAT_SCRIPT_NAME               = 'build_stats.py'
 
 ONE_DAY = timedelta(days=1)
