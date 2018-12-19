@@ -127,7 +127,7 @@ recorded_cyclones = cyclone_dataframe[(cyclone_dataframe.year == year) &
   (cyclone_dataframe.time_step == time_step)]
 
 if recorded_cyclones.empty:
-  print('> [WARN] the selected region doesn\'t have any cyclone for the given\
+  print(f'> [WARN] the selected region doesn\'t have any cyclone for the given\
  time period (year: {year} ; month: {month} ; day: {day} ; time_step: {time_step})')
 else:
   nb_cyclones = len(recorded_cyclones)
