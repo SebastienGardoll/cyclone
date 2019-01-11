@@ -80,6 +80,13 @@ PREDICTION_FILE_POSTFIX         = 'predict'
 MERGED_CHANNEL_FILE_PREFIX      = 'merged'
 SHUFFLED_FILE_PREFIX            = 'shuffled'
 
+
+DATA_PARENT_DIR_PATH                  = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
+ONE_LEVEL_DATA_FILE_PATH_PREFIX       = f'{DATA_PARENT_DIR_PATH}/AN_SF'
+ONE_LEVEL_DATA_FILE_NAME_POSTFIX      = 'ashe5.GLOBAL_025.nc'
+MULTIPLE_LEVEL_DATA_FILE_PATH_PREFIX  = f'{DATA_PARENT_DIR_PATH}/AN_PL'
+MULTIPLE_LEVEL_DATA_FILE_NAME_POSTFIX = 'aphe5.GLOBAL_025.nc'
+
 STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',
                 'q3','kurtosis', 'skewness', 'shapiro-test', 'dagostino-test',
                 'ks-test']
@@ -96,7 +103,15 @@ class Variable:
     self.str_id = str_id
     self.level = level
     self.index_mapping = index_mapping
+    if level:
+      self.file_path_prefix = MULTIPLE_LEVEL_DATA_FILE_PATH_PREFIX
+      self.filename_postfix = MULTIPLE_LEVEL_DATA_FILE_NAME_POSTFIX
+    else:
+      self.file_path_prefix = ONE_LEVEL_DATA_FILE_PATH_PREFIX
+      self.filename_postfix = ONE_LEVEL_DATA_FILE_NAME_POSTFIX
 
+  def compute_file_path(self, year, month):
+    return f'{self.file_path_prefix}/{year}/{self.str_id}.{year}{month:02d}.{self.filename_postfix}'
 
 # ERA5 variable names.
 class Era5 (Enum):
