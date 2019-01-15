@@ -85,7 +85,7 @@ def build_channel(nc_dataset, variable, itertuples, row_processor,
                   file_prefix, file_postfix):
   id_name = 'id'
   dim_names = (id_name, 'x', 'y')
-  itertuples = itertuples
+  print('  > building the list of subregions')
   region_list= list()
   for row in itertuples:
     (year, month, day, time_step, lat, lon) = row_processor(row)
@@ -101,7 +101,7 @@ def build_channel(nc_dataset, variable, itertuples, row_processor,
   print(f'  > computing channel {variable.name.lower()}')
   region_stack = xr.concat(objs=region_list, dim=id_name)
   # This instruction is parallelized by xarray/dask.
-  region_stack.compute() # Avoid memory error when np.array().
+  #region_stack.compute() # Avoid memory error when np.array().
   channel = np.array(region_stack)
   print(f'  > saving {variable.name.lower()} channel, shape={channel.shape}')
   channel_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
