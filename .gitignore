@@ -6,3 +6,5 @@ log
 *~
 prediction.ini
 dask-worker-space
+._*
+
