@@ -5,7 +5,7 @@ set -u
 
 echo "> starting at $(date)"
 
-MINICONDA_HOME="${HOME}/miniconda2"
+MINICONDA_HOME="/data/sgardoll/miniconda2"
 MINICONDA_ENV_PATH="${MINICONDA_HOME}/envs/sandbox"
 echo "> sourcing ${MINICONDA_ENV_PATH}"
 source "${MINICONDA_HOME}/bin/activate" "${MINICONDA_ENV_PATH}"

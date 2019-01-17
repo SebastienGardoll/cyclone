@@ -5,7 +5,7 @@ set -u
 
 echo "> starting at $(date)"
 
-MINICONDA_HOME="${HOME}/miniconda2"
+MINICONDA_HOME="/data/sgardoll/miniconda2"
 MINICONDA_ENV_PATH="${MINICONDA_HOME}/envs/sandbox"
 echo "> sourcing ${MINICONDA_ENV_PATH}"
 source "${MINICONDA_HOME}/bin/activate" "${MINICONDA_ENV_PATH}"
@@ -50,16 +50,9 @@ readonly SCRIPT_DIR_PATH='/home/sgardoll/cyclone/spyder'
 
 readonly CYCLONE_CHANNEL_POSTFIX='cyclone_channel'
 readonly NO_CYCLONE_CHANNEL_POSTFIX='no_cyclone_channel'
-readonly CYCLONE_DB_POSTFIX='cyclone_dataset'
-readonly NO_CYCLONE_DB_POSTFIX='no_cyclone_dataset'
-
-readonly MERGED_PREFIX="merged_${FILE_PREFIX}"
-readonly MERGED_CHANNEL_POSTFIX='channel'
 
 readonly DATA_DIR_PATH='/data/sgardoll/cyclone_data'
 readonly DATA_BACKUP_DIR_PATH='/data/sgardoll/cyclone_data.clean'
-readonly TENSOR_PARENT_DIR_PATH="${DATA_DIR_PATH}/tensor"
-readonly MERGED_CHANNEL_PARENT_DIR_PATH="${DATA_DIR_PATH}/merged_channels"
 readonly CHANNEL_PARENT_DIR_PATH="${DATA_DIR_PATH}/channels"
 
 # 0 means don't compute graphics for stats.

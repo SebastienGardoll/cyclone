@@ -130,7 +130,7 @@ for by in no_cyclone_ds.groupby(['year', 'month']):
 cyclone_img_array = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float, common.Y_RESOLUTION), common.X_RESOLUTION), cyclone_ds_size))
 no_cyclone_img_array = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float, common.Y_RESOLUTION), common.X_RESOLUTION), no_cyclone_ds_size))
 
-print(f'> processing variable {variable.name.lower()} on dataset {file_prefix} with {nb_proc} workers')
+print(f'> processing variable {variable.name} on dataset {file_prefix} with {nb_proc} workers')
 with Pool(processes = nb_proc) as pool:
   pool.map(func=process, iterable=processing_dict.items(), chunksize=1)
 
