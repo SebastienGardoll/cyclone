@@ -55,14 +55,14 @@ def process_channels(variable):
   cyclone_channel_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
                                                 cyclone_channel_filename)
   cyclone_channel = np.load(file=cyclone_channel_file_path,
-                            mmap_mode=None, allow_pickle=True)
+                            mmap_mode=None, allow_pickle=False)
   no_cyclone_channel_filename = f'{file_prefix}_{variable_name}_\
 {common.NO_CYCLONE_CHANNEL_FILE_POSTFIX}.npy'
   print(f'> loading {no_cyclone_channel_filename}')
   no_cyclone_channel_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
                                            no_cyclone_channel_filename)
   no_cyclone_channel = np.load(file=no_cyclone_channel_file_path,
-                               mmap_mode=None, allow_pickle=True)
+                               mmap_mode=None, allow_pickle=False)
 
   print(f'> concatenating the channels ({variable_name})')
   concat_channels = np.concatenate((cyclone_channel, no_cyclone_channel))
@@ -88,7 +88,7 @@ def process_channels(variable):
   std_concat_channels_file_path = path.join(common.MERGED_CHANNEL_PARENT_DIR_PATH,
                                               std_concat_channels_filename)
   print(f'> saving {std_concat_channels_filename} (shape={std_concat_channels.shape})')
-  np.save(file=std_concat_channels_file_path, arr=std_concat_channels, allow_pickle=True)
+  np.save(file=std_concat_channels_file_path, arr=std_concat_channels, allow_pickle=False)
 
 ############################ STANDARDIZE CHANNELS #############################
 
@@ -146,7 +146,7 @@ for variable in Era5:
   channel_file_path = path.join(common.MERGED_CHANNEL_PARENT_DIR_PATH,
                                 channel_filename)
   channel_imgs = np.load(file=channel_file_path,
-                         mmap_mode=None, allow_pickle=True)
+                         mmap_mode=None, allow_pickle=False)
   channels.append(channel_imgs)
 
 print('> stacking the channels')
@@ -181,14 +181,14 @@ tensor_filename = f'{common.SHUFFLED_FILE_PREFIX}_{file_prefix}_\
 {common.SHUFFLED_TENSOR_FILE_POSTFIX}.npy'
 print(f'> saving the tensor {tensor_filename} (shape: {shuffled_tensor.shape})')
 tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH, tensor_filename)
-np.save(file=tensor_file_path, arr=shuffled_tensor, allow_pickle=True)
+np.save(file=tensor_file_path, arr=shuffled_tensor, allow_pickle=False)
 
 shuffled_labels_filename  = f'{common.SHUFFLED_FILE_PREFIX}_{file_prefix}_\
 {common.SHUFFLED_LABELS_FILE_POSTFIX}.npy'
 print(f'> saving the labels {shuffled_labels_filename}')
 shuffled_labels_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,
                                       shuffled_labels_filename)
-np.save(file=shuffled_labels_file_path, arr=shuffled_labels, allow_pickle=True)
+np.save(file=shuffled_labels_file_path, arr=shuffled_labels, allow_pickle=False)
 
 stop = time.time()
 formatted_time =common.display_duration((stop-start))
@@ -203,11 +203,11 @@ print(f'> maximum memory footprint: {max_mem:.2f} MiB')
 
 ''' DEBUG
 a = np.load(file='/home/seb/private/home_ciclad/cyclone/channels/2000_10_msl_cyclone_channel.npy',\
-            mmap_mode=None, allow_pickle=True)
+            mmap_mode=None, allow_pickle=False)
 print(a.shape)
 
 b = np.load(file='/home/seb/private/home_ciclad/cyclone/channels/2000_10_msl_no_cyclone_channel.npy',\
-            mmap_mode=None, allow_pickle=True)
+            mmap_mode=None, allow_pickle=False)
 print(b.shape)
 
 c = np.concatenate((a, b))
@@ -268,13 +268,13 @@ print(d[(a.shape[0]-1)][31][31])
 print(d[(d.shape[0]-1)][31][31])
 
 a =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_msl_channel.npy',\
-                               mmap_mode=None, allow_pickle=True)
+                               mmap_mode=None, allow_pickle=False)
 
 b =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_ta200_channel.npy',\
-                               mmap_mode=None, allow_pickle=True)
+                               mmap_mode=None, allow_pickle=False)
 
 c =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_ta500_channel.npy',\
-                               mmap_mode=None, allow_pickle=True)
+                               mmap_mode=None, allow_pickle=False)
 
 
 d = np.stack((a, b, c), axis=3)

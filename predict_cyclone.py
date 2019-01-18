@@ -276,7 +276,7 @@ if save_tensor:
   tensor_filename = f'{file_prefix}_prediction_tensor.npy'
   file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH, tensor_filename)
   print(f'> saving the tensor on disk ({tensor_filename})')
-  np.save(file=file_path, arr=tensor, allow_pickle=True)
+  np.save(file=file_path, arr=tensor, allow_pickle=False)
   display_intermediate_time()
 
 print('> compute prediction of the subregions')

@@ -56,7 +56,7 @@ for variable in Era5:
   variable_channel_file_path = path.join(channel_dir_path,
              f'{file_prefix}_{variable.name.lower()}_{channel_file_postfix}.npy')
   channels[variable] = np.load(file=variable_channel_file_path, \
-                               mmap_mode=None, allow_pickle=True)
+                               mmap_mode=None, allow_pickle=False)
 for variable in Era5:
   print('')
   print(f'> computing statistics for channel {variable.name}')

@@ -94,7 +94,7 @@ def save_img_array(img_array, file_postfix):
   print(f'> saving {variable.name.lower()} channel, shape={img_array.shape}')
   channel_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
         f'{file_prefix}_{variable.name.lower()}_{file_postfix}.npy')
-  np.save(file=channel_file_path, arr=img_array, allow_pickle=True)
+  np.save(file=channel_file_path, arr=img_array, allow_pickle=False)
 
                                  ##### MAIN #####
 
