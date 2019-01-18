@@ -32,7 +32,7 @@ start = time.time()
 
                            ####### SETTINGS #######
 
-file_prefix = '2k'
+file_prefix = '2kb'
 num_threads = 4
 
 if (len(sys.argv) > 2) and (sys.argv[1].strip()) and (sys.argv[2].strip()):
@@ -46,7 +46,7 @@ max_mem     = -1
 
 # TODO optimize settings.
 batch_size  = 5
-epochs      = 100
+epochs      = 50
 loss        = keras.losses.binary_crossentropy # https://keras.io/losses/
 metrics     = ['accuracy']
 optimizer   = keras.optimizers.SGD() # https://keras.io/optimizers/

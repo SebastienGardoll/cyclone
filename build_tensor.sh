@@ -121,7 +121,7 @@ do
   job_num=$(qsub -o "${JOB_LOG_DIR_PATH}" -N "build_channels_${current_channel}" \
 -v DATASET_PREFIX="${DATASET_PREFIX}",NUM_CORE=${CHANNEL_JOB_NUM_CORE},\
 CHANNEL_NAME="${current_channel}",SCRIPT_DIR_PATH="${SCRIPT_DIR_PATH}" \
--j oe -k oe -l walltime="${CHANNEL_JOB_MAX_WALL_TIME}" \
+-j oe -l walltime="${CHANNEL_JOB_MAX_WALL_TIME}" \
 -l mem=${CHANNEL_JOB_MEM} -l vmem=${CHANNEL_JOB_MEM} \
 -l nodes=1:ppn=${CHANNEL_JOB_NUM_CORE} "${SCRIPT_DIR_PATH}/build_channels.sh")
 job_nums[index]=${job_num}
@@ -141,7 +141,7 @@ done
 job_num=$(qsub -o "${JOB_LOG_DIR_PATH}" \
 -v DATASET_PREFIX="${DATASET_PREFIX}",NUM_CORE=${MERGE_JOB_NUM_CORE},\
 SCRIPT_DIR_PATH="${SCRIPT_DIR_PATH}" \
--m ae -j oe -k oe -l walltime="${MERGE_JOB_MAX_WALL_TIME}" \
+-m ae -j oe -l walltime="${MERGE_JOB_MAX_WALL_TIME}" \
 -l mem=${MERGE_JOB_MEM} -l vmem=${MERGE_JOB_MEM} \
 -W "${dependency_list}" \
 -l nodes=1:ppn=${MERGE_JOB_NUM_CORE} "${SCRIPT_DIR_PATH}/merge_channels.sh")
