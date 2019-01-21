@@ -32,7 +32,7 @@ start = time.time()
 
                            ####### SETTINGS #######
 
-file_prefix = '2kb'
+file_prefix = '2000_10'
 num_threads = 4
 
 if (len(sys.argv) > 2) and (sys.argv[1].strip()) and (sys.argv[2].strip()):

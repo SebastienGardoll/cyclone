@@ -121,6 +121,7 @@ def read_dict_from_csv(filepath, cast_key, cast_value):
     csv_reader = csv.reader(csv_file, delimiter=',', lineterminator='\n')
     for row in csv_reader:
       result[cast_key(row[0])]=cast_value(row[1])
+  return result
 
 def subtract_one_day(year, month, day):
   date = datetime(year=year, month=month, day=day)
