@@ -15,17 +15,18 @@ from netCDF4 import Dataset
 
 import os.path as path
 
-import numpy as np
 from matplotlib import pyplot as plt
 
 import logging
 
 # Internal static variables
 
-_LATITUDE_INDEXES = np.load(path.join(common.DATASET_PARENT_DIR_PATH,
-                                      'latitude_indexes.npy')).item()
-_LONGITUDE_INDEXES = np.load(path.join(common.DATASET_PARENT_DIR_PATH,
-                                       'longitude_indexes.npy')).item()
+_LATITUDE_INDEXES  = common.read_dict_from_csv(
+                      path.join(common.DATASET_PARENT_DIR_PATH,
+                               'latitude_indexes.csv'), float, int)
+_LONGITUDE_INDEXES = common.read_dict_from_csv(
+                      path.join(common.DATASET_PARENT_DIR_PATH,
+                               'longitude_indexes.csv'), float, int)
 
                        ######## FUNCTIONS ########
 
@@ -68,10 +69,8 @@ def _compute_netcdf_file_path(parent_dir_path, variable, year, month):
   else:
     delta = 'aphe5'
     rep = 'AN_PL'
-  result = f'{parent_dir_path}/{rep}/{year}/{variable.value.str_id}.{year}\
-{month:02d}.{delta}.GLOBAL_025.nc'
+  result = f'{parent_dir_path}/{rep}/{year}/{variable.value.str_id}.{year}{month:02d}.{delta}.GLOBAL_025.nc'
   return result
-
 
 def open_netcdf(parent_dir_path, variable, year, month):
   file_path = _compute_netcdf_file_path(parent_dir_path, variable, year, month)

@@ -11,9 +11,12 @@ Created on Tue Oct 16 09:22:19 2018
 import os.path as path
 import os
 
+import csv
+
 from enum import Enum
 
 import numpy as np
+import h5py
 
 from datetime import datetime
 from datetime import timedelta
@@ -93,46 +96,31 @@ STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',
 
 MERGED_CHANNEL_STAT_COLUMNS = ['mean', 'stddev']
 
-                       ######## STATIC CLASSES ########
-
-
-class Variable:
-
-  def __init__(self, num_id, str_id, level = None, index_mapping = None):
-    self.num_id = num_id
-    self.str_id = str_id
-    self.level = level
-    self.index_mapping = index_mapping
-    if level:
-      self.file_path_prefix = MULTIPLE_LEVEL_DATA_FILE_PATH_PREFIX
-      self.filename_postfix = MULTIPLE_LEVEL_DATA_FILE_NAME_POSTFIX
-    else:
-      self.file_path_prefix = ONE_LEVEL_DATA_FILE_PATH_PREFIX
-      self.filename_postfix = ONE_LEVEL_DATA_FILE_NAME_POSTFIX
-
-  def compute_file_path(self, year, month):
-    return f'{self.file_path_prefix}/{year}/{self.str_id}.{year}{month:02d}.{self.filename_postfix}'
-
-# ERA5 variable names.
-class Era5 (Enum):
-  MSL   = Variable(0, 'msl')
-  TCWV  = Variable(1, 'tcwv')
-  V10   = Variable(2, 'v10')
-  U10   = Variable(3, 'u10')
-  TA200 = Variable(4, 'ta', 200,
-    np.load(path.join(DATASET_PARENT_DIR_PATH,'ta_indexes.npy')).item())
-  TA500 = Variable(5, 'ta', 500,
-    np.load(path.join(DATASET_PARENT_DIR_PATH,'ta_indexes.npy')).item())
-  U850  = Variable(6, 'u', 850,
-    np.load(path.join(DATASET_PARENT_DIR_PATH, 'u_indexes.npy')).item())
-  V850  = Variable(7, 'v', 850,
-    np.load(path.join(DATASET_PARENT_DIR_PATH, 'v_indexes.npy')).item())
-
-
-NB_CHANNELS = len(Era5)
 
                        ######## FUNCTIONS ########
 
+def write_ndarray_to_hdf5(filepath, ndarray):
+  hdf5_file = h5py.File(filepath, 'w')
+  hdf5_file.create_dataset('dataset', data=ndarray)
+  hdf5_file.close()
+
+def read_ndarray_from_hdf5(filepath):
+  hdf5_file = h5py.File(filepath, 'r')
+  data = hdf5_file.get('dataset')
+  return np.array(data)
+
+def write_dict_to_csv(filepath, dictionary):
+  with open (filepath, 'w') as csv_file:
+    csv_writter = csv.writer(csv_file, delimiter=',', lineterminator='\n')
+    for key, value in dictionary.items():
+      csv_writter.writerow([key, value])
+
+def read_dict_from_csv(filepath, cast_key, cast_value):
+  result = dict()
+  with open (filepath, 'r') as csv_file:
+    csv_reader = csv.reader(csv_file, delimiter=',', lineterminator='\n')
+    for row in csv_reader:
+      result[cast_key(row[0])]=cast_value(row[1])
 
 def subtract_one_day(year, month, day):
   date = datetime(year=year, month=month, day=day)
@@ -185,6 +173,47 @@ def display_duration(time_in_sec):
         days = int(hours / 24)
         hours = remainder
         return f'{days} days, {hours} hours, {minutes} mins, {seconds:.2f} seconds'
+
+
+
+
+                       ######## STATIC CLASSES ########
+
+
+class Variable:
+
+  def __init__(self, num_id, str_id, level = None, index_mapping = None):
+    self.num_id = num_id
+    self.str_id = str_id
+    self.level = level
+    self.index_mapping = index_mapping
+    if level:
+      self.file_path_prefix = MULTIPLE_LEVEL_DATA_FILE_PATH_PREFIX
+      self.filename_postfix = MULTIPLE_LEVEL_DATA_FILE_NAME_POSTFIX
+    else:
+      self.file_path_prefix = ONE_LEVEL_DATA_FILE_PATH_PREFIX
+      self.filename_postfix = ONE_LEVEL_DATA_FILE_NAME_POSTFIX
+
+  def compute_file_path(self, year, month):
+    return f'{self.file_path_prefix}/{year}/{self.str_id}.{year}{month:02d}.{self.filename_postfix}'
+
+# ERA5 variable names.
+class Era5 (Enum):
+  MSL   = Variable(0, 'msl')
+  TCWV  = Variable(1, 'tcwv')
+  V10   = Variable(2, 'v10')
+  U10   = Variable(3, 'u10')
+  TA200 = Variable(4, 'ta', 200,
+    read_dict_from_csv(path.join(DATASET_PARENT_DIR_PATH,'ta_indexes.csv'), int, int))
+  TA500 = Variable(5, 'ta', 500,
+   read_dict_from_csv(path.join(DATASET_PARENT_DIR_PATH,'ta_indexes.csv'), int, int))
+  U850  = Variable(6, 'u', 850,
+    read_dict_from_csv(path.join(DATASET_PARENT_DIR_PATH, 'u_indexes.csv'), int, int))
+  V850  = Variable(7, 'v', 850,
+    read_dict_from_csv(path.join(DATASET_PARENT_DIR_PATH, 'v_indexes.csv'), int, int))
+
+
+NB_CHANNELS = len(Era5)
 
                        ######## CHECKINGS ########
 
