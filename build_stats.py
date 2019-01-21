@@ -54,9 +54,9 @@ stats_list = []
 channels = dict()
 for variable in Era5:
   variable_channel_file_path = path.join(channel_dir_path,
-             f'{file_prefix}_{variable.name.lower()}_{channel_file_postfix}.npy')
-  channels[variable] = np.load(file=variable_channel_file_path, \
-                               mmap_mode=None, allow_pickle=False)
+             f'{file_prefix}_{variable.name.lower()}_{channel_file_postfix}.h5')
+  channels[variable] = common.read_ndarray_from_hdf5(filepath=variable_channel_file_path)
+
 for variable in Era5:
   print('')
   print(f'> computing statistics for channel {variable.name}')

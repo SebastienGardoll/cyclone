@@ -50,19 +50,17 @@ def process_channels(variable):
   print(f'> processing variable {variable_name}')
 
   cyclone_channel_filename = f'{file_prefix}_{variable_name}_\
-{common.CYCLONE_CHANNEL_FILE_POSTFIX}.npy'
+{common.CYCLONE_CHANNEL_FILE_POSTFIX}.h5'
   print(f'> loading {cyclone_channel_filename}')
   cyclone_channel_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
                                                 cyclone_channel_filename)
-  cyclone_channel = np.load(file=cyclone_channel_file_path,
-                            mmap_mode=None, allow_pickle=False)
+  cyclone_channel = common.read_ndarray_from_hdf5(filepath=cyclone_channel_file_path)
   no_cyclone_channel_filename = f'{file_prefix}_{variable_name}_\
-{common.NO_CYCLONE_CHANNEL_FILE_POSTFIX}.npy'
+{common.NO_CYCLONE_CHANNEL_FILE_POSTFIX}.h5'
   print(f'> loading {no_cyclone_channel_filename}')
   no_cyclone_channel_file_path = path.join(common.CHANNEL_PARENT_DIR_PATH,
                                            no_cyclone_channel_filename)
-  no_cyclone_channel = np.load(file=no_cyclone_channel_file_path,
-                               mmap_mode=None, allow_pickle=False)
+  no_cyclone_channel = common.read_ndarray_from_hdf5(filepath=no_cyclone_channel_file_path)
 
   print(f'> concatenating the channels ({variable_name})')
   concat_channels = np.concatenate((cyclone_channel, no_cyclone_channel))
@@ -84,11 +82,11 @@ def process_channels(variable):
   # print(f'> [DEBUG] stddev: {std_concat_channels.std()}')
 
   std_concat_channels_filename = f'{common.MERGED_CHANNEL_FILE_PREFIX}_\
-{file_prefix}_{variable_name}_{common.MERGED_CHANNEL_FILE_POSTFIX}.npy'
+{file_prefix}_{variable_name}_{common.MERGED_CHANNEL_FILE_POSTFIX}.h5'
   std_concat_channels_file_path = path.join(common.MERGED_CHANNEL_PARENT_DIR_PATH,
                                               std_concat_channels_filename)
   print(f'> saving {std_concat_channels_filename} (shape={std_concat_channels.shape})')
-  np.save(file=std_concat_channels_file_path, arr=std_concat_channels, allow_pickle=False)
+  common.write_ndarray_to_hdf5(filepath=std_concat_channels_file_path,  ndarray=std_concat_channels)
 
 ############################ STANDARDIZE CHANNELS #############################
 
@@ -141,12 +139,11 @@ channels = []
 
 for variable in Era5:
   channel_filename = f'{common.MERGED_CHANNEL_FILE_PREFIX}_{file_prefix}_\
-{variable.name.lower()}_{common.MERGED_CHANNEL_FILE_POSTFIX}.npy'
+{variable.name.lower()}_{common.MERGED_CHANNEL_FILE_POSTFIX}.h5'
   print(f'> loading {channel_filename}')
   channel_file_path = path.join(common.MERGED_CHANNEL_PARENT_DIR_PATH,
                                 channel_filename)
-  channel_imgs = np.load(file=channel_file_path,
-                         mmap_mode=None, allow_pickle=False)
+  channel_imgs = common.read_ndarray_from_hdf5(filepath=channel_file_path)
   channels.append(channel_imgs)
 
 print('> stacking the channels')
@@ -178,17 +175,17 @@ shuffled_labels = merge_labels[permutation]
 del merge_labels
 
 tensor_filename = f'{common.SHUFFLED_FILE_PREFIX}_{file_prefix}_\
-{common.SHUFFLED_TENSOR_FILE_POSTFIX}.npy'
+{common.SHUFFLED_TENSOR_FILE_POSTFIX}.h5'
 print(f'> saving the tensor {tensor_filename} (shape: {shuffled_tensor.shape})')
 tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH, tensor_filename)
-np.save(file=tensor_file_path, arr=shuffled_tensor, allow_pickle=False)
+common.write_ndarray_to_hdf5(filepath=tensor_file_path,  ndarray=shuffled_tensor)
 
 shuffled_labels_filename  = f'{common.SHUFFLED_FILE_PREFIX}_{file_prefix}_\
-{common.SHUFFLED_LABELS_FILE_POSTFIX}.npy'
+{common.SHUFFLED_LABELS_FILE_POSTFIX}.h5'
 print(f'> saving the labels {shuffled_labels_filename}')
 shuffled_labels_file_path = path.join(common.TENSOR_PARENT_DIR_PATH,
                                       shuffled_labels_filename)
-np.save(file=shuffled_labels_file_path, arr=shuffled_labels, allow_pickle=False)
+common.write_ndarray_to_hdf5(filepath=shuffled_labels_file_path,  ndarray=shuffled_labels)
 
 stop = time.time()
 formatted_time =common.display_duration((stop-start))
@@ -202,12 +199,12 @@ print(f'> maximum memory footprint: {max_mem:.2f} MiB')
 ################################### DEBUG ######################################
 
 ''' DEBUG
-a = np.load(file='/home/seb/private/home_ciclad/cyclone/channels/2000_10_msl_cyclone_channel.npy',\
-            mmap_mode=None, allow_pickle=False)
+a = common.read_ndarray_from_hdf5(filepath='/home/seb/private/home_ciclad/cyclone/channels/2000_10_msl_cyclone_channel.h5')
+
 print(a.shape)
 
-b = np.load(file='/home/seb/private/home_ciclad/cyclone/channels/2000_10_msl_no_cyclone_channel.npy',\
-            mmap_mode=None, allow_pickle=False)
+b = common.read_ndarray_from_hdf5(filepath='/home/seb/private/home_ciclad/cyclone/channels/2000_10_msl_no_cyclone_channel.h5')
+
 print(b.shape)
 
 c = np.concatenate((a, b))
@@ -267,14 +264,11 @@ print(compute_std(b[(b.shape[0]-1)][31][31], mean, stddev))
 print(d[(a.shape[0]-1)][31][31])
 print(d[(d.shape[0]-1)][31][31])
 
-a =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_msl_channel.npy',\
-                               mmap_mode=None, allow_pickle=False)
+a =   cyclone_var_tensor = common.read_ndarray_from_hdf5(filepath='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_msl_channel.h5')
 
-b =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_ta200_channel.npy',\
-                               mmap_mode=None, allow_pickle=False)
+b =   cyclone_var_tensor = common.read_ndarray_from_hdf5(filepath='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_ta200_channel.h5')
 
-c =   cyclone_var_tensor = np.load(file='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_ta500_channel.npy',\
-                               mmap_mode=None, allow_pickle=False)
+c =   cyclone_var_tensor = common.read_ndarray_from_hdf5(filepath='/home/seb/private/home_ciclad/cyclone/merged_channels/merged_2000_10_ta500_channel.h5')
 
 
 d = np.stack((a, b, c), axis=3)

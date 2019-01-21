@@ -189,10 +189,13 @@ if rounded_lat_max != lat_max or \
   print('> location input has been rounded')
 
 # Translate lat&lon into index of array.
-latitude_indexes  = np.load(path.join(common.DATASET_PARENT_DIR_PATH,
-                                      'latitude_indexes.npy')).item()
-longitude_indexes = np.load(path.join(common.DATASET_PARENT_DIR_PATH,
-                                      'longitude_indexes.npy')).item()
+latitude_indexes  = common.read_dict_from_csv(
+                      path.join(common.DATASET_PARENT_DIR_PATH,
+                               'latitude_indexes.csv'), float, int)
+longitude_indexes = common.read_dict_from_csv(
+                      path.join(common.DATASET_PARENT_DIR_PATH,
+                               'longitude_indexes.csv'), float, int)
+
 # Min&max are inverted for latitude.
 lat_max_idx = latitude_indexes[rounded_lat_min]
 lat_min_idx = latitude_indexes[rounded_lat_max]
@@ -273,10 +276,10 @@ display_intermediate_time()
 
 if save_tensor:
   # TODO unique name. Add name into settings file ?
-  tensor_filename = f'{file_prefix}_prediction_tensor.npy'
+  tensor_filename = f'{file_prefix}_prediction_tensor.h5'
   file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH, tensor_filename)
   print(f'> saving the tensor on disk ({tensor_filename})')
-  np.save(file=file_path, arr=tensor, allow_pickle=False)
+  common.write_ndarray_to_hdf5(filepath=file_path, ndarray=tensor)
   display_intermediate_time()
 
 print('> compute prediction of the subregions')

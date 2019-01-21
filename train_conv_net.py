@@ -74,18 +74,18 @@ keras.backend.set_image_data_format('channels_last')
                          ####### LOADING DATA #######
 
 tensor_filename = f'{common.SHUFFLED_FILE_PREFIX}_{file_prefix}_\
-{common.SHUFFLED_TENSOR_FILE_POSTFIX}.npy'
+{common.SHUFFLED_TENSOR_FILE_POSTFIX}.h5'
 tensor_file_path = path.join(common.TENSOR_PARENT_DIR_PATH, tensor_filename)
 
 print(f'> loading tensor {tensor_filename}')
-tensor = np.load(file=tensor_file_path, mmap_mode=None, allow_pickle=False)
+tensor = common.read_ndarray_from_hdf5(filepath=tensor_file_path)
 
 labels_filename = f'{common.SHUFFLED_FILE_PREFIX}_{file_prefix}_\
-{common.SHUFFLED_LABELS_FILE_POSTFIX}.npy'
+{common.SHUFFLED_LABELS_FILE_POSTFIX}.h5'
 labels_file_path = path.join(common.TENSOR_PARENT_DIR_PATH, labels_filename)
 
 print(f'> loading labels {labels_filename}')
-labels = np.load(file=labels_file_path, mmap_mode=None, allow_pickle=False)
+labels = common.read_ndarray_from_hdf5(filepath=labels_file_path)
 
 process = psutil.Process(os.getpid())
 current_mem = process.memory_info().rss/common.MEGA_BYTES_FACTOR
