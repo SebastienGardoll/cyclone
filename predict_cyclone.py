@@ -275,7 +275,7 @@ tensor = np.stack(_CHANNELS, axis=3)
 display_intermediate_time()
 
 if save_tensor:
-  # TODO unique name. Add name into settings file ?
+  # TODO: unique name. Add name into settings file ?
   tensor_filename = f'{file_prefix}_prediction_tensor.h5'
   file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH, tensor_filename)
   print(f'> saving the tensor on disk ({tensor_filename})')
@@ -289,7 +289,6 @@ cnn_file_path = path.join(common.CNN_PARENT_DIR_PATH, cnn_filename)
 print(f'  > loading the CNN model ({cnn_filename})')
 model = load_model(cnn_file_path)
 
-
 print('  > predicting categories')
 # Compute the probabilities.
 y_pred_prob_npy = model.predict(tensor, verbose=0)
@@ -300,6 +299,9 @@ display_intermediate_time()
 
 print('> computing results')
 
+# Compute the true classication of the subregions based on Hurdat.
+# If the subregions is contained in a region that is supposed to represent 
+# (Hurdat) a cyclone, then the subregion gets an 1.0, otherwise 0.0 .
 true_cat_serie = None
 nb_missing_recorded_cyclones = 0
 for idx, recorded_cyclone in recorded_cyclones.iterrows():
@@ -309,6 +311,7 @@ for idx, recorded_cyclone in recorded_cyclones.iterrows():
   if not current.any():
     nb_missing_recorded_cyclones = nb_missing_recorded_cyclones + 1
   if true_cat_serie is not None:
+    # dataframe OR operator on the category of the image.
     true_cat_serie = true_cat_serie | current
   else:
     true_cat_serie = current
@@ -316,7 +319,8 @@ for idx, recorded_cyclone in recorded_cyclones.iterrows():
 true_cat_serie = true_cat_serie.map(arg=lambda value: 1.0 if value else 0.0)
 true_cat_serie.name = 'true_cat'
 
-# True corresponds to a cyclone.
+# Compute the category of the subregions based on the predicted probability and
+# the given threshold probability.
 cat_func = np.vectorize(lambda prob: 1.0 if prob >= threshold_prob else 0.0)
 y_pred_cat_npy = np.apply_along_axis(cat_func, 0, y_pred_prob_npy)
 
@@ -329,7 +333,7 @@ image_df = pd.concat((image_df, true_cat_serie, y_pred_prob, y_pred_cat), axis=1
 cyclone_images_df = image_df[image_df.pred_cat == 1]
 
 if not cyclone_images_df.empty:
-  print(f'  > model has classified {len(cyclone_images_df)} image(s) as cyclone')
+  print(f'  > model has classified {len(cyclone_images_df)}/{len(image_df[image_df.true_cat == 1])} images as cyclone')
 else:
   print('  > model has NOT classified any image as cyclone')
 
