@@ -46,7 +46,7 @@ max_mem     = -1
 
 # TODO optimize settings.
 batch_size  = 5
-epochs      = 50
+epochs      = 75
 loss        = keras.losses.binary_crossentropy # https://keras.io/losses/
 metrics     = ['accuracy']
 optimizer   = keras.optimizers.SGD() # https://keras.io/optimizers/
