@@ -18,8 +18,8 @@ import sys
 import numpy as np
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_curve
-from sklearn.metrics import auc
+from sklearn.metrics import classification_report
+from sklearn.metrics import roc_auc_score
 
 import keras
 from keras import backend as K
@@ -162,9 +162,11 @@ y_pred_cat = np.argmax(y_pred_raw, axis=1)
 # Keep only the probabilities.
 y_pred_prob = np.delete(y_pred_raw, obj=0, axis=1).squeeze()
 
-fpr_keras, tpr_keras, thresholds_keras = roc_curve(y_test_not_cat, y_pred_prob)
-auc_model = auc(fpr_keras, tpr_keras)
+auc_model = roc_auc_score(y_true=y_test_not_cat, y_score=y_pred_prob)
 print(f'  > {auc_model}')
+
+print('  > displaying the classification report')
+print(classification_report(y_true=y_test_not_cat, y_pred=y_pred_cat, target_names=('no_cyclones', 'cyclones')))
 
 model_filename  = f'{file_prefix}_model.h5'
 model_file_path = path.join(common.CNN_PARENT_DIR_PATH, model_filename)

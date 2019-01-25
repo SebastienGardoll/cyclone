@@ -339,6 +339,9 @@ else:
 
 print(f'  > model found {nb_cyclones-nb_missing_recorded_cyclones}/{nb_cyclones} recorded cyclone(s)')
 
+false_positives=image_df[(image_df.pred_cat == 1) & (image_df.true_cat == 0)]
+print(f'  > model found {len(false_positives)} false positives')
+
 print('  > compute true labels of the subregions')
 
 auc_model = roc_auc_score(y_true=image_df.true_cat, y_score=y_pred_prob_npy)
