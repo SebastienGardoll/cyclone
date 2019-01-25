@@ -32,7 +32,7 @@ start = time.time()
 
                            ####### SETTINGS #######
 
-file_prefix = '2000_10'
+file_prefix = '2kb'
 num_threads = 4
 
 if (len(sys.argv) > 2) and (sys.argv[1].strip()) and (sys.argv[2].strip()):
@@ -100,8 +100,27 @@ del tensor, labels
 
 y_train = keras.utils.to_categorical(y_train_not_cat, num_classes)
 y_test  = keras.utils.to_categorical(y_test_not_cat, num_classes)
-del y_train_not_cat
 
+print('> saving the datasets')
+
+file_name = f'train_{file_prefix}_{common.SHUFFLED_TENSOR_FILE_POSTFIX}.h5'
+file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
+common.write_ndarray_to_hdf5(file_path, x_train)
+
+file_name = f'train_{file_prefix}_{common.SHUFFLED_LABELS_FILE_POSTFIX}.h5'
+file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
+common.write_ndarray_to_hdf5(file_path, y_train_not_cat)
+
+file_name = f'test_{file_prefix}_{common.SHUFFLED_TENSOR_FILE_POSTFIX}.h5'
+file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
+common.write_ndarray_to_hdf5(file_path, x_test)
+
+file_name = f'test_{file_prefix}_{common.SHUFFLED_LABELS_FILE_POSTFIX}.h5'
+file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
+common.write_ndarray_to_hdf5(file_path, y_test_not_cat)
+
+del file_name
+del file_path
 
 process = psutil.Process(os.getpid())
 current_mem = process.memory_info().rss/common.MEGA_BYTES_FACTOR
@@ -167,11 +186,6 @@ print(f'  > {auc_model}')
 
 print('  > displaying the classification report')
 print(classification_report(y_true=y_test_not_cat, y_pred=y_pred_cat, target_names=('no_cyclones', 'cyclones')))
-
-model_filename  = f'{file_prefix}_model.h5'
-model_file_path = path.join(common.CNN_PARENT_DIR_PATH, model_filename)
-print(f'> saving the model ({model_filename})')
-model.save(model_file_path)
 
 process = psutil.Process(os.getpid())
 current_mem = process.memory_info().rss/common.MEGA_BYTES_FACTOR
