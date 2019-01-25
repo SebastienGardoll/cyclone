@@ -187,6 +187,11 @@ print(f'  > {auc_model}')
 print('  > displaying the classification report')
 print(classification_report(y_true=y_test_not_cat, y_pred=y_pred_cat, target_names=('no_cyclones', 'cyclones')))
 
+model_filename  = f'{file_prefix}_model.h5'
+model_file_path = path.join(common.CNN_PARENT_DIR_PATH, model_filename)
+print(f'> saving the model ({model_filename})')
+model.save(model_file_path)
+
 process = psutil.Process(os.getpid())
 current_mem = process.memory_info().rss/common.MEGA_BYTES_FACTOR
 if current_mem > max_mem:
