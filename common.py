@@ -49,6 +49,8 @@ LON_FRAME = HALF_LON_FRAME * 2
 NUM_CLASSES      = 2
 CYCLONE_LABEL    = 1.0
 NO_CYCLONE_LABEL = 0.0
+CYCLONE_CAT      = 'cyclone'
+NO_CYCLONE_CAT   = 'no cyclone'
 
 # Paths
 NETCDF_PARENT_DIR_PATH         = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
@@ -147,12 +149,20 @@ def is_overlapping(lat1, lon1, lat2, lon2):
   else:
       return False
 
+def to_cat(label_value):
+  return CYCLONE_CAT if label_value == CYCLONE_LABEL else NO_CYCLONE_CAT
 
 def round_nearest(value, resolution, num_decimal):
   return round(round(value / resolution) * resolution, num_decimal)
 
 def format_pourcentage(value):
   return round(value*100, 2)
+
+def format_float_number(float_value):
+  if float_value < 0.001 :
+    return f'{float_value:.2e}'
+  else:
+    return f'{float_value:.3f}'
 
 def display_duration(time_in_sec):
   remainder = time_in_sec % 60
