@@ -38,9 +38,11 @@ def display_false_negatives(x_test, false_negative_indexes, y_pred_prob):
   images = x_test[false_negative_indexes]
   image_count = 0
   for image in images:
-    probability = y_pred_prob[false_negative_indexes[image_count]]
+    probabilities = y_pred_prob[false_negative_indexes[image_count]]
     image_count = image_count + 1
-    print(f'\n\n> image #{image_count} with prob {probability}')
+    print(f'\n\n> image #{image_count}, probabilities: cyclone\
+ {probabilities[int(common.CYCLONE_LABEL)]} ;\
+ no cyclone {probabilities[int(common.NO_CYCLONE_LABEL)]}')
     display_image(image)
 
 def display_image(image):
