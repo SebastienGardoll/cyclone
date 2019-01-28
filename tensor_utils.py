@@ -19,6 +19,8 @@ from matplotlib import pyplot as plt
 
 import keras
 
+PLOT_SIZE = (20, 2.5)
+
 # num_viz <= 0 : display all the false negatives.
 def rand_display_false_negatives(x_test, y_pred_class, y_true_class, y_pred_prob,
                                  num_viz):
@@ -40,23 +42,25 @@ def display_false_negatives(x_test, false_negative_indexes, y_pred_prob):
   image_count = 0
   for image in images:
     probabilities = y_pred_prob[false_negative_indexes[image_count]]
+    p_cyclone = probabilities[int(common.CYCLONE_LABEL)]
+    p_no_cyclone = probabilities[int(common.NO_CYCLONE_LABEL)]
     image_count = image_count + 1
-    print(f'\n\n> image #{image_count}, probabilities: cyclone\
- {probabilities[int(common.CYCLONE_LABEL)]} ;\
- no cyclone {probabilities[int(common.NO_CYCLONE_LABEL)]}')
-    display_image(image)
+    print(f'\n\n> image #{image_count}, probabilities: cyclone {p_cyclone} ;\
+ no cyclone {p_no_cyclone}')
+    plt.rc('text', usetex=False)
+    suptitle =f'P(cyclone) = {p_cyclone:.3f} ; P(no cyclone) = {p_no_cyclone:.3f}'
+    display_image(image, suptitle)
 
-def display_image(image):
+def display_image(image, suptitle):
   reshape_image = image.swapaxes(0,2)
+  plt.figure(figsize=PLOT_SIZE)
   for variable in Era5:
     index = variable.value.num_id
-    print(f'\n  > display {variable.name.lower()}')
     channel = reshape_image[index]
-    display_channel(channel)
-
-def display_channel(channel):
-  plt.figure()
-  plt.imshow(channel,cmap='gist_rainbow_r',interpolation="none")
+    plt.subplot(1, len(Era5), (index+1))
+    plt.title(variable.name.lower(), {'fontsize': 14})
+    plt.imshow(channel,cmap='gist_rainbow_r',interpolation="none")
+  plt.suptitle(suptitle, fontsize=16, va='bottom')
   plt.show()
 
 def load_results(file_prefix):
