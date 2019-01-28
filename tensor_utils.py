@@ -17,6 +17,8 @@ from common import Era5
 
 from matplotlib import pyplot as plt
 
+import keras
+
 # num_viz <= 0 : display all the false negatives.
 def rand_display_false_negatives(x_test, y_pred_class, y_true_class, y_pred_prob,
                                  num_viz):
@@ -54,6 +56,34 @@ def display_channel(channel):
   plt.imshow(channel,cmap='gist_rainbow_r',interpolation="none")
   plt.show()
 
+def load_results(file_prefix):
+  file_name = f'test_{file_prefix}_{common.SHUFFLED_TENSOR_FILE_POSTFIX}.h5'
+  file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
+  print(f'> loading {file_name}')
+  x_test = common.read_ndarray_from_hdf5(file_path)
+
+  file_name = f'test_{file_prefix}_{common.SHUFFLED_LABELS_FILE_POSTFIX}.h5'
+  file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
+  print(f'> loading {file_name}')
+  y_test_class = common.read_ndarray_from_hdf5(file_path)
+
+  file_name = f'prediction_class_{file_prefix}_{common.SHUFFLED_LABELS_FILE_POSTFIX}.h5'
+  file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
+  print(f'> loading {file_name}')
+  y_pred_class = common.read_ndarray_from_hdf5(file_path)
+
+  file_name = f'prediction_prob_{file_prefix}_{common.SHUFFLED_LABELS_FILE_POSTFIX}.h5'
+  file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
+  print(f'> loading {file_name}')
+  y_pred_prob = common.read_ndarray_from_hdf5(file_path)
+  return (x_test, y_test_class, y_pred_class, y_pred_prob)
+
+def load_model(file_prefix):
+  model_filename  = f'{file_prefix}_model.h5'
+  model_file_path = path.join(common.CNN_PARENT_DIR_PATH, model_filename)
+  print(f'> loading model {model_filename}')
+  return keras.models.load_model(model_file_path)
+
                       ####### MAIN #######
 
 file_prefix = '2kb'
@@ -62,24 +92,7 @@ if (len(sys.argv) > 1) and (sys.argv[1].strip()):
   file_prefix = sys.argv[1].strip()
   print(f'> setting file prefix to {file_prefix}')
 
-file_name = f'test_{file_prefix}_{common.SHUFFLED_TENSOR_FILE_POSTFIX}.h5'
-file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
-print(f'> loading {file_name}')
-x_test = common.read_ndarray_from_hdf5(file_path)
 
-file_name = f'test_{file_prefix}_{common.SHUFFLED_LABELS_FILE_POSTFIX}.h5'
-file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
-print(f'> loading {file_name}')
-y_test_class = common.read_ndarray_from_hdf5(file_path)
-
-file_name = f'prediction_class_{file_prefix}_{common.SHUFFLED_LABELS_FILE_POSTFIX}.h5'
-file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
-print(f'> loading {file_name}')
-y_pred_class = common.read_ndarray_from_hdf5(file_path)
-
-file_name = f'prediction_prob_{file_prefix}_{common.SHUFFLED_LABELS_FILE_POSTFIX}.h5'
-file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
-print(f'> loading {file_name}')
-y_pred_prob = common.read_ndarray_from_hdf5(file_path)
+(x_test, y_test_class, y_pred_class, y_pred_prob) = load_results(file_prefix)
 
 rand_display_false_negatives(x_test, y_pred_class, y_test_class, y_pred_prob, 1)
