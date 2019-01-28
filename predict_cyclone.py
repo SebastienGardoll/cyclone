@@ -300,7 +300,7 @@ display_intermediate_time()
 print('> computing results')
 
 # Compute the true classication of the subregions based on Hurdat.
-# If the subregions is contained in a region that is supposed to represent 
+# If the subregions is contained in a region that is supposed to represent
 # (Hurdat) a cyclone, then the subregion gets an 1.0, otherwise 0.0 .
 true_cat_serie = None
 nb_missing_recorded_cyclones = 0
@@ -316,12 +316,12 @@ for idx, recorded_cyclone in recorded_cyclones.iterrows():
   else:
     true_cat_serie = current
 
-true_cat_serie = true_cat_serie.map(arg=lambda value: 1.0 if value else 0.0)
+true_cat_serie = true_cat_serie.map(arg=lambda value: common.CYCLONE_LABEL if value else common.NO_CYCLONE_LABEL)
 true_cat_serie.name = 'true_cat'
 
 # Compute the category of the subregions based on the predicted probability and
 # the given threshold probability.
-cat_func = np.vectorize(lambda prob: 1.0 if prob >= threshold_prob else 0.0)
+cat_func = np.vectorize(lambda prob: common.CYCLONE_LABEL if prob >= threshold_prob else common.NO_CYCLONE_LABEL)
 y_pred_cat_npy = np.apply_along_axis(cat_func, 0, y_pred_prob_npy)
 
 y_pred_prob = pd.DataFrame(data=y_pred_prob_npy, columns=['pred_prob'])
@@ -339,7 +339,7 @@ else:
 
 print(f'  > model found {nb_cyclones-nb_missing_recorded_cyclones}/{nb_cyclones} recorded cyclone(s)')
 
-false_positives=image_df[(image_df.pred_cat == 1) & (image_df.true_cat == 0)]
+false_positives=image_df[(image_df.pred_cat == common.CYCLONE_LABEL) & (image_df.true_cat == common.NO_CYCLONE_LABEL)]
 print(f'  > model found {len(false_positives)} false positives')
 
 print('  > compute true labels of the subregions')

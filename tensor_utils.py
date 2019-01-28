@@ -25,7 +25,8 @@ def rand_display_false_negatives(x_test, y_pred_class, y_true_class, y_pred_prob
   y_pred_df = pd.DataFrame(data=y_pred_class, columns=['y_pred_class'])
   y_true_df = pd.DataFrame(data=y_true_class, columns=['y_true_class'])
   y_df = pd.concat((y_pred_df, y_true_df), axis=1)
-  false_negatives = y_df[(y_df.y_pred_class == 0) & (y_df.y_true_class == 1)]
+  false_negatives = y_df[(y_df.y_pred_class == common.NO_CYCLONE_LABEL) & \
+                         (y_df.y_true_class == common.CYCLONE_LABEL)]
   print(f'> number of false negatives: {len(false_negatives)}')
   if num_viz > 0:
     subset_false_negatives = false_negatives.take(range(0,num_viz))
