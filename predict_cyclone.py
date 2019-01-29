@@ -118,7 +118,6 @@ if lon_max < lon_min:
 cyclone_dataframe = open_cyclone_db()
 
 # Check if there is any cyclone for the given settings.
-
 recorded_cyclones = cyclone_dataframe[(cyclone_dataframe.year == year) &
   (cyclone_dataframe.month == month) &
   (cyclone_dataframe.day == day) &
