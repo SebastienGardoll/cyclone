@@ -298,9 +298,10 @@ display_intermediate_time()
 
 print('> computing results')
 
-# Compute the true classication of the subregions based on Hurdat.
-# If the subregions is contained in a region that is supposed to represent
-# (Hurdat) a cyclone, then the subregion gets an 1.0, otherwise 0.0 .
+# Compute the true label of the subregions based on Hurdat2.
+# If a subregion containes a cyclone location (from Hurdat2),
+# then this subregion gets an 1.0 (cyclone), otherwise 0.0 (no cyclone).
+print('  > compute true labels of the subregions')
 true_cat_serie = None
 nb_missing_recorded_cyclones = 0
 for idx, recorded_cyclone in recorded_cyclones.iterrows():
@@ -339,19 +340,17 @@ else:
 print(f'  > model found {nb_cyclones-nb_missing_recorded_cyclones}/{nb_cyclones} recorded cyclone(s)')
 
 false_positives=image_df[(image_df.pred_cat == common.CYCLONE_LABEL) & (image_df.true_cat == common.NO_CYCLONE_LABEL)]
-print(f'  > model found {len(false_positives)} false positives')
-
-print('  > compute true labels of the subregions')
+print(f'  > model has {len(false_positives)} false positives')
 
 auc_model = roc_auc_score(y_true=image_df.true_cat, y_score=y_pred_prob_npy)
 print(f'  > AUC: {common.format_pourcentage(auc_model)}%')
 
-print(f'  > metrics report:')
+print(f'  > metrics report:\n')
 print(classification_report(y_true=image_df.true_cat, y_pred=y_pred_cat_npy, target_names=('no_cyclones', 'cyclones')))
 
 display_intermediate_time()
 
-if not cyclone_images_df.empty:
+if not cyclone_images_df.empty and save_tensor:
   filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
   print(f'> saving the {filename} on disk')
   cyclone_images_file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH,
@@ -360,7 +359,7 @@ if not cyclone_images_df.empty:
                            na_rep='', header=True, index=True,
                            index_label='id', encoding='utf8',
                            line_terminator='\n')
-display_intermediate_time()
+  display_intermediate_time()
 
 stop = time.time()
 formatted_time =common.display_duration((stop-start))
