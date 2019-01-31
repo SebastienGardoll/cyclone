@@ -176,18 +176,18 @@ print('> computing AUC')
 # Return the probability associated to the class:
 # the probability to be a no cyclone for index 0,
 # the probability to be a cyclone for index 1.
-y_pred_raw = model.predict(x_test, verbose=1)
+y_pred_prob = model.predict(x_test, verbose=1)
 
 # Convert the probabilities into the class based on the higher probability.
 # Class 0 for no cyclone, 1 for cyclone.
-y_pred_class = np.argmax(y_pred_raw, axis=1)
+y_pred_class = np.argmax(y_pred_prob, axis=1)
 
-# Keep only the probabilities of the category cyclone (see the roc_auc_score help).
-y_pred_prob = np.delete(y_pred_raw, obj=0, axis=1).squeeze()
+# Keep only the probabilities of the class cyclone (see the roc_auc_score help).
+y_pred_cyclone_prob = np.delete(y_pred_prob, obj=0, axis=1).squeeze()
 
 # From scikit learn:
 # " For binary y_true, y_score is supposed to be the score of the class with greater label."
-auc_model = roc_auc_score(y_true=y_test_class, y_score=y_pred_prob)
+auc_model = roc_auc_score(y_true=y_test_class, y_score=y_pred_cyclone_prob)
 print(f'  > {auc_model}')
 
 print('  > displaying the classification report')
@@ -204,7 +204,7 @@ file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
 common.write_ndarray_to_hdf5(file_path, y_pred_class)
 file_name = f'prediction_prob_{file_prefix}_{common.SHUFFLED_LABELS_FILE_POSTFIX}.h5'
 file_path = path.join(common.TENSOR_PARENT_DIR_PATH, file_name)
-common.write_ndarray_to_hdf5(file_path, y_pred_raw)
+common.write_ndarray_to_hdf5(file_path, y_pred_prob)
 
 del file_name
 del file_path
