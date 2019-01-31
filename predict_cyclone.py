@@ -95,7 +95,6 @@ lon_max = float(config['region']['lon_max'])
 lon_min = float(config['region']['lon_min'])
 
 file_prefix      = config['model']['file_prefix']
-threshold_prob   = float(config['model']['threshold_prob'])
 cyclone_lat_size = float(config['model']['cyclone_lat_size'])
 cyclone_lon_size = float(config['model']['cyclone_lon_size'])
 
@@ -294,7 +293,7 @@ print('  > predicting categories')
 # Compute the probabilities.
 y_pred_prob_npy = model.predict(tensor, verbose=0)
 # Keep only the probabilities of the category cyclone (see the roc_auc_score help).
-y_pred_prob_npy = np.delete(y_pred_prob_npy, obj=0, axis=1).squeeze()
+y_pred_cyclone_prob_npy = np.delete(y_pred_prob_npy, obj=0, axis=1).squeeze()
 
 display_intermediate_time()
 
@@ -324,16 +323,15 @@ for idx, recorded_cyclone in recorded_cyclones.iterrows():
 true_cat_serie = true_cat_serie.map(arg=lambda value: common.CYCLONE_LABEL if value else common.NO_CYCLONE_LABEL)
 true_cat_serie.name = 'true_cat'
 
-# Compute the category of the subregions based on the predicted probability and
-# the given threshold probability.
-cat_func = np.vectorize(lambda prob: common.CYCLONE_LABEL if prob >= threshold_prob else common.NO_CYCLONE_LABEL)
-y_pred_cat_npy = np.apply_along_axis(cat_func, 0, y_pred_prob_npy)
+# Convert the probabilities into the class based on the higher probability.
+# Class 0 for no cyclone, 1 for cyclone.
+y_pred_cat_npy = np.argmax(y_pred_prob_npy, axis=1)
 
-y_pred_prob = pd.DataFrame(data=y_pred_prob_npy, columns=['pred_prob'])
-y_pred_cat = pd.DataFrame(data=y_pred_cat_npy, columns=['pred_cat'])
+y_pred_cyclone_prob_df = pd.DataFrame(data=y_pred_cyclone_prob_npy, columns=['pred_prob'])
+y_pred_cat_df = pd.DataFrame(data=y_pred_cat_npy, columns=['pred_cat'])
 
 # Concatenate the data frames.
-image_df = pd.concat((image_df, true_cat_serie, y_pred_prob, y_pred_cat), axis=1)
+image_df = pd.concat((image_df, true_cat_serie, y_pred_cyclone_prob_df, y_pred_cat_df), axis=1)
 
 cyclone_images_df = image_df[image_df.pred_cat == 1]
 
@@ -347,7 +345,7 @@ print(f'  > model found {nb_cyclones-nb_missing_recorded_cyclones}/{nb_cyclones}
 false_positives=image_df[(image_df.pred_cat == common.CYCLONE_LABEL) & (image_df.true_cat == common.NO_CYCLONE_LABEL)]
 print(f'  > model has {len(false_positives)} false positives')
 
-auc_model = roc_auc_score(y_true=image_df.true_cat, y_score=y_pred_prob_npy)
+auc_model = roc_auc_score(y_true=image_df.true_cat, y_score=y_pred_cyclone_prob_npy)
 print(f'  > AUC: {common.format_pourcentage(auc_model)}%')
 
 print(f'  > metrics report:\n')
