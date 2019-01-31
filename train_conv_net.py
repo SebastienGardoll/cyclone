@@ -182,7 +182,7 @@ y_pred_raw = model.predict(x_test, verbose=1)
 # Class 0 for no cyclone, 1 for cyclone.
 y_pred_class = np.argmax(y_pred_raw, axis=1)
 
-# Keep only the probabilities of cyclones (see roc_auc_score).
+# Keep only the probabilities of the category cyclone (see the roc_auc_score help).
 y_pred_prob = np.delete(y_pred_raw, obj=0, axis=1).squeeze()
 
 # From scikit learn:

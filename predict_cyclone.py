@@ -293,7 +293,7 @@ model = load_model(cnn_file_path)
 print('  > predicting categories')
 # Compute the probabilities.
 y_pred_prob_npy = model.predict(tensor, verbose=0)
-# Keep only the probabilities.
+# Keep only the probabilities of the category cyclone (see the roc_auc_score help).
 y_pred_prob_npy = np.delete(y_pred_prob_npy, obj=0, axis=1).squeeze()
 
 display_intermediate_time()
