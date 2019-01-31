@@ -94,11 +94,13 @@ lat_min = float(config['region']['lat_min'])
 lon_max = float(config['region']['lon_max'])
 lon_min = float(config['region']['lon_min'])
 
-file_prefix    = config['model']['file_prefix']
-threshold_prob = float(config['model']['threshold_prob'])
+file_prefix      = config['model']['file_prefix']
+threshold_prob   = float(config['model']['threshold_prob'])
+cyclone_lat_size = float(config['model']['cyclone_lat_size'])
+cyclone_lon_size = float(config['model']['cyclone_lon_size'])
 
-nb_proc  = int(config['sys']['nb_proc'])
-is_debug = bool(config['sys']['is_debug'])
+nb_proc     = int(config['sys']['nb_proc'])
+is_debug    = bool(config['sys']['is_debug'])
 save_tensor = bool(config['sys']['save_tensor'])
 
 # set data_format to 'channels_last'
@@ -301,13 +303,16 @@ print('> computing results')
 # Compute the true label of the subregions based on Hurdat2.
 # If a subregion containes a cyclone location (from Hurdat2),
 # then this subregion gets an 1.0 (cyclone), otherwise 0.0 (no cyclone).
-print('  > compute true labels of the subregions')
+print(f'  > compute true labels of the subregions (cyclone size = {cyclone_lat_size} x {cyclone_lon_size})')
 true_cat_serie = None
 nb_missing_recorded_cyclones = 0
 for idx, recorded_cyclone in recorded_cyclones.iterrows():
-  lat = recorded_cyclone['lat']
-  lon = recorded_cyclone['lon']
-  current = (image_df.lat_min<lat) & (image_df.lat_max>lat) & (image_df.lon_min<lon) & (image_df.lon_max>lon)
+  lat = common.round_nearest(recorded_cyclone['lat'], common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
+  lon = common.round_nearest(recorded_cyclone['lon'], common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
+  current = (image_df.lat_min <= (lat-cyclone_lat_size)) & \
+            (image_df.lat_max >= (lat+cyclone_lat_size)) & \
+            (image_df.lon_min <= (lon-cyclone_lon_size)) & \
+            (image_df.lon_max >= (lon+cyclone_lon_size))
   if not current.any():
     nb_missing_recorded_cyclones = nb_missing_recorded_cyclones + 1
   if true_cat_serie is not None:
