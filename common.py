@@ -25,6 +25,9 @@ from datetime import timedelta
 
 # System
 MEGA_BYTES_FACTOR = 1024*1024
+SUCCESS_CODE = 0
+ERROR_CODE   = 1
+CANCEL_CODE  = 2
 
 # NetCDF resolution.
 TIME_SAMPLING = 4

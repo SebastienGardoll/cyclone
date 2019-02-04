@@ -25,6 +25,8 @@ import keras
 
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import classification_report
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
 
 from keras.models import load_model
 
@@ -35,6 +37,10 @@ import time
 
 PREVIOUS_INTERMEDIATE_TIME = time.time()
 IS_DEBUG = False
+
+METRICS_COLUMNS = ['auc', 'precision_no_cyclone', 'recall_no_cyclone',
+                   'precision_cyclone', 'recall_cyclone', 'has_found_all_recorded_cyclone',
+                   'false_positives_expected']
 
                             ##### FUNCTIONS #####
 
@@ -102,6 +108,29 @@ def compute_recorded_cyclones(cyclone_dataframe, year, month, day, time_step):
   display_intermediate_time()
   return (recorded_cyclones, nb_cyclones)
 
+def compute_interval(dataframe):
+  lat_min = dataframe['lat'].min() - common.LAT_FRAME
+  lat_max = dataframe['lat'].max() + common.LAT_FRAME
+  lon_min = dataframe['lon'].min() - common.LON_FRAME
+  lon_max = dataframe['lon'].max() + common.LON_FRAME
+  return (lat_min, lat_max, lon_min, lon_max)
+
+def check_interval(dataframe, lat_min, lat_max, lon_min, lon_max):
+    df_lat_min, df_lat_max, df_lon_min, df_lon_max = compute_interval(dataframe)
+    if df_lat_min < lat_min:
+      print(f'lat_min must be lesser than {df_lat_min}')
+      return False
+    if df_lon_min < lon_min:
+      print(f'lon_min must be lesser than {df_lon_min}')
+      return False
+    if df_lat_max > lat_max:
+      print(f'lat_max must be greater than {df_lat_max}')
+      return False
+    if df_lon_max > lon_max:
+      print(f'lon_max must be greater than {df_lon_max}')
+      return False
+    return True
+
 def open_netcdf_files(year, month):
   print(f'> opening netcdf files (year: {year}; month: {month})')
   netcdf_dict = ex_utils.build_dataset_dict(year, month)
@@ -136,9 +165,6 @@ def normalize_netcdf(file_prefix, netcdf_dict, shape, day, time_step):
       _normalize_dataset(normalized_dataset[variable.value.num_id],
                          variable, netcdf_dict[variable],
                          time_index, mean, stddev)
-
-  for dataset in netcdf_dict.values():
-    dataset.close()
   display_intermediate_time()
   return normalized_dataset
 
@@ -271,20 +297,23 @@ def allocate_channel_array(id_counter):
   ctypes.ARRAY(ctypes.c_float, common.Y_RESOLUTION), common.X_RESOLUTION), id_counter),
   len(Era5)))
 
+def load_cnn_model(file_prefix):
+  cnn_filename = f'{file_prefix}_{common.CNN_FILE_POSTFIX}.h5'
+  cnn_file_path = path.join(common.CNN_PARENT_DIR_PATH, cnn_filename)
+  print(f'> loading the CNN model ({cnn_filename})')
+  model = load_model(cnn_file_path)
+  display_intermediate_time()
+  return model
+
 def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
                         chunk_list_df, cyclone_lat_size, cyclone_lon_size,
-                        nb_cyclones):
+                        nb_cyclones, model):
   print('> stacking the channels')
   tensor = np.stack(channels_array, axis=3)
 
   display_intermediate_time()
 
   print('> compute prediction of the subregions')
-
-  cnn_filename = f'{file_prefix}_{common.CNN_FILE_POSTFIX}.h5'
-  cnn_file_path = path.join(common.CNN_PARENT_DIR_PATH, cnn_filename)
-  print(f'  > loading the CNN model ({cnn_filename})')
-  model = load_model(cnn_file_path)
 
   print('  > predicting categories')
   # Compute the probabilities.
@@ -348,9 +377,17 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
   print(f'  > metrics report:\n')
   print(classification_report(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, target_names=('no_cyclones', 'cyclones')))
 
+  precision_cyclone = precision_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.CYCLONE_LABEL)
+  precision_no_cyclone = precision_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.NO_CYCLONE_LABEL)
+  recall_cyclone = recall_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.CYCLONE_LABEL)
+  recall_no_cyclone = recall_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.CYCLONE_LABEL)
+  metrics = (auc_model, precision_no_cyclone, recall_no_cyclone, precision_cyclone,
+             recall_cyclone, nb_missing_recorded_cyclones == 0,
+             len(false_positives) == (len(cyclone_images_df)-nb_cyclones+nb_missing_recorded_cyclones))
+
   display_intermediate_time()
 
-  return cyclone_images_df
+  return cyclone_images_df, metrics
 
 
 def save_results(cyclone_images_df, file_prefix, year, month, day, time_step):
