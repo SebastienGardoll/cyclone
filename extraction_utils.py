@@ -17,6 +17,8 @@ import os.path as path
 
 from matplotlib import pyplot as plt
 
+import numpy as np
+
 import logging
 
 # Internal static variables
@@ -72,10 +74,20 @@ def _compute_netcdf_file_path(parent_dir_path, variable, year, month):
   result = f'{parent_dir_path}/{rep}/{year}/{variable.value.str_id}.{year}{month:02d}.{delta}.GLOBAL_025.nc'
   return result
 
-def open_netcdf(parent_dir_path, variable, year, month):
+def open_netcdf(parent_dir_path, variable, year, month, lazy_loading=True):
   file_path = _compute_netcdf_file_path(parent_dir_path, variable, year, month)
   try:
-    result = Dataset(file_path, 'r')
+    if lazy_loading:
+      result = Dataset(file_path, 'r')
+    else:
+      netcdf_dataset = Dataset(file_path, 'r')
+      if variable.value.level is None:
+        netcdf_data = netcdf_dataset[variable.value.str_id]
+      else:
+        level_index = variable.value.index_mapping[variable.value.level]
+        netcdf_data = netcdf_dataset[variable.value.str_id][:, level_index, :, :]
+      result = np.array(netcdf_data)
+      netcdf_dataset.close()
   except Exception as e:
     logging.error(f'> cannot open {file_path}: {str(e)}')
   return result
@@ -96,6 +108,10 @@ def display_region(netcdf_dataset, variable, day, time_step, lat, lon):
   region = extract_region(netcdf_dataset, variable, day, time_step, lat, lon)
   plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
   plt.show()
+
+def close_dataset_dict(dataset_dict):
+  for dataset in dataset_dict.values():
+    dataset.close()
 
                            ######## TESTS ########
 
