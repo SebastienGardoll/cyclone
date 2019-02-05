@@ -78,7 +78,8 @@ file_name = f'{FILE_PREFIX}_{YEAR}_{MONTH}_{CYCLONE_LAT_SIZE}-{CYCLONE_LON_SIZE}
 print(f'> saving the metrics {file_name}')
 file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH, file_name)
 
-metrics_df = pd.DataFrame(data=list_metrics, columns=METRICS_COLUMNS)
+modified_metrics_cols = ('year', 'month', 'day', 'time_step', 'lat', 'lon', *METRICS_COLUMNS)
+metrics_df = pd.DataFrame(data=list_metrics, columns=modified_metrics_cols)
 
 metrics_df.to_csv(file_path, sep=',', na_rep='', header=True, index=True,
                   index_label='id', encoding='utf8', line_terminator='\n')
