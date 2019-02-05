@@ -71,6 +71,7 @@ for cyclone_location in selected_cyclone_locations:
   cyclone_images_df, metrics = prediction_analysis(FILE_PREFIX, channels_array,
                       recorded_cyclones, CHUNK_LIST_DF, CYCLONE_LAT_SIZE,
                       CYCLONE_LON_SIZE, nb_cyclones, model)
+  metrics = (year, month, day, time_step, lat, lon, *metrics)
   list_metrics.append(metrics)
 
 file_name = f'{FILE_PREFIX}_{YEAR}_{MONTH}_{CYCLONE_LAT_SIZE}-{CYCLONE_LON_SIZE}_{common.PREDICTION_FILE_POSTFIX}.csv'
