@@ -41,9 +41,9 @@ IS_DEBUG = False
 METRICS_COLUMNS = ['auc', 'precision_no_cyclone', 'recall_no_cyclone',
                    'precision_cyclone', 'recall_cyclone', 'has_found_all_recorded_cyclone',
                    'false_positives_expected', 'nb_recorded_cyclones',
-                   'nb_missing_recorded_cyclones', 'nb_true_negatives',
-                   'nb_true_positives', 'nb_false_negatives', 'nb_false_positives',
-                   'false_positives_not_intersecting_cyclone']
+                   'nb_missing_recorded_cyclones', 'nb_positives', 'nb_negatives',
+                   'nb_true_negatives', 'nb_true_positives', 'nb_false_negatives',
+                   'nb_false_positives', 'false_positives_not_intersecting_cyclone']
 
                             ##### FUNCTIONS #####
 
@@ -390,6 +390,14 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
   len_classified_cyclones = nb_cyclones-nb_missing_recorded_cyclones
   print(f'  > model found {len_classified_cyclones}/{nb_cyclones} recorded cyclone(s)')
 
+  positives = chunk_list_df[(chunk_list_df.true_cat == common.CYCLONE_LABEL)]
+  len_positives = len(positives)
+  print(f'  > number of positives: {len_positives}')
+
+  negatives = chunk_list_df[(chunk_list_df.true_cat == common.NO_CYCLONE_LABEL)]
+  len_negatives = len(negatives)
+  print(f'  > number of negatives: {len_negatives}')
+
   false_positives = chunk_list_df[(chunk_list_df.pred_cat == common.CYCLONE_LABEL) & (chunk_list_df.true_cat == common.NO_CYCLONE_LABEL)]
   len_false_positives = len(false_positives)
   print(f'  > model has {len_false_positives} false positives')
@@ -430,9 +438,9 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
   metrics = (auc_model, precision_no_cyclone, recall_no_cyclone, precision_cyclone,
              recall_cyclone, nb_missing_recorded_cyclones == 0,
              len_false_positives_not_near_cyclone == 0,
-             nb_cyclones, nb_missing_recorded_cyclones, len_true_negatives,
-             len_true_positives, len_false_negatives, len_false_positives,
-             len_false_positives_not_near_cyclone)
+             nb_cyclones, nb_missing_recorded_cyclones, len_positives, len_negatives,
+             len_true_negatives, len_true_positives, len_false_negatives,
+             len_false_positives, len_false_positives_not_near_cyclone)
 
   display_intermediate_time()
 
