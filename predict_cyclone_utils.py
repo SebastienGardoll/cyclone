@@ -40,8 +40,8 @@ IS_DEBUG = False
 
 METRICS_COLUMNS = ['auc', 'precision_no_cyclone', 'recall_no_cyclone',
                    'precision_cyclone', 'recall_cyclone', 'has_found_all_recorded_cyclone',
-                   'false_positives_expected', 'nb_recorded_cyclones',
-                   'nb_missing_recorded_cyclones', 'nb_false_positives',
+                   'false_positives_expected', 'false_positives_not_containing_cyclone',
+                   'nb_recorded_cyclones', 'nb_missing_recorded_cyclones', 'nb_false_positives',
                    'nb_false_negatives', 'nb_true_positives', 'nb_true_negatives']
 
                             ##### FUNCTIONS #####
@@ -307,6 +307,42 @@ def load_cnn_model(file_prefix):
   display_intermediate_time()
   return model
 
+
+def compute_containing_region(chunk_list_df,recorded_cyclones,
+                              cyclone_lat_size, cyclone_lon_size,
+                              is_intersection=False):
+  selected_serie = None
+  nb_missing_recorded_cyclones = 0
+  for idx, recorded_cyclone in recorded_cyclones.iterrows():
+    lat = common.round_nearest(recorded_cyclone['lat'], common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
+    lon = common.round_nearest(recorded_cyclone['lon'], common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
+    lat_min = lat-cyclone_lat_size
+    lat_max = lat+cyclone_lat_size
+    lon_min = lon-cyclone_lat_size
+    lon_max = lon+cyclone_lat_size
+    if is_intersection: # Using pandas or numpy intersection could be better.
+      current = (((chunk_list_df.lat_min < (lat_min)) &     \
+                (chunk_list_df.lat_max < (lat_max)))    |   \
+                ((chunk_list_df.lat_min > (lat_min))  &     \
+                (chunk_list_df.lat_max > (lat_max))))     & \
+                (((chunk_list_df.lon_min < (lon_min)) &     \
+                (chunk_list_df.lon_max < (lon_max)))    |   \
+                ((chunk_list_df.lon_min > (lon_min))  &     \
+                (chunk_list_df.lon_max > (lon_max))))
+    else:
+      current = (chunk_list_df.lat_min <= (lat_min)) & \
+                (chunk_list_df.lat_max >= (lat_max)) & \
+                (chunk_list_df.lon_min <= (lon_min)) & \
+                (chunk_list_df.lon_max >= (lon_max))
+    if not current.any():
+      nb_missing_recorded_cyclones = nb_missing_recorded_cyclones + 1
+    if selected_serie is not None:
+      # dataframe OR operator on the category of the image.
+      selected_serie = selected_serie | current
+    else:
+      selected_serie = current
+    return selected_serie, nb_missing_recorded_cyclones
+
 def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
                         chunk_list_df, cyclone_lat_size, cyclone_lon_size,
                         nb_cyclones, model):
@@ -331,22 +367,9 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
   # If a subregion containes a cyclone location (from Hurdat2),
   # then this subregion gets an 1.0 (cyclone), otherwise 0.0 (no cyclone).
   print(f'  > compute true labels of the subregions (cyclone size = {cyclone_lat_size} x {cyclone_lon_size})')
-  true_cat_serie = None
-  nb_missing_recorded_cyclones = 0
-  for idx, recorded_cyclone in recorded_cyclones.iterrows():
-    lat = common.round_nearest(recorded_cyclone['lat'], common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
-    lon = common.round_nearest(recorded_cyclone['lon'], common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
-    current = (chunk_list_df.lat_min <= (lat-cyclone_lat_size)) & \
-              (chunk_list_df.lat_max >= (lat+cyclone_lat_size)) & \
-              (chunk_list_df.lon_min <= (lon-cyclone_lon_size)) & \
-              (chunk_list_df.lon_max >= (lon+cyclone_lon_size))
-    if not current.any():
-      nb_missing_recorded_cyclones = nb_missing_recorded_cyclones + 1
-    if true_cat_serie is not None:
-      # dataframe OR operator on the category of the image.
-      true_cat_serie = true_cat_serie | current
-    else:
-      true_cat_serie = current
+  true_cat_serie, nb_missing_recorded_cyclones = \
+    compute_containing_region(chunk_list_df, recorded_cyclones,
+                              cyclone_lat_size, cyclone_lon_size)
 
   true_cat_serie = true_cat_serie.map(arg=lambda value: common.CYCLONE_LABEL if value else common.NO_CYCLONE_LABEL)
   true_cat_serie.name = 'true_cat'
@@ -362,7 +385,6 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
   chunk_list_df = pd.concat((chunk_list_df, true_cat_serie, y_pred_cyclone_prob_df, y_pred_cat_df), axis=1)
 
   cyclone_images_df = chunk_list_df[chunk_list_df.pred_cat == 1]
-  len_cyclone_images_df = len(cyclone_images_df)
 
   if not cyclone_images_df.empty:
     print(f'  > model has classified {len(cyclone_images_df)}/{len(chunk_list_df[chunk_list_df.true_cat == 1])} images as cyclone')
@@ -388,6 +410,16 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
   len_true_negatives = len(true_negatives)
   print(f'  > model has {len_true_negatives} true negatives')
 
+  false_positives_near_cyclone, tmp = \
+    compute_containing_region(false_positives, recorded_cyclones,
+                              cyclone_lat_size, cyclone_lon_size, True)
+
+  len_false_positives_near_cyclone = len(false_positives_near_cyclone)
+
+  len_false_positives_not_near_cyclone = len_false_positives - len_false_positives_near_cyclone
+
+  print(f'  > number of false positives NOT intersecting a cyclone zone: {len_false_positives_not_near_cyclone}')
+
   auc_model = roc_auc_score(y_true=chunk_list_df.true_cat, y_score=y_pred_cyclone_prob_npy)
   print(f'  > AUC: {common.format_pourcentage(auc_model)}%')
 
@@ -401,7 +433,8 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
 
   metrics = (auc_model, precision_no_cyclone, recall_no_cyclone, precision_cyclone,
              recall_cyclone, nb_missing_recorded_cyclones == 0,
-             len_false_positives == (len_cyclone_images_df-len_classified_cyclones),
+             len_false_positives_not_near_cyclone == 0,
+             len_false_positives_not_near_cyclone,
              nb_cyclones, nb_missing_recorded_cyclones, len_false_positives,
              len_false_negatives, len_true_positives, len_true_negatives)
 
