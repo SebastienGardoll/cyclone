@@ -40,9 +40,10 @@ IS_DEBUG = False
 
 METRICS_COLUMNS = ['auc', 'precision_no_cyclone', 'recall_no_cyclone',
                    'precision_cyclone', 'recall_cyclone', 'has_found_all_recorded_cyclone',
-                   'false_positives_expected', 'false_positives_not_containing_cyclone',
-                   'nb_recorded_cyclones', 'nb_missing_recorded_cyclones', 'nb_false_positives',
-                   'nb_false_negatives', 'nb_true_positives', 'nb_true_negatives']
+                   'false_positives_expected', 'nb_recorded_cyclones',
+                   'nb_missing_recorded_cyclones', 'nb_true_negatives',
+                   'nb_true_positives', 'nb_false_negatives', 'nb_false_positives',
+                   'false_positives_not_intersecting_cyclone']
 
                             ##### FUNCTIONS #####
 
@@ -386,11 +387,6 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
 
   cyclone_images_df = chunk_list_df[chunk_list_df.pred_cat == 1]
 
-  if not cyclone_images_df.empty:
-    print(f'  > model has classified {len(cyclone_images_df)}/{len(chunk_list_df[chunk_list_df.true_cat == 1])} images as cyclone')
-  else:
-    print('  > model has NOT classified any image as cyclone')
-
   len_classified_cyclones = nb_cyclones-nb_missing_recorded_cyclones
   print(f'  > model found {len_classified_cyclones}/{nb_cyclones} recorded cyclone(s)')
 
@@ -434,9 +430,9 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
   metrics = (auc_model, precision_no_cyclone, recall_no_cyclone, precision_cyclone,
              recall_cyclone, nb_missing_recorded_cyclones == 0,
              len_false_positives_not_near_cyclone == 0,
-             len_false_positives_not_near_cyclone,
-             nb_cyclones, nb_missing_recorded_cyclones, len_false_positives,
-             len_false_negatives, len_true_positives, len_true_negatives)
+             nb_cyclones, nb_missing_recorded_cyclones, len_true_negatives,
+             len_true_positives, len_false_negatives, len_false_positives,
+             len_false_positives_not_near_cyclone)
 
   display_intermediate_time()
 
