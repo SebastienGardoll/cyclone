@@ -42,7 +42,7 @@ METRICS_COLUMNS = ['auc', 'precision_no_cyclone', 'recall_no_cyclone',
                    'precision_cyclone', 'recall_cyclone', 'has_found_all_recorded_cyclone',
                    'false_positives_expected', 'nb_recorded_cyclones',
                    'nb_missing_recorded_cyclones', 'nb_false_positives',
-                   'nb_false_negatives']
+                   'nb_false_negatives', 'nb_true_positives', 'nb_true_negatives']
 
                             ##### FUNCTIONS #####
 
@@ -380,21 +380,30 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
   len_false_negatives = len(false_negatives)
   print(f'  > model has {len_false_negatives} false negatives')
 
+  true_positives = chunk_list_df[(chunk_list_df.pred_cat == common.CYCLONE_LABEL) & (chunk_list_df.true_cat == common.CYCLONE_LABEL)]
+  len_true_positives = len(true_positives)
+  print(f'  > model has {len_true_positives} true positives')
+
+  true_negatives = chunk_list_df[(chunk_list_df.pred_cat == common.NO_CYCLONE_LABEL) & (chunk_list_df.true_cat == common.NO_CYCLONE_LABEL)]
+  len_true_negatives = len(true_negatives)
+  print(f'  > model has {len_true_negatives} true negatives')
+
   auc_model = roc_auc_score(y_true=chunk_list_df.true_cat, y_score=y_pred_cyclone_prob_npy)
   print(f'  > AUC: {common.format_pourcentage(auc_model)}%')
 
   print(f'  > metrics report:\n')
   print(classification_report(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, target_names=('no_cyclones', 'cyclones')))
 
-  precision_cyclone = precision_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.CYCLONE_LABEL)
+  precision_cyclone    = precision_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.CYCLONE_LABEL)
   precision_no_cyclone = precision_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.NO_CYCLONE_LABEL)
-  recall_cyclone = recall_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.CYCLONE_LABEL)
-  recall_no_cyclone = recall_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.CYCLONE_LABEL)
+  recall_cyclone    = recall_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.CYCLONE_LABEL)
+  recall_no_cyclone = recall_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.NO_CYCLONE_LABEL)
+
   metrics = (auc_model, precision_no_cyclone, recall_no_cyclone, precision_cyclone,
              recall_cyclone, nb_missing_recorded_cyclones == 0,
              len_false_positives == (len_cyclone_images_df-len_classified_cyclones),
              nb_cyclones, nb_missing_recorded_cyclones, len_false_positives,
-             len_false_negatives)
+             len_false_negatives, len_true_positives, len_true_negatives)
 
   display_intermediate_time()
 
