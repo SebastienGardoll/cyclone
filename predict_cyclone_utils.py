@@ -38,12 +38,23 @@ import time
 PREVIOUS_INTERMEDIATE_TIME = time.time()
 IS_DEBUG = False
 
-METRICS_COLUMNS = ['auc', 'precision_no_cyclone', 'recall_no_cyclone',
-                   'precision_cyclone', 'recall_cyclone', 'has_found_all_recorded_cyclone',
-                   'false_positives_expected', 'nb_recorded_cyclones',
-                   'nb_missing_recorded_cyclones', 'nb_positives', 'nb_negatives',
-                   'nb_true_negatives', 'nb_true_positives', 'nb_false_negatives',
-                   'nb_false_positives', 'false_positives_not_intersecting_cyclone']
+METRICS_COLUMNS = ['auc',
+                   'precision_no_cyclone',
+                   'recall_no_cyclone',
+                   'precision_cyclone',
+                   'recall_cyclone',
+                   'has_found_all_recorded_cyclone',
+                   'false_positives_expected',
+                   'no_false_negatives',
+                   'nb_recorded_cyclones',
+                   'nb_missing_recorded_cyclones',
+                   'nb_negatives',
+                   'nb_true_negatives',
+                   'nb_false_negatives',
+                   'nb_positives',
+                   'nb_true_positives',
+                   'nb_false_positives',
+                   'false_positives_not_intersecting_cyclone']
 
                             ##### FUNCTIONS #####
 
@@ -435,12 +446,23 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
   recall_cyclone    = recall_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.CYCLONE_LABEL)
   recall_no_cyclone = recall_score(y_true=chunk_list_df.true_cat, y_pred=y_pred_cat_npy, pos_label=common.NO_CYCLONE_LABEL)
 
-  metrics = (auc_model, precision_no_cyclone, recall_no_cyclone, precision_cyclone,
-             recall_cyclone, nb_missing_recorded_cyclones == 0,
+  metrics = (auc_model,
+             precision_no_cyclone,
+             recall_no_cyclone,
+             precision_cyclone,
+             recall_cyclone,
+             len_true_positives == len_positives,
              len_false_positives_not_near_cyclone == 0,
-             nb_cyclones, nb_missing_recorded_cyclones, len_positives, len_negatives,
-             len_true_negatives, len_true_positives, len_false_negatives,
-             len_false_positives, len_false_positives_not_near_cyclone)
+             len_false_negatives == 0,
+             nb_cyclones,
+             nb_missing_recorded_cyclones,
+             len_negatives,
+             len_true_negatives,
+             len_false_negatives,
+             len_positives,
+             len_true_positives,
+             len_false_positives,
+             len_false_positives_not_near_cyclone)
 
   display_intermediate_time()
 
