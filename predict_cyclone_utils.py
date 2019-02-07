@@ -342,7 +342,7 @@ def compute_containing_region(chunk_list_df,recorded_cyclones,
       selected_serie = selected_serie | current
     else:
       selected_serie = current
-    return selected_serie, nb_missing_recorded_cyclones
+  return selected_serie, nb_missing_recorded_cyclones
 
 def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
                         chunk_list_df, cyclone_lat_size, cyclone_lon_size,
