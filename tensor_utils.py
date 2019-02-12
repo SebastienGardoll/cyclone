@@ -37,9 +37,14 @@ def rand_display_images(x_test, y_pred_class, y_true_class, y_pred_prob,
   selected_images_indexes = subset_selected_images.index.values
   display_selected_images(x_test, selected_images_indexes, y_pred_prob, result_type)
 
+def rand_display_true_negatives(x_test, y_pred_class, y_true_class, y_pred_prob,
+                                 num_viz):
+  conditions = (common.NO_CYCLONE_LABEL, common.NO_CYCLONE_LABEL)
+  rand_display_images(x_test, y_pred_class, y_true_class,
+                      y_pred_prob, num_viz, conditions, 'True Negative')
+
 def rand_display_false_negatives(x_test, y_pred_class, y_true_class, y_pred_prob,
                                  num_viz):
-
   conditions = (common.NO_CYCLONE_LABEL, common.CYCLONE_LABEL)
   rand_display_images(x_test, y_pred_class, y_true_class,
                       y_pred_prob, num_viz, conditions, 'False Negative')
@@ -80,6 +85,9 @@ def display_image(image, suptitle):
     channel = reshape_image[index]
     plt.subplot(1, len(Era5), (index+1))
     plt.title(variable.name.lower(), {'fontsize': 14})
+    # Remove ticks from the x and y axes
+    plt.xticks([])
+    plt.yticks([])
     plt.imshow(channel,cmap='gist_rainbow_r',interpolation="none")
   plt.suptitle(suptitle, fontsize=16, va='bottom')
   plt.show()
@@ -124,5 +132,6 @@ if (len(sys.argv) > 1) and (sys.argv[1].strip()):
 (x_test, y_test_class, y_pred_class, y_pred_prob) = load_results(file_prefix)
 
 rand_display_true_positives(x_test, y_pred_class, y_test_class, y_pred_prob, 10)
+rand_display_true_negatives(x_test, y_pred_class, y_test_class, y_pred_prob, 10)
 rand_display_false_negatives(x_test, y_pred_class, y_test_class, y_pred_prob, 0)
 rand_display_false_positives(x_test, y_pred_class, y_test_class, y_pred_prob, 0)
