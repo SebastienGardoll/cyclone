@@ -46,8 +46,6 @@ fi
 
 set -u
 
-export PYTHONUNBUFFERED='true'
-
 echo -e "\n*********** BUILD CONV NET ***********\n"
 
 cd "${SCRIPT_DIR_PATH}"

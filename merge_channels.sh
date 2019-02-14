@@ -9,8 +9,6 @@
 # SCRIPT_DIR_PATH
                              ##### SETTINGS #####
 
-export PYTHONUNBUFFERED='true'
-
                                ##### MAIN #####
 
 set -e

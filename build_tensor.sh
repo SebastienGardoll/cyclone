@@ -7,10 +7,6 @@
 set -e
 set -u
 
-# Python:
-
-export PYTHONUNBUFFERED='true'
-
 # Paths:
 
 readonly BASE_DIR_PATH="$(pwd)"

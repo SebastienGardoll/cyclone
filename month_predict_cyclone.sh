@@ -6,8 +6,6 @@
 
                              ##### SETTINGS #####
 
-export PYTHONUNBUFFERED='true'
-
                                ##### MAIN #####
 
 set -e

@@ -7,6 +7,10 @@ readonly DATA_DIR_PATH='/data/sgardoll/cyclone_data'
 readonly DATA_BACKUP_DIR_PATH='/data/sgardoll/cyclone_data.clean'
 readonly JOB_LOG_DIR_PATH="${SCRIPT_DIR_PATH}/jobs"
 
+# Python:
+
+export PYTHONUNBUFFERED='true'
+
                                ##### FUNCTIONS #####
 
 function source_conda_env
