@@ -5,10 +5,14 @@ set -u
 
 echo "> starting at $(date)"
 
-MINICONDA_HOME="/data/sgardoll/miniconda2"
-MINICONDA_ENV_PATH="${MINICONDA_HOME}/envs/sandbox"
-echo "> sourcing ${MINICONDA_ENV_PATH}"
-source "${MINICONDA_HOME}/bin/activate" "${MINICONDA_ENV_PATH}"
+readonly BASE_DIR_PATH="$(pwd)"
+SCRIPT_DIR_PATH="$(dirname $0)"; cd "${SCRIPT_DIR_PATH}"
+readonly SCRIPT_DIR_PATH="$(pwd)"
+
+echo "> source common file"
+source "${SCRIPT_DIR_PATH}/common.sh"
+
+source_conda_env
 
 set +u
 
@@ -43,8 +47,6 @@ fi
 set -u
 
 export PYTHONUNBUFFERED='true'
-
-readonly SCRIPT_DIR_PATH='/home/sgardoll/cyclone/spyder'
 
 echo -e "\n*********** BUILD CONV NET ***********\n"
 

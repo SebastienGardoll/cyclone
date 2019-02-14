@@ -17,10 +17,6 @@ readonly BASE_DIR_PATH="$(pwd)"
 SCRIPT_DIR_PATH="$(dirname $0)"; cd "${SCRIPT_DIR_PATH}"
 readonly SCRIPT_DIR_PATH="$(pwd)"
 
-readonly DATA_DIR_PATH='/data/sgardoll/cyclone_data'
-readonly DATA_BACKUP_DIR_PATH='/data/sgardoll/cyclone_data.clean'
-readonly JOB_LOG_DIR_PATH="${SCRIPT_DIR_PATH}/jobs"
-
 # default job values:
 
 readonly DEFAULT_DATASET_PREFIX='2000_10'
@@ -41,15 +37,6 @@ readonly CHANNEL_JOB_MEM="${DEFAULT_JOB_MEM}"
 readonly MERGE_JOB_NUM_CORE=${DEFAULT_NUM_CORE}
 readonly MERGE_JOB_MAX_WALL_TIME="${DEFAULT_MAX_WALL_TIME}"
 readonly MERGE_JOB_MEM="${DEFAULT_JOB_MEM}"
-
-                               ##### FUNCTIONS #####
-
-# common.sh must be sourced.
-function source_conda_env
-{
-  echo "> source conda env: ${MINICONDA_ENV_PATH}"
-  source "${MINICONDA_HOME}/bin/activate" "${MINICONDA_ENV_PATH}"
-}
 
                                ##### MAIN #####
 

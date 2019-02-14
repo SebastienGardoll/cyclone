@@ -22,8 +22,7 @@ echo "> build channels starting at $(date)"
 echo "> sourcing common file"
 source "${SCRIPT_DIR_PATH}/common.sh"
 
-echo "> sourcing ${MINICONDA_ENV_PATH}"
-source "${MINICONDA_HOME}/bin/activate" "${MINICONDA_ENV_PATH}"
+source_conda_env
 
 cd "${SCRIPT_DIR_PATH}"
 

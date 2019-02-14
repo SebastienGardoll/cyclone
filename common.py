@@ -58,7 +58,7 @@ NO_CYCLONE_CAT   = 'no cyclone'
 # Paths
 NETCDF_PARENT_DIR_PATH         = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
 ROOT_DATA_DIR_PATH             = '/data/sgardoll/cyclone_data'
-SCRIPT_DIR_PATH                = '/home/sgardoll/cyclone/spyder'
+SCRIPT_DIR_PATH                = '/home/sgardoll/cyclone/src'
 DATASET_PARENT_DIR_PATH        = path.join(ROOT_DATA_DIR_PATH, 'dataset')
 CHANNEL_PARENT_DIR_PATH        = path.join(ROOT_DATA_DIR_PATH, 'channels')
 MERGED_CHANNEL_PARENT_DIR_PATH = path.join(ROOT_DATA_DIR_PATH, 'merged_channels')
