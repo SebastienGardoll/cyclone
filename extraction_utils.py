@@ -32,19 +32,10 @@ _LONGITUDE_INDEXES = common.read_dict_from_csv(
 
                        ######## FUNCTIONS ########
 
-
-def _compute_time_index(num_day, time_step = 0):
-  if time_step >= common.TIME_SAMPLING :
-    days_to_add = int(time_step / common.TIME_SAMPLING)
-    time_step = time_step % common.TIME_SAMPLING
-    num_day = num_day + days_to_add
-  return common.TIME_SAMPLING*(num_day-1) + time_step
-
-
 def extract_region(nc_dataset, variable, day, time_step, lat, lon):
   rounded_lat = common.round_nearest(lat, common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
   rounded_lon = common.round_nearest(lon, common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
-  time_min_index =  _compute_time_index(day, time_step)
+  time_min_index =  variable.value.compute_time_index(day, time_step)
   time_max_index =  time_min_index + 1
   # latitudes are stored inverted.
   lat_min_index  = _LATITUDE_INDEXES[(rounded_lat + common.HALF_LAT_FRAME)]
@@ -134,7 +125,6 @@ use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily/AN_PL/2011/ta.201108.aphe5.GLOBAL
 set region/x=81.25W:73.25W/y=22.5N:30.5N/t=1855266/k=15
 shade ta
 """
-
 
 def test2():
   variable = Era5.TA200

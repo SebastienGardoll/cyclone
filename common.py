@@ -30,7 +30,8 @@ ERROR_CODE   = 1
 CANCEL_CODE  = 2
 
 # NetCDF resolution.
-TIME_SAMPLING = 4
+_4XDAILY_TIME_SAMPLING = 4
+HOURLY_TIME_SAMPLING   = 24
 LAT_RESOLUTION = 0.25
 LON_RESOLUTION = 0.25
 
@@ -89,10 +90,10 @@ MERGED_CHANNEL_FILE_PREFIX      = 'merged'
 SHUFFLED_FILE_PREFIX            = 'shuffled'
 
 
-DATA_PARENT_DIR_PATH                  = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
-ONE_LEVEL_DATA_FILE_PATH_PREFIX       = f'{DATA_PARENT_DIR_PATH}/AN_SF'
-ONE_LEVEL_DATA_FILE_NAME_POSTFIX      = 'ashe5.GLOBAL_025.nc'
-MULTIPLE_LEVEL_DATA_FILE_PATH_PREFIX  = f'{DATA_PARENT_DIR_PATH}/AN_PL'
+DATA_PARENT_DIR_PATH                  = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025'
+ONE_LEVEL_DATA_FILE_PATH_PREFIX       = f'{DATA_PARENT_DIR_PATH}/hourly/AN_SF'
+ONE_LEVEL_DATA_FILE_NAME_POSTFIX      = 'as1e5.GLOBAL_025.nc'
+MULTIPLE_LEVEL_DATA_FILE_PATH_PREFIX  = f'{DATA_PARENT_DIR_PATH}/4xdaily/AN_PL'
 MULTIPLE_LEVEL_DATA_FILE_NAME_POSTFIX = 'aphe5.GLOBAL_025.nc'
 
 STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',
@@ -208,6 +209,34 @@ class Variable:
 
   def compute_file_path(self, year, month):
     return f'{self.file_path_prefix}/{year}/{self.str_id}.{year}{month:02d}.{self.filename_postfix}'
+
+  def is_hourly(self):
+    return self.level == None
+
+  def compute_time_index(self, num_day, time_step = 0):
+    if self.is_hourly():
+      return Variable._compute_time_index_hourly(num_day, time_step)
+    else:
+      return Variable._compute_time_index_4xdaily(num_day, time_step)
+
+  @staticmethod
+  def _compute_time_index_4xdaily(num_day, time_step = 0):
+    # Handle over spec time_step.
+    if time_step >= _4XDAILY_TIME_SAMPLING:
+      days_to_add = int(time_step / _4XDAILY_TIME_SAMPLING)
+      time_step = time_step % _4XDAILY_TIME_SAMPLING
+      num_day = num_day + days_to_add
+    return _4XDAILY_TIME_SAMPLING*(num_day-1) + time_step
+
+  @staticmethod
+  # Convert 4xdaily basis num_day and time_step into hourly basis index of time.
+  def _compute_time_index_hourly(num_day, time_step = 0):
+    # Handle over spec time_step.
+    if time_step >= _4XDAILY_TIME_SAMPLING:
+      days_to_add = int(time_step / _4XDAILY_TIME_SAMPLING)
+      time_step = time_step % _4XDAILY_TIME_SAMPLING
+      num_day = num_day + days_to_add
+    return HOURLY_TIME_SAMPLING*(num_day-1) + time_step
 
 # ERA5 variable names.
 class Era5 (Enum):

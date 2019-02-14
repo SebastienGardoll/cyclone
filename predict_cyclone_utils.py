@@ -161,8 +161,6 @@ def normalize_netcdf(file_prefix, netcdf_dict, shape, day, time_step):
   # tested while in multiprocessing context.
   normalized_dataset = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float,
     shape[1]), shape[0]), len(Era5)))
-  time_index = ex_utils._compute_time_index(day, time_step)
-
   stats_filename = f'{common.MERGED_CHANNEL_FILE_PREFIX}_{file_prefix}_\
 {common.STATS_FILE_POSTFIX}.csv'
   print(f'> normalizing netcdf files ({stats_filename})')
@@ -176,6 +174,7 @@ def normalize_netcdf(file_prefix, netcdf_dict, shape, day, time_step):
       (mean, stddev) = next(csv_reader)
       mean = float(mean)
       stddev = float(stddev)
+      time_index = variable.value.compute_time_index(day, time_step)
       _normalize_dataset(normalized_dataset[variable.value.num_id],
                          variable, netcdf_dict[variable],
                          time_index, mean, stddev)

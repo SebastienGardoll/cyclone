@@ -65,7 +65,7 @@ def compute_no_cyclone(time, delta):
   while has_cyclone:
     time_step = time_step - 1
     if time_step < 0:
-      time_step = common.TIME_SAMPLING - 1
+      time_step = common._4XDAILY_TIME_SAMPLING - 1
       past = common._subtract_one_day(past)
     has_cyclone = _has_cyclone(past, time_step, lat, lon)
   return (past.year, past.month, past.day, time_step, lat, lon)
