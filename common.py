@@ -189,8 +189,6 @@ def display_duration(time_in_sec):
         return f'{days} days, {hours} hours, {minutes} mins, {seconds:.2f} seconds'
 
 
-
-
                        ######## STATIC CLASSES ########
 
 

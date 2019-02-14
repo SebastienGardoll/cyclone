@@ -64,18 +64,8 @@ def extract_region(nc_dataset, variable, day, time_step, lat, lon):
   return result
 
 
-def _compute_netcdf_file_path(parent_dir_path, variable, year, month):
-  if variable.value.level is None:
-    delta = 'ashe5'
-    rep = 'AN_SF'
-  else:
-    delta = 'aphe5'
-    rep = 'AN_PL'
-  result = f'{parent_dir_path}/{rep}/{year}/{variable.value.str_id}.{year}{month:02d}.{delta}.GLOBAL_025.nc'
-  return result
-
-def open_netcdf(parent_dir_path, variable, year, month, lazy_loading=True):
-  file_path = _compute_netcdf_file_path(parent_dir_path, variable, year, month)
+def open_netcdf(variable, year, month, lazy_loading=True):
+  file_path = variable.value.compute_file_path(year, month)
   try:
     if lazy_loading:
       result = Dataset(file_path, 'r')
@@ -93,15 +83,14 @@ def open_netcdf(parent_dir_path, variable, year, month, lazy_loading=True):
   return result
 
 def build_dataset_dict(year, month):
-  parent_dir_path = common.NETCDF_PARENT_DIR_PATH
-  result = {Era5.MSL  : open_netcdf(parent_dir_path, Era5.MSL, year, month),
-            Era5.U10  : open_netcdf(parent_dir_path, Era5.U10, year, month),
-            Era5.V10  : open_netcdf(parent_dir_path, Era5.V10, year, month),
-            Era5.TCWV : open_netcdf(parent_dir_path, Era5.TCWV, year, month),
-            Era5.TA200: open_netcdf(parent_dir_path, Era5.TA200, year, month),
-            Era5.TA500: open_netcdf(parent_dir_path, Era5.TA500, year, month),
-            Era5.U850 : open_netcdf(parent_dir_path, Era5.U850, year, month),
-            Era5.V850 : open_netcdf(parent_dir_path, Era5.V850, year, month)}
+  result = {Era5.MSL  : open_netcdf(Era5.MSL, year, month),
+            Era5.U10  : open_netcdf(Era5.U10, year, month),
+            Era5.V10  : open_netcdf(Era5.V10, year, month),
+            Era5.TCWV : open_netcdf(Era5.TCWV, year, month),
+            Era5.TA200: open_netcdf(Era5.TA200, year, month),
+            Era5.TA500: open_netcdf(Era5.TA500, year, month),
+            Era5.U850 : open_netcdf(Era5.U850, year, month),
+            Era5.V850 : open_netcdf(Era5.V850, year, month)}
   return result
 
 def display_region(netcdf_dataset, variable, day, time_step, lat, lon):
