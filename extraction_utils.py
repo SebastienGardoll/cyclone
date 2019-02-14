@@ -113,7 +113,6 @@ shade msl
 
 
 def test1():
-  parent_dir_path = common.NETCDF_PARENT_DIR_PATH
   variable = Era5.MSL
   year = 2011
   month = 8
@@ -121,7 +120,7 @@ def test1():
   lat = 15
   lon = -59
   time_step = 0
-  nc_dataset = open_netcdf(parent_dir_path, variable, year, month)
+  nc_dataset = open_netcdf(variable, year, month)
   region = extract_region(nc_dataset, variable, day, time_step, lat, lon)
   from matplotlib import pyplot as plt
   plt.figure()
@@ -138,7 +137,6 @@ shade ta
 
 
 def test2():
-  parent_dir_path = common.NETCDF_PARENT_DIR_PATH
   variable = Era5.TA200
   year = 2011
   month = 8
@@ -146,7 +144,7 @@ def test2():
   lat = 26.5
   lon = -77.2
   time_step = 3
-  nc_dataset = open_netcdf(parent_dir_path, variable, year, month)
+  nc_dataset = open_netcdf(variable, year, month)
   region = extract_region(nc_dataset, variable, day, time_step, lat, lon)
   from matplotlib import pyplot as plt
   plt.figure()
