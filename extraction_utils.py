@@ -95,37 +95,46 @@ def close_dataset_dict(dataset_dict):
 
                            ######## TESTS ########
 
+# This test corresponds to the location of the cyclone AL132000,2000,10,1,0,HU,39.7,-47.9
+# Ferret and this API use lat/lon rounded to 39.75 and -48.
+# Ferret is inclusive whereas this API is not, that why the coordinates in ferret
+# are minus 0.25 (instead of 52W:44W and 35.75N:43.75).
+# @see implementation details of the function extract_region (slicing is not
+# inclusive.
 """
 ferret
-use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily/AN_SF/2011/msl.201108.ashe5.GLOBAL_025.nc"
-set region/x=63W:55W/y=11N:19N/t=1855152/k=1
-shade msl
+use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily/AN_SF/2000/msl.200010.ashe5.GLOBAL_025.nc"
+set region/x=52W:44.25W/y=36N:43.75N
+shade msl[l=1]
+list/precision=8/width=1000
 """
-
-
-def test1():
+def test3():
   variable = Era5.MSL
-  year = 2011
-  month = 8
-  day = 21
-  lat = 15
-  lon = -59
+  year = 2000
+  month = 10
+  day = 1
+  lat = 39.7
+  lon = -47.9
   time_step = 0
   nc_dataset = open_netcdf(variable, year, month)
   region = extract_region(nc_dataset, variable, day, time_step, lat, lon)
+  np.set_printoptions(threshold=np.inf)
+  print(region)
   from matplotlib import pyplot as plt
   plt.figure()
   plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
   plt.show()
   nc_dataset.close()
 
+
+# Same comments as test3.
 """
 ferret
 use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily/AN_PL/2011/ta.201108.aphe5.GLOBAL_025.nc"
-set region/x=81.25W:73.25W/y=22.5N:30.5N/t=1855266/k=15
+set region/x=81.25W:73.5W/y=22.75N:30.5N/t=1855266/k=15
 shade ta
+list/precision=8/width=1000
 """
-
 def test2():
   variable = Era5.TA200
   year = 2011
@@ -136,6 +145,35 @@ def test2():
   time_step = 3
   nc_dataset = open_netcdf(variable, year, month)
   region = extract_region(nc_dataset, variable, day, time_step, lat, lon)
+  np.set_printoptions(threshold=np.inf)
+  print(region)
+  from matplotlib import pyplot as plt
+  plt.figure()
+  plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
+  plt.show()
+  nc_dataset.close()
+
+
+# Same comments as test3.
+"""
+ferret
+use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily/AN_SF/2011/msl.201108.ashe5.GLOBAL_025.nc"
+set region/x=63W:55.25W/y=11.25N:19N/t=1855152/k=1
+shade msl
+list/precision=8/width=1000
+"""
+def test1():
+  variable = Era5.MSL
+  year = 2011
+  month = 8
+  day = 21
+  lat = 15
+  lon = -59
+  time_step = 0
+  nc_dataset = open_netcdf(variable, year, month)
+  region = extract_region(nc_dataset, variable, day, time_step, lat, lon)
+  np.set_printoptions(threshold=np.inf)
+  print(region)
   from matplotlib import pyplot as plt
   plt.figure()
   plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
