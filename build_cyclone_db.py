@@ -18,10 +18,10 @@ start = time.time()
 CYCLONE_HEADER_PATTERN = re.compile('^([A-Z0-9]+), +[-\w]+, +(\d+),$')
 CYCLONE_DESC_PATTERN = re.compile('^(\d{4})(\d{2})(\d{2}), (\d{4}), ([ A-Z]), ([A-Z]{2}), +(\d+\.\d+)([NS]), +(\d+\.\d+)([WE]), +(-?[\d ]+), +(-?[\d ]+).+$')
 
-HOUR_TIME_STEP_MAPPING  = {'0000':0, '0600':1, '1200':2, '1800':3}
+HOUR_MAPPING = {'0000':0, '0600':6, '1200':12, '1800':18}
 
 CYCLONE_DF_COLUMNS      = ['cyclone_id', 'hurdat2_id', 'year', 'month', 'day',
-                           'time_step', 'status', 'lat', 'lon',\
+                           'hour', 'status', 'lat', 'lon',\
                            'max_sustained_wind', 'min_pressure']
 
 def display_duration(time_in_sec):
@@ -47,7 +47,7 @@ def display_duration(time_in_sec):
 
 def parse_hour(hour_literal):
   try:
-    result = HOUR_TIME_STEP_MAPPING[hour_literal]
+    result = HOUR_MAPPING[hour_literal]
     return result
   except KeyError:
     logging.error("unsupported hour ('%s')"%(hour_literal))
@@ -90,10 +90,10 @@ def extract_record(line, cyclone_id, hurdat2_id):
         latitude = -latitude
       if longitude_direction == 'W':
         longitude = -longitude
-      time_step = parse_hour(hour_literal)
-      if time_step is None:
+      hour = parse_hour(hour_literal)
+      if hour is None:
         return None
-      values = [cyclone_id, hurdat2_id, year, month, day, time_step, status,\
+      values = [cyclone_id, hurdat2_id, year, month, day, hour, status,\
                 latitude, longitude, max_sustained_wind, min_pressure]
       return values
     else: # skip
@@ -155,7 +155,7 @@ print(f'> number of row skipped: {skipped_row_count}')
 hurdat2_file.close()
 
 print('> sorting cyclone dataset according to the date')
-cyclone_dataframe.sort_values(by=['year', 'month', 'day', 'time_step'],
+cyclone_dataframe.sort_values(by=['year', 'month', 'day', 'hour'],
                               ascending=True, inplace=True)
 
 print('> rebuilding the index of the cyclone dataset')

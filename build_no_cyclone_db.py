@@ -37,16 +37,16 @@ del cyclone_db_file_path
 NO_CYCLONE_DF_COLUMNS = {'year': np.int32,
                          'month': np.int32,
                          'day': np.int32,
-                         'time_step': np.int32,
+                         'hour': np.int32,
                          'lat': np.float32,
                          'lon': np.float32}
 
 
-def _has_cyclone(date, time_step, lat, lon):
+def _has_cyclone(date, hour, lat, lon):
   records = CYCLONE_DATAFRAME.query(f'year=={date.year} and\
                                       month=={date.month}\
                                       and day=={date.day} and\
-                                      time_step=={time_step}')
+                                      hour=={hour}')
   if not records.empty:
     for (index, record) in records.iterrows():
       lat2 = record["lat"]
@@ -59,16 +59,16 @@ def _has_cyclone(date, time_step, lat, lon):
 
 
 def compute_no_cyclone(time, delta):
-  (year, month, day, time_step, lat, lon) = time
+  (year, month, day, hour, lat, lon) = time
   past = common.subtract_delta(year, month, day, delta)
-  has_cyclone = _has_cyclone(past, time_step, lat, lon)
+  has_cyclone = _has_cyclone(past, hour, lat, lon)
   while has_cyclone:
-    time_step = time_step - 1
-    if time_step < 0:
-      time_step = common._4XDAILY_TIME_SAMPLING - 1
+    hour = hour - 6
+    if hour < 0:
+      hour = int((common.HOURLY_TIME_SAMPLING / common._4XDAILY_TIME_SAMPLING) * 3)
       past = common._subtract_one_day(past)
-    has_cyclone = _has_cyclone(past, time_step, lat, lon)
-  return (past.year, past.month, past.day, time_step, lat, lon)
+    has_cyclone = _has_cyclone(past, hour, lat, lon)
+  return (past.year, past.month, past.day, hour, lat, lon)
 
                             ######## MAIN ########
 
@@ -78,17 +78,17 @@ no_cyclone_list = []
 print('> computing the no cyclone records')
 current_year = -1
 for (index, row) in CYCLONE_DATAFRAME.iterrows():
-  cyclone_year      = row['year']
-  cyclone_month     = row['month']
-  cyclone_day       = row['day']
-  cyclone_time_step = row['time_step']
-  cyclone_lat = row['lat']
-  cyclone_lon = row['lon']
+  cyclone_year  = row['year']
+  cyclone_month = row['month']
+  cyclone_day   = row['day']
+  cyclone_hour  = row['hour']
+  cyclone_lat   = row['lat']
+  cyclone_lon   = row['lon']
   if current_year != cyclone_year:
     current_year = cyclone_year
     print(f'  > compute year: {current_year}')
   cyclone_values = (cyclone_year, cyclone_month, cyclone_day,\
-                    cyclone_time_step, cyclone_lat, cyclone_lon)
+                    cyclone_hour, cyclone_lat, cyclone_lon)
   no_cyclone_list.append(compute_no_cyclone(cyclone_values, common.ONE_DAY))
   no_cyclone_list.append(compute_no_cyclone(cyclone_values, common.ONE_WEEK))
 
@@ -105,7 +105,7 @@ print(f'> number of records  AFTER removing the duplicates: {len(no_cyclone_data
 
 # Sort by date (month) (optimize building channels)
 print('> sorting the rows')
-no_cyclone_dataframe.sort_values(by=['year', 'month', 'day', 'time_step'],
+no_cyclone_dataframe.sort_values(by=['year', 'month', 'day', 'hour'],
                                  ascending=True, inplace=True)
 # Rebuild the ids of the dataframe.
 print('> rebuilding the index of the dataframe')
