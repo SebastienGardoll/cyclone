@@ -26,17 +26,17 @@ def fetch_location_vars(cyclone_location):
   year      = cyclone_location[2]
   month     = cyclone_location[3]
   day       = cyclone_location[4]
-  time_step = cyclone_location[5]
+  hour      = cyclone_location[5]
   lat       = cyclone_location[7]
   lon       = cyclone_location[8]
-  return (year, month, day, time_step, lat, lon)
+  return (year, month, day, hour, lat, lon)
 
-YEAR, MONTH, DAY, TIME_STEP, LAT_MIN, LAT_MAX, LON_MIN, LON_MAX,\
+YEAR, MONTH, DAY, HOUR, LAT_MIN, LAT_MAX, LON_MIN, LON_MAX,\
 FILE_PREFIX, CYCLONE_LAT_SIZE, CYCLONE_LON_SIZE, NB_PROC, IS_DEBUG,\
 HAS_SAVE_RESULTS = fetch_setting()
 
 # Process the cyclone locations of the entire month.
-del DAY, TIME_STEP
+del DAY, HOUR
 
 # These variables are shared between the processes, thanks to start method set
 # to 'fork'
@@ -60,25 +60,25 @@ del cyclone_dataframe
 list_metrics = list()
 
 for cyclone_location in selected_cyclone_locations:
-  year, month, day, time_step, lat, lon = fetch_location_vars(cyclone_location)
+  year, month, day, hour, lat, lon = fetch_location_vars(cyclone_location)
   recorded_cyclones, nb_cyclones = compute_recorded_cyclones(SELECTED_CYCLONE_LOCATIONS_DF,
-                                                    year, month, day, time_step)
+                                                    year, month, day, hour)
   normalized_dataset = normalize_netcdf(FILE_PREFIX, NETCDF_DICT, SHAPE, day,
-                                        time_step)
+                                        hour)
   channels_array = allocate_channel_array(ID_COUNTER)
   for img_spec in INDEX_LIST:
     extract_region(img_spec, normalized_dataset, channels_array)
   cyclone_images_df, metrics = prediction_analysis(FILE_PREFIX, channels_array,
                       recorded_cyclones, CHUNK_LIST_DF, CYCLONE_LAT_SIZE,
                       CYCLONE_LON_SIZE, nb_cyclones, model)
-  metrics = (year, month, day, time_step, lat, lon, *metrics)
+  metrics = (year, month, day, hour, lat, lon, *metrics)
   list_metrics.append(metrics)
 
 file_name = f'{FILE_PREFIX}_{YEAR}_{MONTH}_{CYCLONE_LAT_SIZE}-{CYCLONE_LON_SIZE}_{common.PREDICTION_FILE_POSTFIX}.csv'
 print(f'> saving the metrics {file_name}')
 file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH, file_name)
 
-modified_metrics_cols = ('year', 'month', 'day', 'time_step', 'lat', 'lon', *METRICS_COLUMNS)
+modified_metrics_cols = ('year', 'month', 'day', 'hour', 'lat', 'lon', *METRICS_COLUMNS)
 metrics_df = pd.DataFrame(data=list_metrics, columns=modified_metrics_cols)
 
 metrics_df.to_csv(file_path, sep=',', na_rep='', header=True, index=True,

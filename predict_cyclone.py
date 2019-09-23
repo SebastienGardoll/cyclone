@@ -19,7 +19,7 @@ from extraction_utils import close_dataset_dict
 import time
 start = time.time()
 
-year, month, day, time_step, lat_min, lat_max, lon_min, lon_max,\
+year, month, day, hour, lat_min, lat_max, lon_min, lon_max,\
 file_prefix, cyclone_lat_size, cyclone_lon_size, nb_proc, is_debug,\
 has_save_results = fetch_setting()
 
@@ -30,12 +30,12 @@ chunk_list_df,index_list, id_counter = compute_chunks(lat_min, lat_max,
 
 netcdf_dict, shape = open_netcdf_files(year, month)
 
-recorded_cyclones, nb_cyclones = compute_recorded_cyclones(cyclone_dataframe, year, month, day, time_step)
+recorded_cyclones, nb_cyclones = compute_recorded_cyclones(cyclone_dataframe, year, month, day, hour)
 
 if not check_interval(recorded_cyclones, lat_min, lat_max, lon_min, lon_max):
   exit(common.ERROR_CODE)
 
-normalized_dataset = normalize_netcdf(file_prefix, netcdf_dict, shape, day, time_step)
+normalized_dataset = normalize_netcdf(file_prefix, netcdf_dict, shape, day, hour)
 
 channels_array = allocate_channel_array(id_counter)
 
@@ -54,7 +54,7 @@ cyclone_images_df, metrics = prediction_analysis(file_prefix, channels_array,
                                 recorded_cyclones, chunk_list_df, cyclone_lat_size,
                                 cyclone_lon_size, nb_cyclones, model)
 if has_save_results:
-  save_results(cyclone_images_df, file_prefix, year, month, day, time_step)
+  save_results(cyclone_images_df, file_prefix, year, month, day, hour)
 
 close_dataset_dict(netcdf_dict)
 

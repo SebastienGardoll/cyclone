@@ -102,20 +102,20 @@ def display_intermediate_time():
     PREVIOUS_INTERMEDIATE_TIME = intermediate_time
     print(f'  > intermediate processing time: {formatted_time}')
 
-def compute_recorded_cyclones(cyclone_dataframe, year, month, day, time_step):
+def compute_recorded_cyclones(cyclone_dataframe, year, month, day, hour):
   # Check if there is any cyclone for the given settings.
   recorded_cyclones = cyclone_dataframe[(cyclone_dataframe.year == year) &
     (cyclone_dataframe.month == month) &
     (cyclone_dataframe.day == day) &
-    (cyclone_dataframe.time_step == time_step)]
+    (cyclone_dataframe.hour == hour)]
 
   if recorded_cyclones.empty:
     print(f'> [WARN] the selected region doesn\'t have any cyclone for the given\
-   time period (year: {year} ; month: {month} ; day: {day} ; time_step: {time_step})')
+   time period (year: {year} ; month: {month} ; day: {day} ; hour: {hour})')
   else:
     nb_cyclones = len(recorded_cyclones)
     print(f'> found {nb_cyclones} cyclone(s) for the given time period\
-   (year: {year} ; month: {month} ; day: {day} ; time_step: {time_step})')
+   (year: {year} ; month: {month} ; day: {day} ; hour: {hour})')
     for idx, record in recorded_cyclones.iterrows():
       print(format_record(idx, record))
 
@@ -155,7 +155,7 @@ def open_netcdf_files(year, month):
   display_intermediate_time()
   return (netcdf_dict, shape)
 
-def normalize_netcdf(file_prefix, netcdf_dict, shape, day, time_step):
+def normalize_netcdf(file_prefix, netcdf_dict, shape, day, hour):
   # Allocation of the datasets which values are normalized.
   # Making use of numpy array backended by ctypes shared array has been successfully
   # tested while in multiprocessing context.
@@ -174,7 +174,7 @@ def normalize_netcdf(file_prefix, netcdf_dict, shape, day, time_step):
       (mean, stddev) = next(csv_reader)
       mean = float(mean)
       stddev = float(stddev)
-      time_index = variable.value.compute_time_index(day, time_step)
+      time_index = variable.value.compute_time_index(day, hour)
       _normalize_dataset(normalized_dataset[variable.value.num_id],
                          variable, netcdf_dict[variable],
                          time_index, mean, stddev)
@@ -270,7 +270,7 @@ def fetch_setting():
   year      = int(config['date']['year'])
   month     = int(config['date']['month'])
   day       = int(config['date']['day'])
-  time_step = int(config['date']['time_step'])
+  hour      = int(config['date']['hour'])
 
   lat_max = float(config['region']['lat_max'])
   lat_min = float(config['region']['lat_min'])
@@ -298,7 +298,7 @@ def fetch_setting():
     print('> [ERROR] longitude input is not coherent')
     exit(-1)
 
-  return (year, month, day, time_step, lat_min, lat_max, lon_min, lon_max,
+  return (year, month, day, hour, lat_min, lat_max, lon_min, lon_max,
           file_prefix, cyclone_lat_size, cyclone_lon_size, nb_proc, IS_DEBUG,
           has_save_results)
 
@@ -468,9 +468,9 @@ def prediction_analysis(file_prefix, channels_array, recorded_cyclones,
   return cyclone_images_df, metrics
 
 
-def save_results(cyclone_images_df, file_prefix, year, month, day, time_step):
+def save_results(cyclone_images_df, file_prefix, year, month, day, hour):
   if not cyclone_images_df.empty and save_results:
-    filename = f'{file_prefix}_{year}_{month}_{day}_{time_step}_{common.PREDICTION_FILE_POSTFIX}.csv'
+    filename = f'{file_prefix}_{year}_{month}_{day}_{hour}_{common.PREDICTION_FILE_POSTFIX}.csv'
     print(f'> saving the {filename} on disk')
     cyclone_images_file_path = path.join(common.PREDICT_TENSOR_PARENT_DIR_PATH,
                                          filename)
@@ -480,7 +480,7 @@ def save_results(cyclone_images_df, file_prefix, year, month, day, time_step):
                              line_terminator='\n')
     display_intermediate_time()
 
-def test(channels_array, chunk_list_df, index_list, netcdf_dict, day, time_step,
+def test(channels_array, chunk_list_df, index_list, netcdf_dict, day, hour,
          debug_lat, debug_lon):
   # Example:
   # debug_lat     = 14.5
@@ -512,7 +512,7 @@ def test(channels_array, chunk_list_df, index_list, netcdf_dict, day, time_step,
   plt.show()
 
   import extraction_utils as utils
-  region = utils.extract_region(netcdf_dict[variable], variable, day, time_step, debug_lat, debug_lon)
+  region = utils.extract_region(netcdf_dict[variable], variable, day, hour, debug_lat, debug_lon)
   plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
   plt.show()
 
