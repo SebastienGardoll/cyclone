@@ -32,6 +32,9 @@ CANCEL_CODE  = 2
 # NetCDF resolution.
 _4XDAILY_TIME_SAMPLING = 4
 HOURLY_TIME_SAMPLING   = 24
+
+HOUR_TO_TIME_STEP = {0: 0, 6: 1, 12: 2, 18: 3}
+
 LAT_RESOLUTION = 0.25
 LON_RESOLUTION = 0.25
 
@@ -213,30 +216,32 @@ class Variable:
   def is_hourly(self):
     return self.level == None
 
-  def compute_time_index(self, num_day, time_step = 0):
+  def compute_time_index(self, num_day, hour = 0):
     if self.is_hourly():
-      return Variable._compute_time_index_hourly(num_day, time_step)
+      return Variable._compute_time_index_hourly(num_day, hour)
     else:
-      return Variable._compute_time_index_4xdaily(num_day, time_step)
+      return Variable._compute_time_index_4xdaily(num_day, hour)
 
   @staticmethod
-  def _compute_time_index_4xdaily(num_day, time_step = 0):
+  def _compute_time_index_4xdaily(num_day, hour = 0):
     # Handle over spec time_step.
-    if time_step >= _4XDAILY_TIME_SAMPLING:
-      days_to_add = int(time_step / _4XDAILY_TIME_SAMPLING)
-      time_step = time_step % _4XDAILY_TIME_SAMPLING
+    if hour >= HOURLY_TIME_SAMPLING:
+      days_to_add = int(hour / HOURLY_TIME_SAMPLING)
+      hour = hour % HOURLY_TIME_SAMPLING
       num_day = num_day + days_to_add
+
+    time_step = HOUR_TO_TIME_STEP[hour]
     return _4XDAILY_TIME_SAMPLING*(num_day-1) + time_step
 
   @staticmethod
   # Convert 4xdaily basis num_day and time_step into hourly basis index of time.
-  def _compute_time_index_hourly(num_day, time_step = 0):
+  def _compute_time_index_hourly(num_day, hour = 0):
     # Handle over spec time_step.
-    if time_step >= HOURLY_TIME_SAMPLING:
-      days_to_add = int(time_step / _4XDAILY_TIME_SAMPLING)
-      time_step = time_step % _4XDAILY_TIME_SAMPLING
+    if hour >= HOURLY_TIME_SAMPLING:
+      days_to_add = int(hour / _4XDAILY_TIME_SAMPLING)
+      hour = hour % _4XDAILY_TIME_SAMPLING
       num_day = num_day + days_to_add
-    return HOURLY_TIME_SAMPLING*(num_day-1) + time_step
+    return HOURLY_TIME_SAMPLING*(num_day-1) + hour
 
 # ERA5 variable names.
 class Era5 (Enum):

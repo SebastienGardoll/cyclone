@@ -24,7 +24,7 @@ no_cyclone_img_array = None
 
 # Args
 file_prefix          = '2000_10'
-variable             = Era5.MSL
+variable             = Era5.TA200
 nb_proc              = 5
 
                               ##### FUNCTIONS #####
@@ -130,9 +130,14 @@ for by in no_cyclone_ds.groupby(['year', 'month']):
 cyclone_img_array = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float, common.Y_RESOLUTION), common.X_RESOLUTION), cyclone_ds_size))
 no_cyclone_img_array = np.ctypeslib.as_array(mp.RawArray(ctypes.ARRAY(ctypes.ARRAY(ctypes.c_float, common.Y_RESOLUTION), common.X_RESOLUTION), no_cyclone_ds_size))
 
+for item in processing_dict.items():
+  process(item)
+
+'''
 print(f'> processing variable {variable.name} on dataset {file_prefix} with {nb_proc} workers')
 with Pool(processes = nb_proc) as pool:
   pool.map(func=process, iterable=processing_dict.items(), chunksize=1)
+'''
 
 save_img_array(cyclone_img_array, common.CYCLONE_CHANNEL_FILE_POSTFIX)
 save_img_array(no_cyclone_img_array, common.NO_CYCLONE_CHANNEL_FILE_POSTFIX)
