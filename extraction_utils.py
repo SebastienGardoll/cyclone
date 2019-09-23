@@ -37,6 +37,7 @@ def extract_region(nc_dataset, variable, day, time_step, lat, lon):
   rounded_lon = common.round_nearest(lon, common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
   time_min_index =  variable.value.compute_time_index(day, time_step)
   time_max_index =  time_min_index + 1
+  print(f"day: {day} ; time_step: {time_step} ; time_min: {time_min_index} ; time_max: {time_max_index}")
   # latitudes are stored inverted.
   lat_min_index  = _LATITUDE_INDEXES[(rounded_lat + common.HALF_LAT_FRAME)]
   lat_max_index  = _LATITUDE_INDEXES[(rounded_lat - common.HALF_LAT_FRAME)]
@@ -103,7 +104,7 @@ def close_dataset_dict(dataset_dict):
 # inclusive.
 """
 ferret
-use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily/AN_SF/2000/msl.200010.ashe5.GLOBAL_025.nc"
+use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/hourly/AN_SF/2000/msl.200010.as1e5.GLOBAL_025.nc"
 set region/x=52W:44.25W/y=36N:43.75N
 shade msl[l=1]
 list/precision=8/width=1000
@@ -157,7 +158,7 @@ def test2():
 # Same comments as test3.
 """
 ferret
-use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily/AN_SF/2011/msl.201108.ashe5.GLOBAL_025.nc"
+use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/hourly/AN_SF/2011/msl.201108.as1e5.GLOBAL_025.nc"
 set region/x=63W:55.25W/y=11.25N:19N/t=1855152/k=1
 shade msl
 list/precision=8/width=1000
