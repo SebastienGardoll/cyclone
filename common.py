@@ -232,7 +232,7 @@ class Variable:
   # Convert 4xdaily basis num_day and time_step into hourly basis index of time.
   def _compute_time_index_hourly(num_day, time_step = 0):
     # Handle over spec time_step.
-    if time_step >= _4XDAILY_TIME_SAMPLING:
+    if time_step >= HOURLY_TIME_SAMPLING:
       days_to_add = int(time_step / _4XDAILY_TIME_SAMPLING)
       time_step = time_step % _4XDAILY_TIME_SAMPLING
       num_day = num_day + days_to_add
