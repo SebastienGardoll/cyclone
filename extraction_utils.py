@@ -37,7 +37,6 @@ def extract_region(nc_dataset, variable, day, time_step, lat, lon):
   rounded_lon = common.round_nearest(lon, common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
   time_min_index =  variable.value.compute_time_index(day, time_step)
   time_max_index =  time_min_index + 1
-  print(f"day: {day} ; time_step: {time_step} ; time_min: {time_min_index} ; time_max: {time_max_index}")
   # latitudes are stored inverted.
   lat_min_index  = _LATITUDE_INDEXES[(rounded_lat + common.HALF_LAT_FRAME)]
   lat_max_index  = _LATITUDE_INDEXES[(rounded_lat - common.HALF_LAT_FRAME)]
@@ -197,6 +196,32 @@ def test0():
   lat = 15
   lon = -59
   hour = 14
+  nc_dataset = open_netcdf(variable, year, month)
+  region = extract_region(nc_dataset, variable, day, hour, lat, lon)
+  np.set_printoptions(threshold=np.inf)
+  print(region)
+  from matplotlib import pyplot as plt
+  plt.figure()
+  plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
+  plt.show()
+  nc_dataset.close()
+
+# Same comments as test3.
+"""
+ferret
+use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily/AN_PL/2000/ta.200009.aphe5.GLOBAL_025.nc"
+set region/x=81.25W:73.5W/y=22.75N:30.5N/k=15
+shade ta[l=108]
+list/precision=8/width=1000
+"""
+def test4():
+  variable = Era5.TA200
+  year = 2000
+  month = 9
+  day = 27
+  lat = 26.5
+  lon = -77.2
+  hour = 18
   nc_dataset = open_netcdf(variable, year, month)
   region = extract_region(nc_dataset, variable, day, hour, lat, lon)
   np.set_printoptions(threshold=np.inf)
