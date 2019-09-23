@@ -131,6 +131,6 @@ SCRIPT_DIR_PATH="${SCRIPT_DIR_PATH}" \
 
 echo "  > job number is ${job_num}"
 
-echo -e "\n\n> build tensor completed at $(date)"
+echo -e "\n\n> jobs submitted at $(date)"
 
 exit 0
