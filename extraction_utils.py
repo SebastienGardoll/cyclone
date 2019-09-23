@@ -180,3 +180,29 @@ def test1():
   plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
   plt.show()
   nc_dataset.close()
+
+# Same comments as test3.
+"""
+ferret
+use "/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/hourly/AN_SF/2011/msl.201108.as1e5.GLOBAL_025.nc"
+set region/x=63W:55.25W/y=11.25N:19N
+shade msl[l=231]
+list/precision=8/width=1000
+"""
+def test0():
+  variable = Era5.MSL
+  year = 2011
+  month = 8
+  day = 10
+  lat = 15
+  lon = -59
+  hour = 14
+  nc_dataset = open_netcdf(variable, year, month)
+  region = extract_region(nc_dataset, variable, day, hour, lat, lon)
+  np.set_printoptions(threshold=np.inf)
+  print(region)
+  from matplotlib import pyplot as plt
+  plt.figure()
+  plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
+  plt.show()
+  nc_dataset.close()
