@@ -50,27 +50,27 @@ def cyclone_db_row_processor(row):
   year      =   int(row[4])
   month     =   int(row[5])
   day       =   int(row[6])
-  time_step =   int(row[7])
+  hour      =   int(row[7])
   lat       = float(row[9])
   lon       = float(row[10])
-  return (index, year, month, day, time_step, lat, lon)
+  return (index, year, month, day, hour, lat, lon)
 
 def no_cyclone_db_row_processor(row):
   index     =   int(row[0])
   year      =   int(row[2])
   month     =   int(row[3])
   day       =   int(row[4])
-  time_step =   int(row[5])
+  hour      =   int(row[5])
   lat       = float(row[6])
   lon       = float(row[7])
-  return (index, year, month, day, time_step, lat, lon)
+  return (index, year, month, day, hour, lat, lon)
 
 def process_dataframe(img_array, nc_dataset, dataframe, row_processor):
   global variable
   if dataframe is not None:
     for row in dataframe.itertuples():
-      (index, year, month, day, time_step, lat, lon) = row_processor(row)
-      subregion = utils.extract_region(nc_dataset, variable, day, time_step, lat, lon)
+      (index, year, month, day, hour, lat, lon) = row_processor(row)
+      subregion = utils.extract_region(nc_dataset, variable, day, hour, lat, lon)
       np.copyto(dst=img_array[index], src=subregion, casting='no')
 
 # Don't print any messages => synchronisation with stdout !!!

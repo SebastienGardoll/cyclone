@@ -32,10 +32,10 @@ _LONGITUDE_INDEXES = common.read_dict_from_csv(
 
                        ######## FUNCTIONS ########
 
-def extract_region(nc_dataset, variable, day, time_step, lat, lon):
+def extract_region(nc_dataset, variable, day, hour, lat, lon):
   rounded_lat = common.round_nearest(lat, common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
   rounded_lon = common.round_nearest(lon, common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
-  time_min_index =  variable.value.compute_time_index(day, time_step)
+  time_min_index =  variable.value.compute_time_index(day, hour)
   time_max_index =  time_min_index + 1
   # latitudes are stored inverted.
   lat_min_index  = _LATITUDE_INDEXES[(rounded_lat + common.HALF_LAT_FRAME)]
@@ -84,8 +84,8 @@ def build_dataset_dict(year, month):
             Era5.V850 : open_netcdf(Era5.V850, year, month)}
   return result
 
-def display_region(netcdf_dataset, variable, day, time_step, lat, lon):
-  region = extract_region(netcdf_dataset, variable, day, time_step, lat, lon)
+def display_region(netcdf_dataset, variable, day, hour, lat, lon):
+  region = extract_region(netcdf_dataset, variable, day, hour, lat, lon)
   plt.imshow(region,cmap='gist_rainbow_r',interpolation="none")
   plt.show()
 
@@ -115,9 +115,9 @@ def test3():
   day = 1
   lat = 39.7
   lon = -47.9
-  time_step = 0
+  hour = 0
   nc_dataset = open_netcdf(variable, year, month)
-  region = extract_region(nc_dataset, variable, day, time_step, lat, lon)
+  region = extract_region(nc_dataset, variable, day, hour, lat, lon)
   np.set_printoptions(threshold=np.inf)
   print(region)
   from matplotlib import pyplot as plt
@@ -142,9 +142,9 @@ def test2():
   day = 25
   lat = 26.5
   lon = -77.2
-  time_step = 3
+  hour = 18
   nc_dataset = open_netcdf(variable, year, month)
-  region = extract_region(nc_dataset, variable, day, time_step, lat, lon)
+  region = extract_region(nc_dataset, variable, day, hour, lat, lon)
   np.set_printoptions(threshold=np.inf)
   print(region)
   from matplotlib import pyplot as plt
@@ -169,9 +169,9 @@ def test1():
   day = 21
   lat = 15
   lon = -59
-  time_step = 0
+  hour = 0
   nc_dataset = open_netcdf(variable, year, month)
-  region = extract_region(nc_dataset, variable, day, time_step, lat, lon)
+  region = extract_region(nc_dataset, variable, day, hour, lat, lon)
   np.set_printoptions(threshold=np.inf)
   print(region)
   from matplotlib import pyplot as plt
