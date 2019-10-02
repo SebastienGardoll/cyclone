@@ -4,7 +4,6 @@ screenlog*
 nohup.out
 log
 *~
-prediction.ini
 dask-worker-space
 ._*
 jobs
