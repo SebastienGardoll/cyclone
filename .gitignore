@@ -9,3 +9,4 @@ dask-worker-space
 jobs
 *.bak
 .spyproject
+.idea
