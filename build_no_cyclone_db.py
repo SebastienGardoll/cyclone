@@ -63,8 +63,8 @@ def compute_no_cyclone(time_tuple, delta):
     while has_cyclone:
         hour = hour - 6
         if hour < 0:
-            hour = int((common.HOURLY_TIME_SAMPLING / common._4XDAILY_TIME_SAMPLING) * 3)
-            past = common._subtract_one_day(past)
+            hour = int((common.HOURLY_TIME_SAMPLING / common.FOUR_DAILY_TIME_SAMPLING) * 3)
+            past = common.subtract_one_day_from_date(past)
         has_cyclone = _has_cyclone(past, hour, lat, lon)
     return past.year, past.month, past.day, hour, lat, lon
 

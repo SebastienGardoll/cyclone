@@ -31,7 +31,7 @@ ERROR_CODE   = 1
 CANCEL_CODE  = 2
 
 # NetCDF resolution.
-_4XDAILY_TIME_SAMPLING = 4
+FOUR_DAILY_TIME_SAMPLING = 4
 HOURLY_TIME_SAMPLING   = 24
 
 HOUR_TO_TIME_STEP = {0: 0, 6: 1, 12: 2, 18: 3}
@@ -135,7 +135,7 @@ def read_dict_from_csv(filepath, cast_key, cast_value):
 
 def subtract_one_day(year, month, day):
   date = datetime(year=year, month=month, day=day)
-  return _subtract_one_day(date)
+  return subtract_one_day_from_date(date)
 
 
 def subtract_delta(year, month, day, delta):
@@ -143,7 +143,7 @@ def subtract_delta(year, month, day, delta):
   return result
 
 
-def _subtract_one_day(date):
+def subtract_one_day_from_date(date):
   result = date - ONE_DAY
   return result
 
@@ -232,15 +232,15 @@ class Variable:
       num_day = num_day + days_to_add
 
     time_step = HOUR_TO_TIME_STEP[hour]
-    return _4XDAILY_TIME_SAMPLING*(num_day-1) + time_step
+    return FOUR_DAILY_TIME_SAMPLING * (num_day - 1) + time_step
 
   @staticmethod
   # Convert 4xdaily basis num_day and time_step into hourly basis index of time.
   def _compute_time_index_hourly(num_day, hour = 0):
     # Handle over spec time_step.
     if hour >= HOURLY_TIME_SAMPLING:
-      days_to_add = int(hour / _4XDAILY_TIME_SAMPLING)
-      hour = hour % _4XDAILY_TIME_SAMPLING
+      days_to_add = int(hour / FOUR_DAILY_TIME_SAMPLING)
+      hour = hour % FOUR_DAILY_TIME_SAMPLING
       num_day = num_day + days_to_add
     return HOURLY_TIME_SAMPLING*(num_day-1) + hour
 
