@@ -6,7 +6,7 @@ Created on Tue Oct 16 09:22:19 2018
 @author: Sébastien Gardoll
 """
 
-                        ######## IMPORTS ########
+######## IMPORTS ########
 
 import os.path as path
 import os
@@ -21,7 +21,7 @@ import h5py
 from datetime import datetime
 from datetime import timedelta
 
-                    ######## STATIC VARIABLES ########
+######## STATIC VARIABLES ########
 # TODO: delete obsolete variables.
 
 # System
@@ -107,165 +107,165 @@ STAT_COLUMNS = ['variable', 'mean', 'stddev', 'min', 'max', 'q1', 'q2',
 MERGED_CHANNEL_STAT_COLUMNS = ['mean', 'stddev']
 
 
-                       ######## FUNCTIONS ########
+######## FUNCTIONS ########
 
 def write_ndarray_to_hdf5(filepath, ndarray):
-  hdf5_file = h5py.File(filepath, 'w')
-  hdf5_file.create_dataset('dataset', data=ndarray)
-  hdf5_file.close()
+    hdf5_file = h5py.File(filepath, 'w')
+    hdf5_file.create_dataset('dataset', data=ndarray)
+    hdf5_file.close()
 
 def read_ndarray_from_hdf5(filepath):
-  hdf5_file = h5py.File(filepath, 'r')
-  data = hdf5_file.get('dataset')
-  return np.array(data)
+    hdf5_file = h5py.File(filepath, 'r')
+    data = hdf5_file.get('dataset')
+    return np.array(data)
 
 def write_dict_to_csv(filepath, dictionary):
-  with open (filepath, 'w') as csv_file:
-    csv_writter = csv.writer(csv_file, delimiter=',', lineterminator='\n')
-    for key, value in dictionary.items():
-      csv_writter.writerow([key, value])
+    with open (filepath, 'w') as csv_file:
+        csv_writter = csv.writer(csv_file, delimiter=',', lineterminator='\n')
+        for key, value in dictionary.items():
+            csv_writter.writerow([key, value])
 
 def read_dict_from_csv(filepath, cast_key, cast_value):
-  result = dict()
-  with open (filepath, 'r') as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',', lineterminator='\n')
-    for row in csv_reader:
-      result[cast_key(row[0])]=cast_value(row[1])
-  return result
+    result = dict()
+    with open (filepath, 'r') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',', lineterminator='\n')
+        for row in csv_reader:
+            result[cast_key(row[0])]=cast_value(row[1])
+    return result
 
 def subtract_one_day(year, month, day):
-  date = datetime(year=year, month=month, day=day)
-  return subtract_one_day_from_date(date)
+    date = datetime(year=year, month=month, day=day)
+    return subtract_one_day_from_date(date)
 
 
 def subtract_delta(year, month, day, delta):
-  result = datetime(year=year, month=month, day=day) - delta
-  return result
+    result = datetime(year=year, month=month, day=day) - delta
+    return result
 
 
 def subtract_one_day_from_date(date):
-  result = date - ONE_DAY
-  return result
+    result = date - ONE_DAY
+    return result
 
 
 def is_overlapping(lat1, lon1, lat2, lon2):
-  if abs(lat1-lat2) <= LAT_FRAME:
-    if abs(lon1 -lon2) <= LON_FRAME:
-      return True
+    if abs(lat1-lat2) <= LAT_FRAME:
+        if abs(lon1 -lon2) <= LON_FRAME:
+            return True
+        else:
+            return False
     else:
-      return False
-  else:
-      return False
+        return False
 
 def to_cat(label_value):
-  return CYCLONE_CAT if label_value == CYCLONE_LABEL else NO_CYCLONE_CAT
+    return CYCLONE_CAT if label_value == CYCLONE_LABEL else NO_CYCLONE_CAT
 
 def round_nearest(value, resolution, num_decimal):
-  return round(round(value / resolution) * resolution, num_decimal)
+    return round(round(value / resolution) * resolution, num_decimal)
 
 def format_pourcentage(value):
-  return round(value*100, 2)
+    return round(value*100, 2)
 
 def format_float_number(float_value):
-  if float_value < 0.001 :
-    return f'{float_value:.2e}'
-  else:
-    return f'{float_value:.3f}'
+    if float_value < 0.001 :
+        return f'{float_value:.2e}'
+    else:
+        return f'{float_value:.3f}'
 
 def display_duration(time_in_sec):
-  remainder = time_in_sec % 60
-  if remainder == time_in_sec:
-    return f'{time_in_sec:.2f} seconds'
-  else:
-    seconds = remainder
-    minutes = int(time_in_sec / 60)
-    remainder = minutes % 60
-    if remainder == minutes:
-      return f'{minutes} mins, {seconds:.2f} seconds'
+    remainder = time_in_sec % 60
+    if remainder == time_in_sec:
+        return f'{time_in_sec:.2f} seconds'
     else:
-      hours   = int(minutes / 60)
-      minutes = remainder
-      remainder = hours % 24
-      if remainder == hours:
-        return f'{hours} hours, {minutes} mins, {seconds:.2f} seconds'
-      else:
-        days = int(hours / 24)
-        hours = remainder
-        return f'{days} days, {hours} hours, {minutes} mins, {seconds:.2f} seconds'
+        seconds = remainder
+        minutes = int(time_in_sec / 60)
+        remainder = minutes % 60
+        if remainder == minutes:
+            return f'{minutes} mins, {seconds:.2f} seconds'
+        else:
+            hours   = int(minutes / 60)
+            minutes = remainder
+            remainder = hours % 24
+            if remainder == hours:
+                return f'{hours} hours, {minutes} mins, {seconds:.2f} seconds'
+            else:
+                days = int(hours / 24)
+                hours = remainder
+                return f'{days} days, {hours} hours, {minutes} mins, {seconds:.2f} seconds'
 
 
-                       ######## STATIC CLASSES ########
+                ######## STATIC CLASSES ########
 
 
 class Variable:
 
-  def __init__(self, num_id, str_id, level = None, index_mapping = None):
-    self.num_id = num_id
-    self.str_id = str_id
-    self.level = level
-    self.index_mapping = index_mapping
-    if level:
-      self.file_path_prefix = MULTIPLE_LEVEL_DATA_FILE_PATH_PREFIX
-      self.filename_postfix = MULTIPLE_LEVEL_DATA_FILE_NAME_POSTFIX
-    else:
-      self.file_path_prefix = ONE_LEVEL_DATA_FILE_PATH_PREFIX
-      self.filename_postfix = ONE_LEVEL_DATA_FILE_NAME_POSTFIX
+    def __init__(self, num_id, str_id, level = None, index_mapping = None):
+        self.num_id = num_id
+        self.str_id = str_id
+        self.level = level
+        self.index_mapping = index_mapping
+        if level:
+            self.file_path_prefix = MULTIPLE_LEVEL_DATA_FILE_PATH_PREFIX
+            self.filename_postfix = MULTIPLE_LEVEL_DATA_FILE_NAME_POSTFIX
+        else:
+            self.file_path_prefix = ONE_LEVEL_DATA_FILE_PATH_PREFIX
+            self.filename_postfix = ONE_LEVEL_DATA_FILE_NAME_POSTFIX
 
-  def compute_file_path(self, year, month):
-    return f'{self.file_path_prefix}/{year}/{self.str_id}.{year}{month:02d}.{self.filename_postfix}'
+    def compute_file_path(self, year, month):
+        return f'{self.file_path_prefix}/{year}/{self.str_id}.{year}{month:02d}.{self.filename_postfix}'
 
-  def is_hourly(self):
-    return self.level == None
+    def is_hourly(self):
+        return self.level == None
 
-  def compute_time_index(self, num_day, hour = 0):
-    if self.is_hourly():
-      return Variable._compute_time_index_hourly(num_day, hour)
-    else:
-      return Variable._compute_time_index_4xdaily(num_day, hour)
+    def compute_time_index(self, num_day, hour = 0):
+        if self.is_hourly():
+            return Variable._compute_time_index_hourly(num_day, hour)
+        else:
+            return Variable._compute_time_index_4xdaily(num_day, hour)
 
-  @staticmethod
-  def _compute_time_index_4xdaily(num_day, hour = 0):
-    # Handle over spec time_step.
-    if hour >= HOURLY_TIME_SAMPLING:
-      days_to_add = int(hour / HOURLY_TIME_SAMPLING)
-      hour = hour % HOURLY_TIME_SAMPLING
-      num_day = num_day + days_to_add
+    @staticmethod
+    def _compute_time_index_4xdaily(num_day, hour = 0):
+        # Handle over spec time_step.
+        if hour >= HOURLY_TIME_SAMPLING:
+            days_to_add = int(hour / HOURLY_TIME_SAMPLING)
+            hour = hour % HOURLY_TIME_SAMPLING
+            num_day = num_day + days_to_add
 
-    time_step = HOUR_TO_TIME_STEP[hour]
-    return FOUR_DAILY_TIME_SAMPLING * (num_day - 1) + time_step
+        time_step = HOUR_TO_TIME_STEP[hour]
+        return FOUR_DAILY_TIME_SAMPLING * (num_day - 1) + time_step
 
-  @staticmethod
-  # Convert 4xdaily basis num_day and time_step into hourly basis index of time.
-  def _compute_time_index_hourly(num_day, hour = 0):
-    # Handle over spec time_step.
-    if hour >= HOURLY_TIME_SAMPLING:
-      days_to_add = int(hour / FOUR_DAILY_TIME_SAMPLING)
-      hour = hour % FOUR_DAILY_TIME_SAMPLING
-      num_day = num_day + days_to_add
-    return HOURLY_TIME_SAMPLING*(num_day-1) + hour
+    @staticmethod
+    # Convert 4xdaily basis num_day and time_step into hourly basis index of time.
+    def _compute_time_index_hourly(num_day, hour = 0):
+        # Handle over spec time_step.
+        if hour >= HOURLY_TIME_SAMPLING:
+            days_to_add = int(hour / FOUR_DAILY_TIME_SAMPLING)
+            hour = hour % FOUR_DAILY_TIME_SAMPLING
+            num_day = num_day + days_to_add
+        return HOURLY_TIME_SAMPLING*(num_day-1) + hour
 
 # ERA5 variable names.
 class Era5 (Enum):
-  MSL   = Variable(0, 'msl')
-  TCWV  = Variable(1, 'tcwv')
-  V10   = Variable(2, 'v10')
-  U10   = Variable(3, 'u10')
-  TA200 = Variable(4, 'ta', 200)
-  TA500 = Variable(5, 'ta', 500)
-  U850  = Variable(6, 'u', 850)
-  V850  = Variable(7, 'v', 850)
+    MSL   = Variable(0, 'msl')
+    TCWV  = Variable(1, 'tcwv')
+    V10   = Variable(2, 'v10')
+    U10   = Variable(3, 'u10')
+    TA200 = Variable(4, 'ta', 200)
+    TA500 = Variable(5, 'ta', 500)
+    U850  = Variable(6, 'u', 850)
+    V850  = Variable(7, 'v', 850)
 
 
 NB_CHANNELS = 8
 
-                       ######## CHECKINGS ########
+######## CHECKINGS ########
 
 
 if X_RESOLUTION % 2 != 0:
-  raise Exception("x resolution is not even")
+    raise Exception("x resolution is not even")
 
 if Y_RESOLUTION % 2 != 0:
-  raise Exception("y resolution is not even")
+    raise Exception("y resolution is not even")
 
 
 os.makedirs(CNN_PARENT_DIR_PATH, exist_ok=True)
