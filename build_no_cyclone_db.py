@@ -23,8 +23,6 @@ FILE_PREFIX = '2000_10'
 if (len(sys.argv) > 1) and (sys.argv[1].strip()):
   FILE_PREFIX = sys.argv[1].strip()
 
-CYCLONE_DATAFRAME = None
-
 cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
                           f'{FILE_PREFIX}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
 cyclone_db_file = open(cyclone_db_file_path, 'r')
@@ -34,12 +32,12 @@ cyclone_db_file.close()
 del cyclone_db_file
 del cyclone_db_file_path
 
-NO_CYCLONE_DF_COLUMNS = {'year': np.int32,
-                         'month': np.int32,
-                         'day': np.int32,
-                         'hour': np.int32,
-                         'lat': np.float32,
-                         'lon': np.float32}
+NO_CYCLONE_DF_COLUMNS = {'year': np.int16,
+                         'month': np.int8,
+                         'day': np.int8,
+                         'hour': np.int8,
+                         'lat': np.float64,
+                         'lon': np.float64}
 
 
 def _has_cyclone(date, hour, lat, lon):
@@ -94,7 +92,7 @@ for (index, row) in CYCLONE_DATAFRAME.iterrows():
 
 # Appending rows one by one in the while loop takes far more time then this.
 no_cyclone_dataframe = pd.DataFrame(data=no_cyclone_list,
-                                    columns=NO_CYCLONE_DF_COLUMNS.keys())
+                                    columns=list(NO_CYCLONE_DF_COLUMNS.keys()))
 # Specify the schema.
 no_cyclone_dataframe = no_cyclone_dataframe.astype(dtype = NO_CYCLONE_DF_COLUMNS)
 
@@ -107,6 +105,7 @@ print(f'> number of records  AFTER removing the duplicates: {len(no_cyclone_data
 print('> sorting the rows')
 no_cyclone_dataframe.sort_values(by=['year', 'month', 'day', 'hour'],
                                  ascending=True, inplace=True)
+
 # Rebuild the ids of the dataframe.
 print('> rebuilding the index of the dataframe')
 no_cyclone_dataframe = no_cyclone_dataframe.reset_index(drop=True)

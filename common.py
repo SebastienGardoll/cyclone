@@ -22,6 +22,7 @@ from datetime import datetime
 from datetime import timedelta
 
                     ######## STATIC VARIABLES ########
+# TODO: delete obsolete variables.
 
 # System
 MEGA_BYTES_FACTOR = 1024*1024
@@ -62,7 +63,7 @@ NO_CYCLONE_CAT   = 'no cyclone'
 # Paths
 NETCDF_PARENT_DIR_PATH         = '/bdd/ECMWF/ERA5/NETCDF/GLOBAL_025/4xdaily'
 ROOT_DATA_DIR_PATH             = '/data/sgardoll/cyclone_data'
-SCRIPT_DIR_PATH                = '/home/sgardoll/cyclone/src'
+SCRIPT_DIR_PATH                = '/home/sgardoll/cyclone'
 DATASET_PARENT_DIR_PATH        = path.join(ROOT_DATA_DIR_PATH, 'dataset')
 CHANNEL_PARENT_DIR_PATH        = path.join(ROOT_DATA_DIR_PATH, 'channels')
 MERGED_CHANNEL_PARENT_DIR_PATH = path.join(ROOT_DATA_DIR_PATH, 'merged_channels')
@@ -249,17 +250,13 @@ class Era5 (Enum):
   TCWV  = Variable(1, 'tcwv')
   V10   = Variable(2, 'v10')
   U10   = Variable(3, 'u10')
-  TA200 = Variable(4, 'ta', 200,
-    read_dict_from_csv(path.join(DATASET_PARENT_DIR_PATH,'ta_indexes.csv'), int, int))
-  TA500 = Variable(5, 'ta', 500,
-   read_dict_from_csv(path.join(DATASET_PARENT_DIR_PATH,'ta_indexes.csv'), int, int))
-  U850  = Variable(6, 'u', 850,
-    read_dict_from_csv(path.join(DATASET_PARENT_DIR_PATH, 'u_indexes.csv'), int, int))
-  V850  = Variable(7, 'v', 850,
-    read_dict_from_csv(path.join(DATASET_PARENT_DIR_PATH, 'v_indexes.csv'), int, int))
+  TA200 = Variable(4, 'ta', 200)
+  TA500 = Variable(5, 'ta', 500)
+  U850  = Variable(6, 'u', 850)
+  V850  = Variable(7, 'v', 850)
 
 
-NB_CHANNELS = len(Era5)
+NB_CHANNELS = 8
 
                        ######## CHECKINGS ########
 
@@ -271,8 +268,5 @@ if Y_RESOLUTION % 2 != 0:
   raise Exception("y resolution is not even")
 
 
-os.makedirs(CHANNEL_PARENT_DIR_PATH, exist_ok=True)
-os.makedirs(MERGED_CHANNEL_PARENT_DIR_PATH, exist_ok=True)
-os.makedirs(TENSOR_PARENT_DIR_PATH, exist_ok=True)
 os.makedirs(CNN_PARENT_DIR_PATH, exist_ok=True)
 os.makedirs(PREDICT_TENSOR_PARENT_DIR_PATH, exist_ok=True)

@@ -25,6 +25,8 @@ CYCLONE_DF_COLUMNS      = ['cyclone_id', 'hurdat2_id', 'year', 'month', 'day',
 
 ERA5_MIN_YEAR = 1979
 
+ERA5_COORDINATES_RESOLUTION = 0.25
+
 def display_duration(time_in_sec):
     remainder = time_in_sec % 60
     if remainder == time_in_sec:
@@ -165,6 +167,14 @@ cyclone_dataframe.drop(dropped_indexes, inplace=True)
 
 print('> rebuilding the index of the cyclone dataset')
 cyclone_dataframe = cyclone_dataframe.reset_index(drop=True)
+
+print('> translating into ERA5 coordinate systems')
+import nxtensor.utils.coordinate_utils as cu
+from nxtensor.utils.coordinates import CoordinateFormat
+cu.reformat_coordinates(cyclone_dataframe, 'lat', CoordinateFormat.INCREASING_DEGREE_NORTH,
+                        CoordinateFormat.DECREASING_DEGREE_NORTH, ERA5_COORDINATES_RESOLUTION, 2)
+cu.reformat_coordinates(cyclone_dataframe, 'lon', CoordinateFormat.M_180_TO_180_DEGREE_EAST,
+                        CoordinateFormat.ZERO_TO_360_DEGREE_EAST, ERA5_COORDINATES_RESOLUTION, 2)
 
 filename = 'all_cyclone_dataset.csv'
 print(f'> saving {filename} ({len(cyclone_dataframe)} rows)')
