@@ -1,8 +1,26 @@
-CONDA ENV INSTALLATION
-======================
+# Cyclone Detector
+
+## Requirements
+
+
+
+## Direct dependencies
+
+The tested version in parenthesis.
+
+- Python 3.7 (3.7.7)
+- h5py (2.10.0)
+- keras (2.3.1-0) with tensorflow (1.14.0) as backend
+- numpy (1.18.1)
+- pandas (1.0.3)
+- scikit-learn (0.22.1)
+
+
+## Conda dependencies installation script
 
 ```bash
-conda create -n sandbox python=3.7 # Wait.
-conda install -n sandbox netcdf4 matplotlib Keras tensorflow scipy pandas ipython spyder seaborn scikit-learn psutil pydot python-graphviz spyder-kernels jupyter pylint pyyaml # Wait.
-source activate sandbox
+YOUR_ENV_NAME='cyclone'
+conda create -n ${YOUR_ENV_NAME} python=3.7 # Wait.
+conda install -n ${YOUR_ENV_NAME} h5py keras numpy pandas scikit-learn # Wait.
+source activate ${YOUR_ENV_NAME}
 ```
