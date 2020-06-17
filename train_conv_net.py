@@ -43,13 +43,18 @@ if (len(sys.argv) > 3) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and (
     print(f'> setting parent directory to {parent_dir_path}')
     print(f'> setting number of core to {num_threads}')
 
-# TODO optimize settings.
-batch_size = 5
-number_epochs = 20
+# In general: Larger batch sizes result in faster progress in training, but don't always converge as fast.
+# Smaller batch sizes train slower, but can converge faster. It's definitely problem dependent.
+batch_size = 32 # Default for CPU. # TODO: to be optimzed.
+
+number_epochs = 20  # TODO: to be optimzed.
+
 loss = keras.losses.BinaryCrossentropy()  # https://keras.io/losses/
 metrics = ['accuracy']
-# TODO: Learning rate.
-optimizer = keras.optimizers.SGD()  # https://keras.io/optimizers/
+
+
+learning_rate = 0.001  # TODO: Learning rate.
+optimizer = keras.optimizers.SGD(learning_rate=learning_rate)  # TODO: choose optimizer.
 
 
 if num_threads > 1:
@@ -145,8 +150,8 @@ print(f'  > {auc_model}')
 
 # Convert the probabilities into the class based on the higher probability.
 # Class 0 for no cyclone, 1 for cyclone.
-threshold = 0.5
-test_predicted_class = np.where(test_predicted_probs > threshold, 1, 0)
+threshold_probability = 0.5
+test_predicted_class = np.where(test_predicted_probs > threshold_probability, 1, 0)
 
 print('  > displaying the classification report')
 print(classification_report(y_true=test_labels, y_pred=test_predicted_class, target_names=('no_cyclones', 'cyclones')))
