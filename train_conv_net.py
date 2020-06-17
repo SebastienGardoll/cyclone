@@ -15,7 +15,6 @@ import sys
 
 import numpy as np
 
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.metrics import roc_auc_score
 
@@ -25,7 +24,6 @@ import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Input, Conv2D, MaxPooling2D, Flatten
-from tensorflow.keras.utils import plot_model
 
 import time
 start = time.time()
@@ -35,42 +33,35 @@ start = time.time()
 # Default values:
 prefix = '2ka'
 parent_dir_path = '/data/sgardoll/extractions/2ka_extraction/tensors'
-num_threads = 4
+num_threads = 10  # Zero means that Tensor will determine the number of threads (all the cores ?).
 
 if (len(sys.argv) > 3) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and (sys.argv[3].strip()):
     prefix = sys.argv[1].strip()
     parent_dir_path = sys.argv[2].strip()
     num_threads = int(sys.argv[3].strip())
-    print(f'> setting parent directory to {parent_dir_path}')
     print(f'> settings prefix to {prefix}')
+    print(f'> setting parent directory to {parent_dir_path}')
     print(f'> setting number of core to {num_threads}')
-
-max_mem = -1
 
 # TODO optimize settings.
 batch_size = 5
-epochs = 10
+number_epochs = 20
 loss = keras.losses.BinaryCrossentropy()  # https://keras.io/losses/
 metrics = ['accuracy']
 # TODO: Learning rate.
 optimizer = keras.optimizers.SGD()  # https://keras.io/optimizers/
-# optimizer= keras.optimizers.Adadelta()
 
 
 if num_threads > 1:
     num_threads = num_threads - 1
 
-config = tf.ConfigProto()  # device_count={"CPU":num_threads})
+config = tf.config
 
-# maximum number of threads per core ?
-config.intra_op_parallelism_threads = 1
+# The number of threads created by Tensorflow for independent operations.
+config.threading.set_inter_op_parallelism_threads = num_threads
 
-# maximum number of core ?
-config.inter_op_parallelism_threads = num_threads
-
-# maximum is not the actual number of threads/cores used !
-
-keras.backend.set_session(tf.Session(config=config))
+# The number of threads created by Tensorflow for each operations.
+config.threading.set_intra_op_parallelism_threads = 1
 
 # set data_format to 'channels_last'
 keras.backend.set_image_data_format('channels_last')
@@ -140,7 +131,7 @@ print(model.summary())
 
 print('> fitting the model')
 model.fit(x=training_tensor, y=training_labels, validation_data=(validation_tensor, validation_labels),
-          epochs=epochs, batch_size=batch_size, verbose=2)
+          epochs=number_epochs, batch_size=batch_size, verbose=2)
 
 print('> evaluating the model on test dataset')
 loss, metric = model.evaluate(x=test_tensor, y=test_labels, verbose=1)
@@ -160,12 +151,12 @@ test_predicted_class = np.where(test_predicted_probs > threshold, 1, 0)
 print('  > displaying the classification report')
 print(classification_report(y_true=test_labels, y_pred=test_predicted_class, target_names=('no_cyclones', 'cyclones')))
 
-model_filename  = f'{prefix}_model.h5'
+model_filename = f'{prefix}_model.h5'
 model_file_path = path.join(parent_dir_path, '../cnn', model_filename)
 os.makedirs(path.dirname(model_file_path), exist_ok=True)
 print(f'> saving the model ({model_filename})')
 model.save(model_file_path)
 
 stop = time.time()
-formatted_time =common.display_duration((stop-start))
+formatted_time = common.display_duration((stop-start))
 print(f'> spend {formatted_time} processing')
