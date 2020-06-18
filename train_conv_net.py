@@ -56,8 +56,8 @@ else:
 del DEFAULT_PREFIX, DEFAULT_PARENT_DIR_PATH
 
 
-# In general: Larger batch sizes result in faster progress in training, but don't always converge as fast.
-# Smaller batch sizes train slower, but can converge faster. It's definitely problem dependent.
+# In general: Larger batch sizes result in faster progress in training, but don't always converge as fast and takes
+# more memory. Smaller batch sizes train slower, but can converge faster. High value are reserved for GPU computing.
 batch_size = 32 # Default for CPU. # TODO: to be optimzed.
 
 number_epochs = 20  # TODO: to be optimzed.
