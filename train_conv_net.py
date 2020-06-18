@@ -47,13 +47,13 @@ if (len(sys.argv) > 3) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and (
 # Smaller batch sizes train slower, but can converge faster. It's definitely problem dependent.
 batch_size = 32 # Default for CPU. # TODO: to be optimzed.
 
-number_epochs = 20  # TODO: to be optimzed.
+number_epochs = 5  # TODO: to be optimzed.
 
 loss = keras.losses.BinaryCrossentropy()  # https://keras.io/losses/
 metrics = ['accuracy']
 
 
-learning_rate = 0.001  # TODO: Learning rate.
+learning_rate = 0.1  # TODO: Learning rate.
 optimizer = keras.optimizers.SGD(learning_rate=learning_rate)  # TODO: choose optimizer.
 
 
@@ -133,10 +133,18 @@ model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
 print(model.summary())
 
 # FITTING MODEL #######
+import datetime
+log_dir_path = path.join(parent_dir_path, 'fit_logs', datetime.datetime.now().strftime('%m_%d_%Y_%H-%M-%S'))
+os.makedirs(log_dir_path, exist_ok=True)
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir_path, histogram_freq=1)
+
+# %load_ext tensorboard
 
 print('> fitting the model')
 model.fit(x=training_tensor, y=training_labels, validation_data=(validation_tensor, validation_labels),
-          epochs=number_epochs, batch_size=batch_size, verbose=2)
+          epochs=number_epochs, batch_size=batch_size, verbose=2, callbacks=[tensorboard_callback])
+
+# %tensorboard --logdir $log_dir_path
 
 print('> evaluating the model on test dataset')
 loss, metric = model.evaluate(x=test_tensor, y=test_labels, verbose=1)
