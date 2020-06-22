@@ -10,3 +10,4 @@ jobs
 *.bak
 .spyproject
 .idea
+.ipynb_checkpoints
