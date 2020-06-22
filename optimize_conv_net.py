@@ -51,7 +51,7 @@ data = train_conv.load_data(data_parent_dir_path, data_prefix)
 
 SHAPE = data['training_tensor'].shape[1:]
 
-project_name = f'cyclone_{datetime.datetime.now().strftime(train_conv.DATE_FORMAT)})'
+project_name = f'cyclone_{datetime.datetime.now().strftime(train_conv.DATE_FORMAT)}'
 # Max trials is exactly 48 and giving 48 is just making random search a grid optimization search.
 tuner = RandomSearchWithBatchSize(build_model, max_trials=48, objective='val_loss', seed=SEED,
                                   executions_per_trial=2, directory='grid', project_name=project_name,
@@ -68,7 +68,6 @@ tuner.results_summary()
 best_model = tuner.get_best_models(num_models=1)[0]
 
 # Evaluate the best model.
-loss, accuracy = best_model.evaluate(data['test_tensor'], data['test_labels'])
+loss, accuracy = best_model.evaluate(x=data['test_tensor'], y=data['test_labels'], verbose=0)
 
 print(f'> the best hyperparameters: {tuner.get_best_hyperparameters()[0].values}')
-
