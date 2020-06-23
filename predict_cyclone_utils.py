@@ -20,14 +20,16 @@ import csv
 import numpy as np
 import pandas as pd
 
-import keras
+import tensorflow.keras as keras
 
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import classification_report
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 
-from keras.models import load_model
+from tensorflow.keras.models import load_model
+
+import nxtensor.utils.coordinate_utils as cu
 
 import time
 
@@ -68,14 +70,17 @@ def _normalize_dataset(chan_array, variable, netcdf_dataset, time_index, mean, s
     np.copyto(dst=chan_array, src=unsharable_norm_dataset, casting='no')
 
 
-def extract_region(img_spec, normalized_dataset, channels_array):
-    (id, lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx) = img_spec
+# TODO: refactoring
+def extract_region(chunk, normalized_dataset, channels_array):
+    id, lat, lon = chunk
+    # TODO: reuse nxtensor.
     for variable in Era5:
         nc_dataset = normalized_dataset[variable.value.num_id]
         dest_array = channels_array[variable.value.num_id][id]
         np.copyto(dst=dest_array, src=nc_dataset[lat_min_idx:lat_max_idx, lon_min_idx:lon_max_idx], casting='no')
 
 
+# TODO: refactoring
 def build_dataset_dict(year, month):
     result = {Era5.MSL: open_netcdf(Era5.MSL, year, month),
               Era5.U10: open_netcdf(Era5.U10, year, month),
@@ -211,10 +216,10 @@ def normalize_netcdf(file_prefix, netcdf_dict, shape, day, hour):
 
 def compute_chunks(lat_min, lat_max, lon_min, lon_max):
     # Round lat&lon so as to compute synchronize with ERA5 resolution.
-    rounded_lat_max = common.round_nearest(lat_max, common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
-    rounded_lat_min = common.round_nearest(lat_min, common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
-    rounded_lon_max = common.round_nearest(lon_max, common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
-    rounded_lon_min = common.round_nearest(lon_min, common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
+    rounded_lat_max = cu.round_nearest(lat_max, common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
+    rounded_lat_min = cu.round_nearest(lat_min, common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
+    rounded_lon_max = cu.round_nearest(lon_max, common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
+    rounded_lon_min = cu.round_nearest(lon_min, common.LON_RESOLUTION, common.NUM_DECIMAL_LON)
 
     if rounded_lat_max != lat_max or \
             rounded_lat_min != lat_min or \
@@ -222,72 +227,39 @@ def compute_chunks(lat_min, lat_max, lon_min, lon_max):
             rounded_lon_min != lon_min:
         print('> location input has been rounded')
 
-    # Translate lat&lon into index of array.
-    latitude_indexes  = common.read_dict_from_csv(
-        path.join(common.DATASET_PARENT_DIR_PATH,
-                  'latitude_indexes.csv'), float, int)
-    longitude_indexes = common.read_dict_from_csv(
-        path.join(common.DATASET_PARENT_DIR_PATH,
-                  'longitude_indexes.csv'), float, int)
-
-    # Min&max are inverted for latitude.
-    lat_max_idx = latitude_indexes[rounded_lat_min]
-    lat_min_idx = latitude_indexes[rounded_lat_max]
-    lon_max_idx = longitude_indexes[rounded_lon_max]
-    lon_min_idx = longitude_indexes[rounded_lon_min]
-
-    '''
-    # DEBUG
-    print(f'lat_min_idx: {lat_min_idx}')
-    print(f'lat_max_idx: {lat_max_idx}')
-    print(f'lon_min_idx: {lon_min_idx}')
-    print(f'lon_max_idx: {lon_max_idx}')
-    '''
-
     # Chunks the given region into multiple subregion <=> images.
-    # Tuple composition: (id, (lat_min_idx, lat_max_idx, lon_min_idx, lon_max_idx),
-    # (lat_min, lat_max, lon_min, lon_max)).
-    print(f'> chunking the selected region (lat min: {rounded_lat_min} ;\
- lat max: {rounded_lat_max} ; lon min: {rounded_lon_min} ; lon max: {rounded_lon_max})')
+    # Tuple composition: (id, (lat_min, lat_max, lon_min, lon_max)).
+    print(f'> chunking the selected region (lat min: {rounded_lat_min} ; ' + \
+          f'lat max: {rounded_lat_max} ; lon min: {rounded_lon_min} ; lon max: {rounded_lon_max})')
     id_counter = 0
-    index_list = []
-    image_list = []
-    current_lat_min_idx = lat_min_idx
-    current_lat_max     = rounded_lat_max  # Latitude indexes are inverted.
-    while current_lat_min_idx < lat_max_idx:
-        current_lat_max_idx = current_lat_min_idx + common.Y_RESOLUTION
-        current_lon_min_idx = lon_min_idx
-        current_lat_min     = current_lat_max - common.LAT_FRAME
-        current_lon_min     = rounded_lon_min
-        while True:
-            current_lon_max_idx = current_lon_min_idx + common.X_RESOLUTION
-            current_lon_max     = current_lon_min + common.LON_FRAME
-            index_list.append((id_counter, current_lat_min_idx, current_lat_max_idx,
-                               current_lon_min_idx, current_lon_max_idx))
-            image_list.append([(current_lat_min+common.HALF_LAT_FRAME),
-                               (current_lon_min+common.HALF_LON_FRAME),
-                               current_lat_min, current_lat_max, current_lon_min,
-                               current_lon_max])
-            current_lon_min_idx = current_lon_min_idx + 1
-            current_lon_min     = current_lon_min + common.LON_RESOLUTION
-            id_counter = id_counter + 1
-            if current_lon_min_idx > lon_max_idx:
-                current_lat_min_idx = current_lat_min_idx + 1
-                current_lat_max     = current_lat_max - common.LAT_RESOLUTION
-                break
+    chunk_list = list()
 
-    chunk_df_colums = {'lat'     : np.float32,
-                       'lon'     : np.float32,
-                       'lat_min' : np.float32,
-                       'lat_max' : np.float32,
-                       'lon_min' : np.float32,
-                       'lon_max' : np.float32}
+    # Init the first chunk at the upper left corner.
+    chunk_lat = rounded_lat_max - common.HALF_LAT_FRAME
+    chunk_lon = rounded_lon_min + common.HALF_LON_FRAME
+
+    # Compute the limits (included).
+    chunk_lat_limit = rounded_lat_min + common.HALF_LAT_FRAME
+    chunk_lon_limit = rounded_lon_max - common.HALF_LON_FRAME
+
+    # Chunking according to the longitude axis (to the right).
+    while chunk_lon <= chunk_lon_limit:
+        # Chunking according to the latitude axis (to the bottom).
+        while chunk_lat >= chunk_lat_limit:
+            current_img = (id_counter, chunk_lat, chunk_lon)
+            chunk_list.append(current_img)
+            id_counter = id_counter + 1
+            chunk_lat = chunk_lat + common.LAT_RESOLUTION
+        chunk_lon = chunk_lon + common.LON_RESOLUTION
+
+    chunk_df_colums = {'lat': np.float32,
+                       'lon': np.float32}
     # Appending rows one by one in the while loop takes far more time then this.
-    chunk_list_df = pd.DataFrame(data=image_list, columns=chunk_df_colums.keys())
+    chunk_list_df = pd.DataFrame(data=chunk_list, columns=[chunk_df_colums.keys()])
     # Specify the schema.
     chunk_list_df = chunk_list_df.astype(dtype=chunk_df_colums)
     display_intermediate_time()
-    return chunk_list_df, index_list, id_counter
+    return chunk_list_df, chunk_list, id_counter
 
 
 def fetch_setting():

@@ -41,8 +41,7 @@ del DAY, HOUR
 # These variables are shared between the processes, thanks to start method set
 # to 'fork'
 cyclone_dataframe = open_cyclone_db()
-CHUNK_LIST_DF, INDEX_LIST, ID_COUNTER = compute_chunks(LAT_MIN, LAT_MAX,
-                                                       LON_MIN, LON_MAX)
+CHUNK_LIST_DF, CHUNK_LIST, ID_COUNTER = compute_chunks(LAT_MIN, LAT_MAX, LON_MIN, LON_MAX)
 NETCDF_DICT, SHAPE = open_netcdf_files(YEAR, MONTH)
 
 SELECTED_CYCLONE_LOCATIONS_DF = cyclone_dataframe[(cyclone_dataframe.year == YEAR) &
@@ -66,8 +65,8 @@ for cyclone_location in selected_cyclone_locations:
     normalized_dataset = normalize_netcdf(FILE_PREFIX, NETCDF_DICT, SHAPE, day,
                                           hour)
     channels_array = allocate_channel_array(ID_COUNTER)
-    for img_spec in INDEX_LIST:
-        extract_region(img_spec, normalized_dataset, channels_array)
+    for chunk in CHUNK_LIST:
+        extract_region(chunk, normalized_dataset, channels_array)
     cyclone_images_df, metrics = prediction_analysis(FILE_PREFIX, channels_array,
                                                      recorded_cyclones, CHUNK_LIST_DF, CYCLONE_LAT_SIZE,
                                                      CYCLONE_LON_SIZE, nb_cyclones, model)

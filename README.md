@@ -2,21 +2,21 @@
 
 ## Requirements
 
-
+- NXTensor (last version)
 
 ## Direct dependencies
 
 The tested version in parenthesis.
 
 - Python 3.7 (3.7.4)
-- h5py (2.10.0)
-- keras (2.2.4)
-- keras-tuner (1.0.1)
-- numpy (1.18.1)
-- pandas (1.0.1)
-- scikit-learn (0.22.1)
-- tensorboard (2.0.0)
-- tensorflow (2.0.0)
+- H5py (2.10.0)
+- Keras (2.2.4)
+- Keras-tuner (1.0.1)
+- Numpy (1.18.1)
+- Pandas (1.0.1)
+- Scikit-learn (0.22.1)
+- Tensorboard (2.0.0)
+- Tensorflow (2.0.0)
 
 
 ## Dependencies installation script

@@ -23,8 +23,7 @@ year, month, day, hour, lat_min, lat_max, lon_min, lon_max,\
 
 cyclone_dataframe = open_cyclone_db()
 
-chunk_list_df, index_list, id_counter = compute_chunks(lat_min, lat_max,
-                                                       lon_min, lon_max)
+chunk_list_df, chunk_list, id_counter = compute_chunks(lat_min, lat_max, lon_min, lon_max)
 
 netcdf_dict, shape = open_netcdf_files(year, month)
 
@@ -38,13 +37,13 @@ normalized_dataset = normalize_netcdf(file_prefix, netcdf_dict, shape, day, hour
 channels_array = allocate_channel_array(id_counter)
 
 
-def wapper_extract_region(img_spec):
-    return extract_region(img_spec, normalized_dataset, channels_array)
+def wapper_extract_region(chunk):
+    return extract_region(chunk, normalized_dataset, channels_array)
 
 
 print(f'> extracting the {id_counter} subregions (proc: {nb_proc})')
 with Pool(processes=nb_proc) as pool:
-    pool.map(wapper_extract_region, index_list)
+    pool.map(wapper_extract_region, chunk_list)
 
 display_intermediate_time()
 
