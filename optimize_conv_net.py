@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jun  21 10:10:23 2020
+
+@author: sebastien@gardoll.fr
+"""
+
 import sys
 
 import train_conv_net as train_conv

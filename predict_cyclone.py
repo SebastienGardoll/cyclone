@@ -3,7 +3,7 @@
 """
 Created on Tues Dec  4 10:41:31 2018
 
-@author: Sébastien Gardoll
+@author: sebastien@gardoll.fr
 """
 from multiprocessing import Pool
 

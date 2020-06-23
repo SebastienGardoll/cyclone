@@ -3,7 +3,7 @@
 """
 Created on Tue Oct 16 09:22:19 2018
 
-@author: Sébastien Gardoll
+@author: sebastien@gardoll.fr
 """
 
 ######## IMPORTS ########

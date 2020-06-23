@@ -3,7 +3,7 @@
 """
 Created on Thu Jan 31 15:46:57 2019
 
-@author: sgardoll
+@author: sebastien@gardoll.fr
 """
 
 import os.path as path

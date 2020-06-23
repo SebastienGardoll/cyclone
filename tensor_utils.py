@@ -3,7 +3,7 @@
 """
 Created on Fri Jan 25 12:55:01 2019
 
-@author: Sébastien Gardoll
+@author: sebastien@gardoll.fr
 """
 
 import sys

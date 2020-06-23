@@ -3,7 +3,7 @@
 """
 Created on Thu Nov  8 15:51:31 2018
 
-@author: Sébastien Gardoll
+@author: sebastien@gardoll.fr
 """
 import os
 

@@ -3,7 +3,7 @@
 """
 Created on Fri Feb  1 17:08:31 2019
 
-@author: sgardoll
+@author: sebastien@gardoll.fr
 """
 
 import os.path as path
@@ -13,11 +13,9 @@ import pandas as pd
 import common
 
 from predict_cyclone_utils import fetch_setting, open_cyclone_db, compute_recorded_cyclones
-from predict_cyclone_utils import normalize_netcdf, compute_chunks, allocate_channel_array
+from predict_cyclone_utils import normalize_netcdf, compute_chunks, allocate_channel_array, close_dataset_dict
 from predict_cyclone_utils import prediction_analysis, extract_region, display_intermediate_time
 from predict_cyclone_utils import open_netcdf_files, load_cnn_model, METRICS_COLUMNS, check_interval
-
-from extraction_utils import close_dataset_dict
 
 import time
 start = time.time()
@@ -84,7 +82,7 @@ metrics_df = pd.DataFrame(data=list_metrics, columns=modified_metrics_cols)
 metrics_df.to_csv(file_path, sep=',', na_rep='', header=True, index=True,
                   index_label='id', encoding='utf8', line_terminator='\n')
 
-display_intermediate_time
+display_intermediate_time()
 
 close_dataset_dict(NETCDF_DICT)
 

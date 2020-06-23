@@ -3,7 +3,7 @@
 """
 Created on Wed Oct 17 12:36:59 2018
 
-@author: Sébastien Gardoll
+@author: sebastien@gardoll.fr
 """
 
 import re
