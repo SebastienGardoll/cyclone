@@ -12,19 +12,63 @@ import os.path as path
 
 import sys
 
-import common
+import nxtensor.utils.time_utils as tu
 
+from datetime import timedelta
+from datetime import datetime
 import time
+
+# NetCDF resolution.
+LAT_FRAME = 8
+LON_FRAME = 8
+FOUR_DAILY_TIME_SAMPLING = 4
+HOURLY_TIME_SAMPLING   = 24
+
+ONE_DAY = timedelta(days=1)
+ONE_WEEK = timedelta(days=7)
+
+CYCLONE_DB_FILE_POSTFIX         = 'cyclone_dataset'
+NO_CYCLONE_DB_FILE_POSTFIX      = 'no_cyclone_dataset'
+
+DEFAULT_FILE_PREFIX = '2000_10'
+DEFAULT_DATASET_DIR_PATH = '/data/sgardoll/cyclone_data/dataset'
+
+######## FUNCTIONS ########
+
+
+def subtract_delta(year, month, day, delta):
+    result = datetime(year=year, month=month, day=day) - delta
+    return result
+
+
+def subtract_one_day_from_date(date):
+    result = date - ONE_DAY
+    return result
+
+
+def is_overlapping(lat1, lon1, lat2, lon2):
+    if abs(lat1-lat2) <= LAT_FRAME:
+        if abs(lon1 - lon2) <= LON_FRAME:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
 start = time.time()
 
-# Default value.
-file_prefix = '2000_10'
 
-if (len(sys.argv) > 1) and (sys.argv[1].strip()):
+if (len(sys.argv) > 2) and (sys.argv[1].strip()) and (sys.argv[2].strip()):
     file_prefix = sys.argv[1].strip()
+    dataset_dir_path = sys.argv[2].strip()
+else:
+    file_prefix = DEFAULT_FILE_PREFIX
+    dataset_dir_path = DEFAULT_DATASET_DIR_PATH
 
-cyclone_db_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
-                                 f'{file_prefix}_{common.CYCLONE_DB_FILE_POSTFIX}.csv')
+
+cyclone_db_file_path = path.join(dataset_dir_path,
+                                 f'{file_prefix}_{CYCLONE_DB_FILE_POSTFIX}.csv')
 cyclone_db_file = open(cyclone_db_file_path, 'r')
 CYCLONE_DATAFRAME = pd.read_csv(cyclone_db_file, sep=',', header=0, index_col=0,
                                 na_values='')
@@ -49,7 +93,7 @@ def _has_cyclone(date, hour, lat, lon):
         for (index, record) in records.iterrows():
             lat2 = record["lat"]
             lon2 = record["lon"]
-            if common.is_overlapping(lat, lon, lat2, lon2):
+            if is_overlapping(lat, lon, lat2, lon2):
                 return True
         return False
     else:
@@ -58,13 +102,13 @@ def _has_cyclone(date, hour, lat, lon):
 
 def compute_no_cyclone(time_tuple, delta):
     (year, month, day, hour, lat, lon) = time_tuple
-    past = common.subtract_delta(year, month, day, delta)
+    past = subtract_delta(year, month, day, delta)
     has_cyclone = _has_cyclone(past, hour, lat, lon)
     while has_cyclone:
         hour = hour - 6
         if hour < 0:
-            hour = int((common.HOURLY_TIME_SAMPLING / common.FOUR_DAILY_TIME_SAMPLING) * 3)
-            past = common.subtract_one_day_from_date(past)
+            hour = int((HOURLY_TIME_SAMPLING / FOUR_DAILY_TIME_SAMPLING) * 3)
+            past = subtract_one_day_from_date(past)
         has_cyclone = _has_cyclone(past, hour, lat, lon)
     return past.year, past.month, past.day, hour, lat, lon
 
@@ -85,8 +129,8 @@ def main():
             print(f'  > compute year: {current_year}')
         cyclone_values = (cyclone_year, cyclone_month, cyclone_day,
                           cyclone_hour, cyclone_lat, cyclone_lon)
-        no_cyclone_list.append(compute_no_cyclone(cyclone_values, common.ONE_DAY))
-        no_cyclone_list.append(compute_no_cyclone(cyclone_values, common.ONE_WEEK))
+        no_cyclone_list.append(compute_no_cyclone(cyclone_values, ONE_DAY))
+        no_cyclone_list.append(compute_no_cyclone(cyclone_values, ONE_WEEK))
 
     # Appending rows one by one in the while loop takes far more time then this.
     no_cyclone_dataframe = pd.DataFrame(data=no_cyclone_list,
@@ -108,9 +152,9 @@ def main():
     print('> rebuilding the index of the dataframe')
     no_cyclone_dataframe = no_cyclone_dataframe.reset_index(drop=True)
 
-    filename = f'{file_prefix}_{common.NO_CYCLONE_DB_FILE_POSTFIX}.csv'
+    filename = f'{file_prefix}_{NO_CYCLONE_DB_FILE_POSTFIX}.csv'
     print(f'> saving the {filename} on disk')
-    no_cyclone_dataframe_file_path = path.join(common.DATASET_PARENT_DIR_PATH,
+    no_cyclone_dataframe_file_path = path.join(dataset_dir_path,
                                                filename)
     no_cyclone_dataframe.to_csv(no_cyclone_dataframe_file_path, sep=',',
                                 na_rep='', header=True, index=True,
@@ -118,7 +162,7 @@ def main():
                                 line_terminator='\n')
 
     stop = time.time()
-    formatted_time = common.display_duration((stop-start))
+    formatted_time = tu.display_duration((stop-start))
     print(f'> spend {formatted_time} processing')
 
 

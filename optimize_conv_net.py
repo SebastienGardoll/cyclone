@@ -30,7 +30,8 @@ class RandomSearchWithBatchSize(kt.BayesianOptimization):
 def build_model(hp: kt.HyperParameters) -> keras.Model:
     model = train_conv.create_model(SHAPE)
     optimizer_class = OPTIMIZERS[hp.Choice(name='optimizer', values=('adam', 'sgd'), default='adam')]
-    optimizer = optimizer_class(learning_rate=hp.Choice(name='learning_rate', values=(0.0001, 0.001, 0.01), default=0.0001))
+    optimizer = optimizer_class(learning_rate=hp.Choice(name='learning_rate', values=(0.0001, 0.001, 0.01),
+                                                        default=0.0001))
     model.compile(loss=train_conv.LOSS_FUNC, optimizer=optimizer, metrics=train_conv.METRICS)
     return model
 

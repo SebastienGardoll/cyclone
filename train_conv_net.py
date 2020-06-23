@@ -10,7 +10,8 @@ import os
 import os.path as path
 from typing import Tuple, Mapping
 
-import common
+import nxtensor.utils.hdf5_utils as h5
+import nxtensor.utils.time_utils as tu
 
 import sys
 
@@ -76,11 +77,11 @@ METADATA_TYPES = {'day': np.int8, 'day2d': np.str,
 
 def load_data(data_parent_dir_path: str, data_prefix: str) -> Mapping[str, np.ndarray]:
     training_tensor_file_path = path.join(data_parent_dir_path, f'training_{data_prefix}_data.h5')
-    training_tensor = common.read_ndarray_from_hdf5(filepath=training_tensor_file_path)
+    training_tensor = h5.read_ndarray_from_hdf5(file_path=training_tensor_file_path)
     validation_tensor_file_path = path.join(data_parent_dir_path, f'validation_{data_prefix}_data.h5')
-    validation_tensor = common.read_ndarray_from_hdf5(filepath=validation_tensor_file_path)
+    validation_tensor = h5.read_ndarray_from_hdf5(file_path=validation_tensor_file_path)
     test_tensor_file_path = path.join(data_parent_dir_path, f'test_{data_prefix}_data.h5')
-    test_tensor = common.read_ndarray_from_hdf5(filepath=test_tensor_file_path)
+    test_tensor = h5.read_ndarray_from_hdf5(file_path=test_tensor_file_path)
     training_labels_file_path = path.join(data_parent_dir_path, f'training_{data_prefix}_metadata.csv')
     training_metadata: pd.DataFrame = pd.read_csv(filepath_or_buffer=training_labels_file_path, dtype=METADATA_TYPES)
     training_labels = training_metadata['label_num_id'].to_numpy()
@@ -172,7 +173,7 @@ def main():
     print(classification_report(y_true=data['test_labels'], y_pred=test_predicted_class, target_names=['no_cyclones',
                                                                                                        'cyclones']))
     stop = time.time()
-    formatted_time = common.display_duration((stop-start))
+    formatted_time = tu.display_duration((stop-start))
     print(f'> spend {formatted_time} processing')
 
 ####################################### MAIN ##########################################
