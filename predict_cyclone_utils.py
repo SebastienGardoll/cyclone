@@ -81,6 +81,10 @@ def open_cyclone_db():
     cyclone_db_file.close()
     return cyclone_dataframe
 
+def close_dataset_dict(dataset_dict):
+  for dataset in dataset_dict.values():
+    dataset.close()
+
 def compute_min_max(lat, lon):
     lat_min = common.round_nearest((lat - common.HALF_LAT_FRAME), common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
     lat_max = common.round_nearest((lat + common.HALF_LAT_FRAME), common.LAT_RESOLUTION, common.NUM_DECIMAL_LAT)
