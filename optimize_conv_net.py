@@ -69,5 +69,6 @@ best_model = tuner.get_best_models(num_models=1)[0]
 
 # Evaluate the best model.
 loss, accuracy = best_model.evaluate(x=data['test_tensor'], y=data['test_labels'], verbose=0)
+print(f'> the best model, loss: {loss} ; accuracy: {accuracy}')
 
 print(f'> the best hyperparameters: {tuner.get_best_hyperparameters()[0].values}')

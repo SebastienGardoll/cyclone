@@ -25,6 +25,7 @@ import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Input, Conv2D, MaxPooling2D, Flatten
+from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
 
 import time
 
@@ -36,18 +37,20 @@ tf.test.is_gpu_available()
 
 ##################################### SETTINGS ########################################
 
+# The settings have been optimized (see optimize_conv_net.py).
+
 # In general: Larger batch sizes result in faster progress in training, but don't always converge as fast and takes
 # more memory. Smaller batch sizes train slower, but can converge faster and may have some regularization effects.
 # Typical values: 32, 64, 128, 256. High value are reserved for GPU computing (parallel computation of the gradient).
-BATCH_SIZE = 32  # Default for CPU. # TODO: to be optimzed.
+BATCH_SIZE = 32
 
-NUMBER_EPOCHS = 20  # TODO: to be optimzed.
+NUMBER_EPOCHS = 20
 
 LOSS_FUNC = keras.losses.BinaryCrossentropy()  # https://keras.io/losses/
 METRICS = ['accuracy']
 
-LEARNING_RATE = 0.001  # TODO: Learning rate.
-OPTIMIZER = keras.optimizers.SGD(learning_rate=LEARNING_RATE)  # TODO: choose OPTIMIZER.
+LEARNING_RATE = 0.01
+OPTIMIZER = keras.optimizers.SGD(learning_rate=LEARNING_RATE)
 
 # set data_format to 'channels_last'
 keras.backend.set_image_data_format('channels_last')
@@ -115,9 +118,6 @@ def main():
     else:
         data_prefix = DEFAULT_PREFIX
         data_parent_dir_path = DEFAULT_PARENT_DIR_PATH
-
-    del DEFAULT_PREFIX, DEFAULT_PARENT_DIR_PATH
-
     start = time.time()
     data = load_data(data_parent_dir_path, data_prefix)
     print(f"training tensor shape: {data['training_tensor'].shape}")
@@ -137,13 +137,20 @@ def main():
     import datetime
     log_dir_path = path.join('fit_logs', datetime.datetime.now().strftime(DATE_FORMAT))
     os.makedirs(log_dir_path, exist_ok=True)
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir_path, histogram_freq=1)
+    tensorboard_callback = TensorBoard(log_dir=log_dir_path, histogram_freq=1)
+
+    model_filename = f'best_{data_prefix}_model_{datetime.datetime.now().strftime(DATE_FORMAT)}.h5'
+    model_file_path = path.join('model', model_filename)
+    os.makedirs(path.dirname(model_file_path), exist_ok=True)
+    checkpoint_callback = ModelCheckpoint(filepath=model_file_path, monitor='val_loss', verbose=1,
+                                          save_best_only=True, mode='min', period=1)
 
     # %load_ext tensorboard
     print('> fitting the model')
     model.fit(x=data['training_tensor'], y=data['training_labels'],
               validation_data=(data['validation_tensor'], data['validation_labels']),
-              epochs=NUMBER_EPOCHS, batch_size=BATCH_SIZE, verbose=2, callbacks=[tensorboard_callback])
+              epochs=NUMBER_EPOCHS, batch_size=BATCH_SIZE, verbose=2,
+              callbacks=[tensorboard_callback, checkpoint_callback])
 
     # %tensorboard --logdir $log_dir_path
 
@@ -164,13 +171,6 @@ def main():
     print('  > the classification report:')
     print(classification_report(y_true=data['test_labels'], y_pred=test_predicted_class, target_names=['no_cyclones',
                                                                                                        'cyclones']))
-
-    model_filename = f'{data_prefix}_model_{datetime.datetime.now().strftime(DATE_FORMAT)}.h5'
-    model_file_path = path.join('cnn', model_filename)
-    os.makedirs(path.dirname(model_file_path), exist_ok=True)
-    print(f'> saving the model ({model_filename})')
-    model.save(model_file_path)
-
     stop = time.time()
     formatted_time = common.display_duration((stop-start))
     print(f'> spend {formatted_time} processing')
