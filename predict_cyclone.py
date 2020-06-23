@@ -37,13 +37,13 @@ normalized_dataset = normalize_netcdf(file_prefix, netcdf_dict, shape, day, hour
 channels_array = allocate_channel_array(id_counter)
 
 
-def wapper_extract_region(chunk):
+def wrapper_extract_region(chunk):
     return extract_region(chunk, normalized_dataset, channels_array)
 
 
 print(f'> extracting the {id_counter} subregions (proc: {nb_proc})')
 with Pool(processes=nb_proc) as pool:
-    pool.map(wapper_extract_region, chunk_list)
+    pool.map(wrapper_extract_region, chunk_list)
 
 display_intermediate_time()
 
