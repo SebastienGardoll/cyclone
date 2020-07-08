@@ -16,7 +16,7 @@ The tested version in parenthesis.
 - Pandas (1.0.1)
 - Scikit-learn (0.22.1)
 - Tensorboard (2.0.0)
-- Tensorflow (2.0.0)
+- Tensorflow-gpu (2.0.0)
 
 
 ## Dependencies installation script
@@ -26,7 +26,7 @@ The tested version in parenthesis.
 ```bash
 YOUR_ENV_NAME='gpu_cyclone'
 conda create -n ${YOUR_ENV_NAME} python=3.7  # Wait.
-conda install -n ${YOUR_ENV_NAME} h5py numpy pandas scikit-learn tensorboard tensorflow'>=2'  # Wait.
+conda install -n ${YOUR_ENV_NAME} h5py numpy pandas scikit-learn tensorboard tensorflow-gpu'>=2'  # Wait.
 source activate ${YOUR_ENV_NAME}
 ```
 
