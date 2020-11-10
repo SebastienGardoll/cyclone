@@ -48,7 +48,8 @@ def bootstrap_cyclone_labels(label_parent_dir: str) -> None:
         create_label(dataset_idd, 0.0, 'no_cyclone')
 
 
-def bootstrap_cyclone_extraction_configs(config_parent_dir: str) -> None:
+def bootstrap_cyclone_extraction_configs(config_parent_dir: str,
+                                         extractions_parent_dir_path: str) -> None:
     dataset_ids = ['2ka', 'all']
     era5_variables = ['msl', 'tcwv', 'u10', 'v10', 'ta200', 'ta500', 'u850', 'v850']
     dask_scheduler = 'single-threaded'
@@ -66,7 +67,8 @@ def bootstrap_cyclone_extraction_configs(config_parent_dir: str) -> None:
         labels = [f"{config_parent_dir}/{ClassificationLabel.generate_filename(dataset_id, 'cyclone')}",
                   f"{config_parent_dir}/{ClassificationLabel.generate_filename(dataset_id, 'no_cyclone')}"]
 
-        output_parent_dir = path.join(config_parent_dir, f'{dataset_id}_extraction')
+        output_parent_dir = path.join(extractions_parent_dir_path,
+                                      f'{dataset_id}_extraction')
         extract_config = ExtractionConfig(dataset_id)
         extract_config.dask_scheduler = dask_scheduler
         extract_config.x_size = x_size
@@ -93,10 +95,12 @@ def bootstrap_cyclone_extraction_configs(config_parent_dir: str) -> None:
 
 def __all_tests():
     config_files_parent_dir_path = '/home/sgardoll/extraction_config'
+    extractions_parent_dir_path = '/data/sgardoll/extractions'
     print("> creating the labels")
     bootstrap_cyclone_labels(config_files_parent_dir_path)
     print("> creating the extraction configuration files")
-    bootstrap_cyclone_extraction_configs(config_files_parent_dir_path)
+    bootstrap_cyclone_extraction_configs(config_files_parent_dir_path,
+                                         extractions_parent_dir_path)
     print("> loading all created files")
 
 
