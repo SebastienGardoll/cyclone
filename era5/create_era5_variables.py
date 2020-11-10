@@ -7,6 +7,7 @@ Created on Tue Mar 26 11:58:46 2019
 """
 
 import os.path as path
+from typing import Dict
 from nxtensor.utils.time_resolutions import TimeResolution
 from nxtensor.variable import SingleLevelVariable, MultiLevelVariable, Variable, ComputedVariable
 
