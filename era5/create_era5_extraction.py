@@ -95,7 +95,7 @@ def bootstrap_cyclone_extraction_configs(config_parent_dir: str,
 
 def __all_tests():
     config_files_parent_dir_path = '/home/sgardoll/extraction_config'
-    extractions_parent_dir_path = '/data/sgardoll/extractions'
+    extractions_parent_dir_path = '/data/sgardoll/era5_extractions'
     print("> creating the labels")
     bootstrap_cyclone_labels(config_files_parent_dir_path)
     print("> creating the extraction configuration files")
