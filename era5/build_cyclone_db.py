@@ -110,7 +110,7 @@ def extract_record(line, cyclone_id, hurdat2_id):
 
 def main() -> None:
     # Default values
-    dataset_parent_dir_path = '/data/sgardoll/cyclone_data/dataset'
+    dataset_parent_dir_path = '/data/sgardoll/cyclone_data/era5_dataset'
     hurdat2_file_path = path.join(dataset_parent_dir_path,
                                   "hurdat2-1851-2019-052520.txt")
 

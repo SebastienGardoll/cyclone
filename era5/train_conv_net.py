@@ -63,7 +63,7 @@ DATE_FORMAT = '%m_%d_%Y_%H-%M-%S'
 
 # Default values:
 DEFAULT_PREFIX = 'all'
-DEFAULT_PARENT_DIR_PATH = '/data/sgardoll/extractions/all_extraction/tensors'
+DEFAULT_PARENT_DIR_PATH = '/data/sgardoll/era5_extractions/all_extraction/tensors'
 
 METADATA_TYPES = {'day': np.int8, 'day2d': np.str,
                   'hour': np.int8, 'hour2d': np.str,

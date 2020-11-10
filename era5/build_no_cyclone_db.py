@@ -31,7 +31,7 @@ CYCLONE_DB_FILE_POSTFIX         = 'cyclone_dataset'
 NO_CYCLONE_DB_FILE_POSTFIX      = 'no_cyclone_dataset'
 
 DEFAULT_FILE_PREFIX = '2000_10'
-DEFAULT_DATASET_DIR_PATH = '/data/sgardoll/cyclone_data/dataset'
+DEFAULT_DATASET_DIR_PATH = '/data/sgardoll/cyclone_data/era5_dataset'
 
 ######## FUNCTIONS ########
 
