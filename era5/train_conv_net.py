@@ -62,7 +62,8 @@ keras.backend.set_image_data_format('channels_last')
 DATE_FORMAT = '%m_%d_%Y_%H-%M-%S'
 
 # Default values:
-DEFAULT_PREFIX = 'all'
+DEFAULT_EXTRACTION_SET_NAME = 'all'
+DEFAULT_PREFIX = ''
 DEFAULT_PARENT_DIR_PATH = '/data/sgardoll/era5_extractions/all_extraction/tensors'
 
 METADATA_TYPES = {'day': np.int8, 'day2d': np.str,
@@ -75,21 +76,24 @@ METADATA_TYPES = {'day': np.int8, 'day2d': np.str,
 ##################################### FUNCTIONS #######################################
 
 
-def load_data(data_parent_dir_path: str, data_prefix: str) -> Mapping[str, np.ndarray]:
-    training_tensor_file_path = path.join(data_parent_dir_path, f'training_{data_prefix}_data.h5')
+def load_data(data_parent_dir_path: str, data_prefix: str, data_extraction_set_name: str) -> Mapping[str, np.ndarray]:
+    training_tensor_file_path = \
+        path.join(data_parent_dir_path, f'{data_prefix}training_{data_extraction_set_name}_data.h5')
     training_tensor = h5.read_ndarray_from_hdf5(file_path=training_tensor_file_path)
-    validation_tensor_file_path = path.join(data_parent_dir_path, f'validation_{data_prefix}_data.h5')
+    validation_tensor_file_path = \
+        path.join(data_parent_dir_path, f'{data_prefix}validation_{data_extraction_set_name}_data.h5')
     validation_tensor = h5.read_ndarray_from_hdf5(file_path=validation_tensor_file_path)
-    test_tensor_file_path = path.join(data_parent_dir_path, f'test_{data_prefix}_data.h5')
+    test_tensor_file_path = \
+        path.join(data_parent_dir_path, f'{data_prefix}test_{data_extraction_set_name}_data.h5')
     test_tensor = h5.read_ndarray_from_hdf5(file_path=test_tensor_file_path)
-    training_labels_file_path = path.join(data_parent_dir_path, f'training_{data_prefix}_metadata.csv')
+    training_labels_file_path = path.join(data_parent_dir_path, f'training_{data_extraction_set_name}_metadata.csv')
     training_metadata: pd.DataFrame = pd.read_csv(filepath_or_buffer=training_labels_file_path, dtype=METADATA_TYPES)
     training_labels = training_metadata['label_num_id'].to_numpy()
-    validation_labels_file_path = path.join(data_parent_dir_path, f'validation_{data_prefix}_metadata.csv')
+    validation_labels_file_path = path.join(data_parent_dir_path, f'validation_{data_extraction_set_name}_metadata.csv')
     validation_metadata: pd.DataFrame = pd.read_csv(filepath_or_buffer=validation_labels_file_path,
                                                     dtype=METADATA_TYPES)
     validation_labels = validation_metadata['label_num_id'].to_numpy()
-    test_labels_file_path = path.join(data_parent_dir_path, f'test_{data_prefix}_metadata.csv')
+    test_labels_file_path = path.join(data_parent_dir_path, f'test_{data_extraction_set_name}_metadata.csv')
     test_metadata: pd.DataFrame = pd.read_csv(filepath_or_buffer=test_labels_file_path, dtype=METADATA_TYPES)
     test_labels = test_metadata['label_num_id'].to_numpy()
     return {'training_tensor': training_tensor, 'training_labels': training_labels,
@@ -111,16 +115,18 @@ def create_model(tensor_shape: Tuple[float, float, float]) -> keras.Model:
 
 
 def main():
-    if (len(sys.argv) > 2) and (sys.argv[1].strip()) and (sys.argv[2].strip()):
+    if (len(sys.argv) > 3) and (sys.argv[1].strip()) and (sys.argv[2].strip()) and (sys.argv[3].strip()):
         data_prefix = sys.argv[1].strip()
-        data_parent_dir_path = sys.argv[2].strip()
+        data_extraction_set_name = sys.argv[2].strip()
+        data_parent_dir_path = sys.argv[3].strip()
         print(f'> settings prefix to {data_prefix}')
         print(f'> setting parent directory to {data_parent_dir_path}')
     else:
         data_prefix = DEFAULT_PREFIX
+        data_extraction_set_name = DEFAULT_EXTRACTION_SET_NAME
         data_parent_dir_path = DEFAULT_PARENT_DIR_PATH
     start = time.time()
-    data = load_data(data_parent_dir_path, data_prefix)
+    data = load_data(data_parent_dir_path, data_prefix, data_extraction_set_name)
     print(f"training tensor shape: {data['training_tensor'].shape}")
     print(f"validation tensor shape: {data['validation_tensor'].shape}")
     print(f"test tensor shape: {data['test_tensor'].shape}")
