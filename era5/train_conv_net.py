@@ -146,7 +146,7 @@ def main():
     os.makedirs(log_dir_path, exist_ok=True)
     tensorboard_callback = TensorBoard(log_dir=log_dir_path, histogram_freq=1)
 
-    model_filename = f'best_{data_prefix}_model_{datetime.datetime.now().strftime(DATE_FORMAT)}.h5'
+    model_filename = f'{data_prefix}best_{data_extraction_set_name}_model_{datetime.datetime.now().strftime(DATE_FORMAT)}.h5'
     model_file_path = path.join('model', model_filename)
     os.makedirs(path.dirname(model_file_path), exist_ok=True)
     checkpoint_callback = ModelCheckpoint(filepath=model_file_path, monitor='val_loss', verbose=1,
